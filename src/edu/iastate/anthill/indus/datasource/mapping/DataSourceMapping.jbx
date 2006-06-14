@@ -1,0 +1,10 @@
+[PropertyInfo]
+avhMappingList,java.util.Vector,false,false, , ,false,<default>
+name,String,false,false, , ,true,<default>
+schemaMapping,edu.iastate.anthill.indus.datasource.mapping.SchemaMapping,false,false, , ,true,<default>
+userConnectors,java.util.Vector,false,false, , ,true,<default>
+[IconNames]
+
+
+
+

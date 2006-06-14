@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <!--JBuilder Library Definition File-->
+  <fullname>indus</fullname>
+  <class>
+    <path>[lib/pg74.215.jdbc3.jar]</path>
+    <path>[lib/Zql.jar]</path>
+    <path>[lib/dbswing.jar]</path>
+    <path>[lib/xalan.jar]</path>
+    <path>[lib/beandt.jar]</path>
+    <path>[lib/dx.jar]</path>
+    <path>[lib/jbcl.jar]</path>
+  </class>
+  <lastmodsaved>1143511740634</lastmodsaved>
+</library>

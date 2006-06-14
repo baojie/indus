@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><View><Name>demo</Name><LocalSchema>Local</LocalSchema><DataSource><Source>ds1</Source><Mapping>Local-NIH_DS_1</Mapping></DataSource><DataSource><Source>ds2</Source><Mapping>Local-NIH_DS_2</Mapping></DataSource></View>

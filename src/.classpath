@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path=""/>
+    <classpathentry kind="lib" path="C:/Work/BaoJie/OntologyEditor/lib/jena2.1/jena.jar"/>
+    <classpathentry kind="lib" path="C:/Work/BaoJie/OntologyEditor/lib/JBuilder/xercesImpl.jar"/>
+    <classpathentry kind="lib" path="C:/Work/BaoJie/OntologyEditor/lib/jena2.1/xercesImpl.jar"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="output" path=""/>
+</classpath>

@@ -1,0 +1,1 @@
+<?xml version ="1.0" encoding="ISO-8859-1"?><schema><name>gene_Schema</name><attribute><attrname>locus</attrname><attrtype>VARCHAR</attrtype><dbtype>VARCHAR</dbtype></attribute><attribute><attrname>symbol</attrname><attrtype>VARCHAR</attrtype><dbtype>VARCHAR</dbtype></attribute></schema>

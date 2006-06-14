@@ -1,0 +1,1 @@
+<?xml version ="1.0" encoding="ISO-8859-1"?><schema><name>MySchema</name><attribute><attrname>MyName</attrname><attrtype>Nickname</attrtype><dbtype>varchar(128)</dbtype></attribute><attribute><attrname>RealName</attrname><attrtype>string</attrtype><dbtype>varchar(128)</dbtype></attribute></schema>

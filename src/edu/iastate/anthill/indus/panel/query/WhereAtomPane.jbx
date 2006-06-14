@@ -1,0 +1,15 @@
+[PropertyInfo]
+att2avh,java.util.Map,false,false, , ,false,<default>
+att2type,java.util.Map,false,false, , ,false,<default>
+AVHmode,boolean,false,false, , ,false,<default>
+btnValue,javax.swing.JButton,false,false, , ,false,<default>
+exp,Zql.ZExpression,false,false, , ,true,<default>
+field,javax.swing.JComboBox,false,false, , ,false,<default>
+gridLayout1,java.awt.GridLayout,false,false, , ,false,<default>
+operator,javax.swing.JComboBox,false,false, , ,false,<default>
+value,javax.swing.JTextField,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

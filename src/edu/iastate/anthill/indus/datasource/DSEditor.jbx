@@ -1,0 +1,22 @@
+[PropertyInfo]
+borderLayout1,BorderLayout,false,false, , ,false,<default>
+borderLayout2,BorderLayout,false,false, , ,false,<default>
+borderLayout3,BorderLayout,false,false, , ,false,<default>
+btnAbout,JButton,false,false, , ,false,<default>
+cardLayout1,CardLayout,false,false, , ,false,<default>
+datatype,DataTypePanel,false,false, , ,false,<default>
+gridLayout1,GridLayout,false,false, , ,false,<default>
+info,JLabel,false,false, , ,false,<default>
+jLabel1,JLabel,false,false, , ,false,<default>
+jPanel1,JPanel,false,false, , ,false,<default>
+jPanel2,JPanel,false,false, , ,false,<default>
+lower,JPanel,false,false, , ,false,<default>
+mapping,MappingPanel,false,false, , ,false,<default>
+operation,Choice,false,false, , ,false,<default>
+schema,SchemaPanel,false,false, , ,false,<default>
+upper,JPanel,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

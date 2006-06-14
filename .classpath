@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/beandt.jar"/>
+	<classpathentry kind="lib" path="lib/dbswing.jar"/>
+	<classpathentry kind="lib" path="lib/dx.jar"/>
+	<classpathentry kind="lib" path="lib/jbcl.jar"/>
+	<classpathentry kind="lib" path="lib/pg74.215.jdbc3.jar"/>
+	<classpathentry kind="lib" path="lib/xalan.jar"/>
+	<classpathentry kind="lib" path="lib/Zql.jar"/>
+	<classpathentry kind="lib" path="release/indus.jar"/>
+	<classpathentry kind="lib" path="release/indus-server.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

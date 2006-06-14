@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><type><typename>Product</typename><subTypeOf>AVH</subTypeOf><ordername>PartOf</ordername><template></template><tree><node><name>Product_AVH</name><comment></comment><children><node><name>Assemble</name><children><node><name>SubAssemble</name></node></children></node><node><name>Function</name></node></children></node></tree></type>

@@ -1,0 +1,1 @@
+<mapping><mappingname>Jyotish_Schema-NIH_DS_2</mappingname><schema><from>Jyotish_Schema</from><to>NIH_DS_2</to><bridge><term1>SEQUENCE</term1><connector><connectorname>Equal</connectorname></connector><term2>AA_SEQUENCE</term2></bridge><bridge><term1>ID</term1><connector><connectorname>Equal</connectorname></connector><term2>ACCESSION_NUMBER</term2></bridge></schema></mapping>

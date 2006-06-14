@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><View><Name>bio-diag-rocks</Name><LocalSchema>mediated-schema-gene</LocalSchema><DataSource><Source>chain</Source><Mapping>DS1-DS2</Mapping></DataSource><DataSource><Source>gene</Source><Mapping>mediated-schema-gene-omim-gene</Mapping></DataSource></View>

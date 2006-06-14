@@ -1,0 +1,1 @@
+<mapping><mappingname>Jyotish_Schema-NIH_DS_1</mappingname><schema><from>Jyotish_Schema</from><to>NIH_DS_1</to><bridge><term1>SEQUENCE</term1><connector><connectorname>Equal</connectorname></connector><term2>PROTEIN_SEQUENCE</term2></bridge><bridge><term1>ID</term1><connector><connectorname>Equal</connectorname></connector><term2>PROTEIN_ID</term2></bridge></schema></mapping>

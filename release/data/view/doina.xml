@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><View><Name>doina</Name><LocalSchema>Local</LocalSchema><DataSource><Source>NIH_DS_1</Source><Mapping>Local-DS1</Mapping></DataSource><DataSource><Source>NIH_DS_2</Source><Mapping>Local-DS2</Mapping></DataSource></View>

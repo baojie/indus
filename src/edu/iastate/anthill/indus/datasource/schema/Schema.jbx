@@ -1,0 +1,10 @@
+[PropertyInfo]
+attibuteCount,int,false,false, , ,true,<default>
+attList,java.util.Map,false,false, , ,false,<default>
+name,String,false,false, , ,false,<default>
+typeSet,java.util.Set,false,false, , ,true,<default>
+[IconNames]
+
+
+
+

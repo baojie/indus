@@ -1,0 +1,1 @@
+<?xml version ="1.0" encoding="ISO-8859-1"?><schema><name>omim-gene</name><attribute><attrname>omim-locus</attrname><attrtype>string</attrtype><dbtype>varchar(128)</dbtype></attribute><attribute><attrname>omim-symbol</attrname><attrtype>string</attrtype><dbtype>varchar(128)</dbtype></attribute></schema>

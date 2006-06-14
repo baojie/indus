@@ -1,0 +1,12 @@
+[PropertyInfo]
+c,Connector,false,false, , ,false,<default>
+comments,String,false,false, , ,false,<default>
+from,String,false,false, , ,false,<default>
+term1,String,false,false, , ,false,<default>
+term2,String,false,false, , ,false,<default>
+to,String,false,false, , ,false,<default>
+[IconNames]
+
+
+
+
