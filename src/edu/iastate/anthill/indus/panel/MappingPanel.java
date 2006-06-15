@@ -93,7 +93,7 @@ public class MappingPanel
         }
     }
 
-    static TypedNode lastColored1, lastColored2;
+
     class MyTreeSelectionListener
         implements TreeSelectionListener
     {
@@ -148,10 +148,9 @@ public class MappingPanel
                         lastColored2 = marked2;
                     }
                 }
-
             }
         }
-
+        
         /**
          * handleTree2
          */
@@ -197,38 +196,6 @@ public class MappingPanel
 
                 }
             }
-        }
-
-        /**
-         * Mark node with blue
-         * @param t Tree
-         * @param node String
-         * @return TypedNode - the node actually marked
-         * @author Jie Bao
-         * @since 2004-10-13
-         */
-        TypedNode markNode(TypedTree t, String dataType, String nodeToFind)
-        {
-            if (nodeToFind != null)
-            {
-                TypedNode n = (TypedNode) TypedTree.findFirst(t, nodeToFind);
-                String findType = dataType;
-
-                if (n != null)
-                {
-                    if (n.getType() == DataSourceNode.AVH)
-                    {
-                        findType = findNodeType(n);
-                    }
-                    if (dataType.equals(findType))
-                    {
-                        n.setColor(Color.blue);
-                        t.expandNode(n);
-                    }
-                    return n;
-                }
-            }
-            return null;
         }
 
         /**

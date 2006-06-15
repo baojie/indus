@@ -10,7 +10,7 @@ public class OntologyMapping
     implements Configable
 {
     public String from, to;
-    public Vector mapList = new Vector(); // BridgeRule list
+    public Vector<BridgeRule> mapList = new Vector<BridgeRule>(); // BridgeRule list
 
     public OntologyMapping(String from, String to)
     {

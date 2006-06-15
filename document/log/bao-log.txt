@@ -1,0 +1,11 @@
+INDUS Log
+
+Old logs (2004-2005) are in two notebooks (hand writing)
+
+2004-06-14:
+* Setup the sourceforge INDUS project
+
+
+2006-06-15
+* Mapping panel: focus on correponding terms and connectors when select a mapping rule
+* 

@@ -128,7 +128,7 @@ abstract public class MappingPanelGUI
         mapping_rightPanel.setLayout(new BorderLayout());
         jScrollPane3.getViewport().add(mappingRuleList, null);
         jScrollPane3.setBorder(BorderFactory.createTitledBorder(
-            "Constraint Rules"));
+            "Mapping Rules"));
 
         //1.2.2 save button
         btnSaveMapping.setText("Save Mapping");
