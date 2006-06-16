@@ -418,7 +418,7 @@ public class SQLQueryTranslator
                                              String remoteColName,
                                              OntologyMapping mapping)
     {
-        System.out.println(where + " is AVH Atom Where");
+        //System.out.println(where + " is AVH Atom Where");
         String localOperator = (String) where.getOperator();
         //String localColName = ( (ZConstantEx) (where.getOperand(0))).getValue();
         String localValueName = ( (ZConstantEx) (where.getOperand(1))).getValue();
@@ -496,7 +496,7 @@ public class SQLQueryTranslator
             // the only clause, eg (a=1)
             ZExpression translated = (ZExpression) SQLQueryBuilder.removeOrphanAndOr(
                     modifiedWhere);
-            System.out.println("translated = "+translated);
+            //System.out.println("translated = "+translated);
             return translated;
         }
     }

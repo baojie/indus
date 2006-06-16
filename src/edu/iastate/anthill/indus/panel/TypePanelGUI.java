@@ -125,5 +125,5 @@ public abstract class TypePanelGUI
         }
     }
 
-    HashMap typeIcon = new HashMap();
+    HashMap<Object, ImageIcon> typeIcon = new HashMap<Object, ImageIcon>();
 }

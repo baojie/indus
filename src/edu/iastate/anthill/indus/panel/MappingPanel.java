@@ -19,6 +19,7 @@ import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
 import edu.iastate.anthill.indus.tree.TypedTreeRender;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
+import edu.iastate.utils.gui.GUIUtils;
 
 /**
  * Mapping Definition Panel, actions
@@ -55,7 +56,7 @@ public class MappingPanel
         readRegisteredMapping(null);
 
         // add list message listeners
-        mappingFileList.addItemListener(new MyMappingListListener());
+        mappingFileList.addItemListener(new MyMappingListListener());        
 
         // menu handler
         btnSaveMapping.setEnabled(false);

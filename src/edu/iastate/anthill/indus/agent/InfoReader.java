@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
@@ -64,8 +65,99 @@ public class InfoReader
         read(CMD_GET_SCHEMA_DETAILS, name, newObj);
         return newObj;
     }
+    
+    static HashMap<String,DataType> dataTypeCache = new HashMap<String,DataType>(); 
 
+    /**
+     * read/store datatype in cache 
+     * @author baojie
+     * @since 2006-06-15
+     * @param name
+     * @return
+     */
     public static DataType readDataType(String name)
+    {	
+    	DataType d= dataTypeCache.get(name);
+    	if (d == null)
+    	{
+    		d = readDataTypeNative(name);
+    		dataTypeCache.put(name,d);
+    	}
+    	return d;
+    }
+    
+    /**
+     * Update datatype cache
+     * @author baojie
+     * @since 2006-06-15
+     * @param name
+     * @param d
+     */
+    public static void updateDataTypeCache(String name, DataType d)
+    {
+    	dataTypeCache.put(name,d);
+    }
+    
+    
+    /**
+     * read the data type given its XML
+     * @author baojie
+     * @since 2006-06-15
+     * @param name
+     * @param datatypeinXML
+     * @return
+     */
+    public static DataType readDataTypeNative(String name, String datatypeinXML)
+    {
+    	DataType newType = null;
+        if (datatypeinXML != null)
+        {
+            String supertype = DataType.parseSupertype(datatypeinXML).trim();
+            //System.out.println(name+" , "+supertype);
+
+            if ("AVH".equals(supertype))
+            {
+                //System.out.println("Build AVH data type");
+
+                String template = AVH.parseTemplate(datatypeinXML);
+                if (template != null)
+                {
+                    newType = new DbAVH(name, null, template);
+                }
+                else
+                {
+                    newType = new AVH(name, null);
+                }
+            }
+            else if ("DAG".equals(supertype))
+            {
+                //System.out.println("Build DAG data type");
+
+                newType = new DAG(name);
+            }
+            else
+            {
+                //System.out.println("Build simple data type");
+                newType = new SimpleDataType(name, supertype);
+            }
+
+            if (!DataType.isPredefinedType(name))
+            {
+                newType.fromXML(datatypeinXML);
+            }
+
+            if (newType.getName() == null)
+            {
+                newType.setName(name);
+            }
+        }
+        if (newType!= null)
+        	dataTypeCache.put(name,newType);
+        return  newType;
+        //System.out.println(newType.getClass());
+    }
+    
+    public static DataType readDataTypeNative(String name)
     {
         try
         {
@@ -75,54 +167,8 @@ public class InfoReader
             }
 
             //System.out.println("readDataType - " + name);
-            IndusHttpClient client = new IndusHttpClient();
-            String datatypeinXML = client.getDetails(CMD_GET_TYPE_DETAILS, name);
-            DataType newType = null;
-
-            if (datatypeinXML != null)
-            {
-                String supertype = DataType.parseSupertype(datatypeinXML).trim();
-                //System.out.println(name+" , "+supertype);
-
-                if ("AVH".equals(supertype))
-                {
-                    //System.out.println("Build AVH data type");
-
-                    String template = AVH.parseTemplate(datatypeinXML);
-                    if (template != null)
-                    {
-                        newType = new DbAVH(name, null, template);
-                    }
-                    else
-                    {
-                        newType = new AVH(name, null);
-                    }
-                }
-                else if ("DAG".equals(supertype))
-                {
-                    //System.out.println("Build DAG data type");
-
-                    newType = new DAG(name);
-                }
-                else
-                {
-                    //System.out.println("Build simple data type");
-                    newType = new SimpleDataType(name, supertype);
-                }
-
-                if (!DataType.isPredefinedType(name))
-                {
-                    newType.fromXML(datatypeinXML);
-                }
-
-                if (newType.getName() == null)
-                {
-                    newType.setName(name);
-                }
-            }
-            //System.out.println(newType.getClass());
-
-
+            String datatypeinXML = IndusHttpClient.getDetails(CMD_GET_TYPE_DETAILS, name);
+            DataType newType = readDataTypeNative(name,datatypeinXML);
             return newType;
         }
         catch (Exception ex)

@@ -96,7 +96,7 @@ public class WhereAtomPane
 
             AVHDialog dlg = new AVHDialog(avh, selectedValue, frame);
             dlg.setSize(600, 400);
-            dlg.show();
+            dlg.setVisible(true);
 
             if (dlg.isOK)
             {

@@ -167,6 +167,23 @@ public abstract class TypePanelAction
             String info = "Selected Type : '" + (String) selected + "', " +
                 currentType.getInformation();
             labelSelectedType.setText(info);
+            
+            String  supertype = currentType.getSupertype();
+            ImageIcon icon = IndusConstants.iconDatatype;
+            
+		    if (AVH.isAVH( selected, supertype))
+		    {
+		        icon = IndusConstants.iconTreetype;
+		    }
+		    else if (DataType.isNumber( selected, supertype))
+		    {
+		        icon = IndusConstants.iconNumber;
+		    }
+		    else if (DataType.isString( selected, supertype))
+		    {
+		        icon = IndusConstants.iconString;
+		    }
+		    typeIcon.put(selected, icon);
 
             //Debug.trace(currentType.getClass());
 
@@ -301,6 +318,10 @@ public abstract class TypePanelAction
                     if (suc)
                     {
                         currentType.modified = false;
+                        
+                        // 2006-06-15, update the data type cache
+                        InfoReader.updateDataTypeCache(typeName,currentType);
+                                                
                         JOptionPane.showMessageDialog(this,
                             "Type '" + typeName + "' saved successfully");
                         return true;
@@ -417,52 +438,66 @@ public abstract class TypePanelAction
      */
     protected void updateTypesList()
     {
-        Object types[] = InfoReader.getAllType();
+    	Object types[] = InfoReader.getAllType();
         Vector dbTypes = new Vector(Arrays.asList(types));
         //dbTypes.add("MIPS");
         //dbTypes.add("SCOP");
         //dbTypes.add("GO");
         types = dbTypes.toArray();
-
+        
         if (types != null)
         {
-            final ProgressBarWin win = new ProgressBarWin(new JFrame(),
-                "Updating available types:", 100, false, 0, types.length);
-            win.start();
-
+            //final ProgressBarWin win = new ProgressBarWin(new JFrame(),
+            //    "Updating available types:", 100, false, 0, types.length);
+            //win.start();
+        	
+        	final Object types1[] = types;
             listAllTypes.setListData(types);
 
-            // set icons, 2004-10-15
-            typeIcon.entrySet().clear();
-            // Debug.trace(this, typeIcon);
-            for (int i = 0; i < types.length; i++)
+            Thread t = new Thread()
             {
-                win.step();
-                String supertype = IndusHttpClient.
-                    getTopSuperType(types[i].toString());
-                //Debug.systrace(null, types[i] + ":" + supertype);
+                public void run()
+                {
+                	setTypeIcon(types1);
+                }
+            } ;
+            t.start() ;
+            
 
-                ImageIcon icon = IndusConstants.iconDatatype;
-                if (AVH.isAVH( (String) types[i], supertype))
-                {
-                    icon = IndusConstants.iconTreetype;
-                }
-                else if (DataType.isNumber( (String) types[i], supertype))
-                {
-                    icon = IndusConstants.iconNumber;
-                }
-                else if (DataType.isString( (String) types[i], supertype))
-                {
-                    icon = IndusConstants.iconString;
-                }
-                typeIcon.put(types[i], icon);
-            }
-
-            win.stop();
+            //win.stop();
 
             listAllTypes.repaint();
         }
     }
+
+	private void setTypeIcon(Object[] types) {
+		// set icons, 2004-10-15
+		typeIcon.entrySet().clear();
+		// Debug.trace(this, typeIcon);
+		for (int i = 0; i < types.length; i++)
+		{
+			ImageIcon icon = IndusConstants.iconDatatype;
+		    
+//					    //win.step();
+//		    String supertype = IndusHttpClient.
+//		        getTopSuperType(types[i].toString());
+//		    //Debug.systrace(null, types[i] + ":" + supertype);
+//
+//		    if (AVH.isAVH( (String) types[i], supertype))
+//		    {
+//		        icon = IndusConstants.iconTreetype;
+//		    }
+//		    else if (DataType.isNumber( (String) types[i], supertype))
+//		    {
+//		        icon = IndusConstants.iconNumber;
+//		    }
+//		    else if (DataType.isString( (String) types[i], supertype))
+//		    {
+//		        icon = IndusConstants.iconString;
+//		    }
+		    typeIcon.put(types[i], icon);
+		}
+	}
 
     /**
      * Export the XML for the type

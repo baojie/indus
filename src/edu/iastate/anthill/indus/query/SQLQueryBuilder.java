@@ -14,7 +14,8 @@ import Zql.ZQuery;
 import Zql.ZSelectItem;
 
 /**
- * Class to build query
+ * Class to build query and some utility classes to improve the 
+ * ZQL library
  * @author Jie Bao
  * @since 1.0
  */
@@ -161,4 +162,16 @@ public class SQLQueryBuilder
 
     public static ZConstant TRUE = new ZConstant("true", ZConstant.UNKNOWN);
     public static ZConstant FALSE = new ZConstant("false", ZConstant.UNKNOWN);
+    
+    /**
+     * Print the structure of the query
+     * @author Jie Bao
+     * @since 2006-06-15
+     * @param q
+     */
+    public static String printZExpression(ZExpression e)
+    {
+    	//e.getOperator()
+    	return e.toReversePolish();
+    }    
 }

@@ -7,7 +7,7 @@
 	<classpathentry kind="lib" path="lib/jbcl.jar"/>
 	<classpathentry kind="lib" path="lib/pg74.215.jdbc3.jar"/>
 	<classpathentry kind="lib" path="lib/xalan.jar"/>
-	<classpathentry kind="lib" path="lib/Zql.jar"/>
+	<classpathentry sourcepath="D:/0-Me/6-Programming/0-Java/7-Ontology/INDUS 3.0/lib/Zql.src.zip" kind="lib" path="lib/Zql.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

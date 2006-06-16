@@ -494,6 +494,9 @@ public abstract class MappingPanelAction extends MappingPanelGUI implements
 				mappingRuleListModel.addElement(b);
 			}
 		}
+		
+		// 2006-06-15 Jie Bao: sort the loaded mapping rules		
+		GUIUtils.sortJList(mappingRuleList);
 	}
 
 	/**
