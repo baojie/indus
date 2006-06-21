@@ -25,9 +25,8 @@ import Zql.ZSelectItem;
 public class SQLQueryBuilder
 {
 
-    public static String AVH_OP[] = new String[]
-        {
-        "=", "!=", ">=", ">", "<", "<="};
+    public static String AVH_OP[] = new String[] { "=", "!=", ">=", ">", "<",
+            "<="                 };
 
     /**
      * to check is a operator a AVH operator
@@ -62,7 +61,7 @@ public class SQLQueryBuilder
         else
         {
             ZExpression valueSet = new ZExpression(",");
-            for (Iterator it = values.iterator(); it.hasNext(); )
+            for (Iterator it = values.iterator(); it.hasNext();)
             {
                 Object v = it.next();
                 ZConstantEx value = new ZConstantEx(v.toString(), typ);
@@ -112,64 +111,97 @@ public class SQLQueryBuilder
      */
     public static ZExp removeOrphanAndOr(ZExpression exp)
     {
-        if (exp.getOperands() != null &&
-            ( (exp.getOperator().compareToIgnoreCase("AND") == 0) ||
-             (exp.getOperator().compareToIgnoreCase("OR") == 0)))
+        if (exp.getOperands() != null
+                && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
+                        .getOperator().compareToIgnoreCase("OR") == 0)))
         {
-            if (exp.getOperands().size() == 1)
-            {
-                return exp.getOperand(0);
-            }
+            if (exp.getOperands().size() == 1) { return exp.getOperand(0); }
         }
         return exp;
     }
-    
+
+    /**
+     * @author baojie
+     * @since 2006-06-21
+     * @param exp
+     * @return
+     */
+    public static boolean isOrphanAndOr(ZExpression exp)
+    {
+        if (exp.getOperands() != null
+                && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
+                        .getOperator().compareToIgnoreCase("OR") == 0)))
+        {
+            if (exp.getOperands().size() == 1) { return true; }
+        }
+        return false;
+    }
+
     // Jie Bao 2006-06-18
     public static boolean hasOperand(ZExpression e)
     {
         Vector op = e.getOperands();
-        if (op == null) return false;
-        else return (op.size() !=0);                
+        if (op == null)
+            return false;
+        else return (op.size() != 0);
     }
-    
+
     public static ZExp optimize(ZExpression exp)
-    {
-        while(removeNullClause(exp)) {;}
+    {        
+        //String s = SQLQueryBuilder.printZExpression(exp);
+        //System.out.println(s);
         
-                
-        return removeOrphanAndOr(exp);
+        while (removeNullClause(exp))
+        {
+            ;
+        }
+        while(isOrphanAndOr(exp))
+        {
+            ZExp zz = removeOrphanAndOr(exp);
+            if (!(exp instanceof ZExpression))
+                break;
+            else
+                exp = (ZExpression)zz;
+        }
+
+        //s = SQLQueryBuilder.printZExpression(exp);
+        //System.out.println(s);
         
+        return exp;
+
         // other oprimizations...
     }
-    
+
     // Jie Bao 2006-06-19
     public static boolean removeNullClause(ZExpression exp)
     {
-        System.out.println("    -- removeNullClause " + exp);
+        //System.out.println("    -- removeNullClause " + exp);
         boolean changed = false;
-        
+
         Vector<ZExp> opr = exp.getOperands();
         for (Iterator it = opr.iterator(); it.hasNext();)
         {
             ZExp e = (ZExp) it.next();
             if (e instanceof ZExpression)
-            {                
-                if (hasOperand((ZExpression)e)) {
-                    
+            {
+                if (hasOperand((ZExpression) e))
+                {
+
                     //removeOrphanAndOr
-                    
-                    changed = changed || removeNullClause((ZExpression)e);
+
+                    changed = changed || removeNullClause((ZExpression) e);
                 }
-                else {
-//                  remove this expression from its parent
+                else
+                {
+                    //                  remove this expression from its parent
                     it.remove();
-                    Debug.trace("remove : "+ e);
+                    //Debug.trace("remove : " + e);
                     changed = true;
-                }               
+                }
             }
         }
-        
-        return changed;        
+
+        return changed;
     }
 
     /**
@@ -183,7 +215,7 @@ public class SQLQueryBuilder
      * @since 2005-03-20
      */
     public static ZExpression buildAttributeValuePair(String columnName,
-        String op, String value, int valueType)
+            String op, String value, int valueType)
     {
         ZConstantEx op1 = new ZConstantEx(columnName, ZConstantEx.COLUMNNAME);
         ZConstantEx op2 = new ZConstantEx(value, valueType);
@@ -211,9 +243,10 @@ public class SQLQueryBuilder
         return selectArray;
     }
 
-    public static ZConstant TRUE = new ZConstant("true", ZConstant.UNKNOWN);
+    public static ZConstant TRUE  = new ZConstant("true", ZConstant.UNKNOWN);
+
     public static ZConstant FALSE = new ZConstant("false", ZConstant.UNKNOWN);
-    
+
     /**
      * Print the structure of the query
      * @author Jie Bao
@@ -222,7 +255,7 @@ public class SQLQueryBuilder
      */
     public static String printZExpression(ZExpression e)
     {
-    	//e.getOperator()
-    	return e.toReversePolish();
-    }    
+        //System.out.println("Operator :"+e.getOperator());
+        return e.toReversePolish();
+    }
 }

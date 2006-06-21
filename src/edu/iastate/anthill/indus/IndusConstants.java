@@ -45,9 +45,9 @@ public class IndusConstants
         }
     }
 
-    public static String TIME = "2006-03-27" ; //getModifiedTime();
+    public static String TIME = "2006-06-21" ; //getModifiedTime();
 
-    public static String VER = "3.0.1" ;
+    public static String VER = "3.0.2" ;
     public static String NAME = "Indus Environment" ;
 
     public static final String DSSERVER = "boole.cs.iastate.edu";//"localhost";

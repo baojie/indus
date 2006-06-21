@@ -629,7 +629,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         q = rewriteWithAVH(q, remoteAttributeToAVH, false, false);
         System.out.println("Final: " + q);
         
-        SQLQueryBuilder.optimize((ZExpression)q.getWhere());
+        //SQLQueryBuilder.optimize((ZExpression)q.getWhere());
 
         return q;
     }

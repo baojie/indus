@@ -16,6 +16,7 @@ import edu.iastate.anthill.indus.query.SQLQueryPlanner;
 import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.sql.LocalDBConnection;
 
+import Zql.ZExp;
 import Zql.ZExpression;
 import Zql.ZQuery;
 import java.util.*;
@@ -52,8 +53,11 @@ public class IndusDataSource extends LocalDBConnection implements Configable {
 			Statement stmt = db.createStatement();
 
 			// {{ 2005-10-19 Jie Bao
-			String s = SQLQueryBuilder.printZExpression((ZExpression) query.getWhere());
-			System.out.println(s);
+            ZExp z = SQLQueryBuilder.optimize((ZExpression)query.getWhere());
+            query.addWhere(z);
+            
+            //String s = SQLQueryBuilder.printZExpression((ZExpression) query.getWhere());
+			//System.out.println(s);
 			
 			String strQuery = query.toString();
 			strQuery = optimzeQuery(strQuery.toCharArray());

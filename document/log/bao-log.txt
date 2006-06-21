@@ -58,6 +58,20 @@ Text parsing time: 0.078 second(s)
 Tree Size 1963
 End of test
   
+2006-06-20
+
+	new utility class : Zip
+	The Encode() and Decode() methods in Config only work with 
+	    short strings
+	    
+	Change the ontology storage to database    
   
+2006-06-21
+
+	Fix bugs in query translation
+	* redundant '()' e.g. '((A > 1))' 
+	* empty clause e.g. 'A > 1 AND ()'
+	* orphan clause: (AND (A>1)) => A>1
+
    
   
