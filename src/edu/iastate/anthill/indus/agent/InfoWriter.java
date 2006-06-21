@@ -1,7 +1,10 @@
 package edu.iastate.anthill.indus.agent;
 
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
+import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
@@ -9,6 +12,7 @@ import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.view.View;
 import edu.iastate.utils.Debug;
+import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.string.Zip;
 
 /**
@@ -31,19 +35,40 @@ public class InfoWriter
 
     public static boolean writeType(DataType type)
     {
+        //writeTypeOld(type);
+        
+        // save to database
+        String value = Zip.encode(type.toText());
+        String name = type.getName();
+        String space = "public";
+        
+        Map values = new HashMap();
+
+        values.put("name", name);
+        values.put("value", value);
+        values.put("space", space);
+        
+        Connection db = IndusBasis.indusSystemDB.db;        
+        return JDBCUtils.insertOrUpdateDatabase(db, "types", values,
+                "name");
+        
+    }
+    
+    // save to the indus server
+    public static boolean writeTypeOld(DataType type)
+    {
         // the old XML-based storage
         //return write(CMD_UPDATE_TYPE, type.getName(), type);
         
         // 2006-06-20 compressed plain text
         // @see InfoReader
         String text = Zip.encode(type.toText());
-        Debug.trace("after encoding: "+text.length());
+        //Debug.trace("after encoding: "+text.length());
         // send to server
         IndusHttpClient client = new IndusHttpClient();
         String res = client.sendCmd(
                 CMD_UPDATE_TYPE + ";name=" + type.getName() + ";value=" + text);
         return res.equals(RES_OK);
-
     }
 
     public static boolean writeMapping(DataSourceMapping mapping)
@@ -83,7 +108,6 @@ public class InfoWriter
         String res = client.sendCmd(
             command + ";name=" + name + ";value=" + xml);
         return res.equals(RES_OK);
-
     }
 
     /**

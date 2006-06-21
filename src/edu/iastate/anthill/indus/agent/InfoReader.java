@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 
+import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
@@ -14,7 +16,9 @@ import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.type.DbAVH;
 import edu.iastate.anthill.indus.datasource.type.SimpleDataType;
 import edu.iastate.anthill.indus.datasource.view.View;
+import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.StopWatch;
+import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.string.Zip;
 
 /**
@@ -127,7 +131,7 @@ public class InfoReader implements IndusCommand
             {
                 newType = new DbAVH(name, null, template);
             }
-            
+
             if (!DataType.isPredefinedType(name))
             {
                 newType.fromText(text);
@@ -202,10 +206,15 @@ public class InfoReader implements IndusCommand
             if (DataType.isPredefinedType(name)) { return new SimpleDataType(
                     name, null); }
 
-            System.out.print("readDataType - " + name);
+            System.out.println("readDataType - " + name);
             StopWatch w = new StopWatch();
             w.start();
-            String sourceText = IndusHttpClient.getDetails(CMD_GET_TYPE_DETAILS, name);
+            //String sourceText = IndusHttpClient.getDetails(
+            //        CMD_GET_TYPE_DETAILS, name);
+            String sql = "    SELECT value FROM types WHERE name = '" + name + "'";
+            Connection db = IndusBasis.indusSystemDB.db;
+            String sourceText  = JDBCUtils.getFirstValue(db,sql);
+            
             w.stop();
             System.out.print(" ,  read source text: " + w.print());
 
@@ -213,7 +222,7 @@ public class InfoReader implements IndusCommand
             w.start();
             if (sourceText.startsWith("<"))// XML
             {
-                System.out.print(" XML Format ");                
+                System.out.print(" XML Format ");
                 newType = readDataTypeNative(name, sourceText);
             }
             else
@@ -252,7 +261,7 @@ public class InfoReader implements IndusCommand
         {
             String attribute = (String) it.next();
             String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type,false);
+            DataType dt = readDataType(type, false);
             //Debug.trace(dt.getClass());
             if (dt != null)
             {
@@ -286,7 +295,7 @@ public class InfoReader implements IndusCommand
         {
             String attribute = (String) it.next();
             String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type,false);
+            DataType dt = readDataType(type, false);
             //Debug.trace(dt.getClass());
             if (dt != null)
             {
@@ -319,9 +328,32 @@ public class InfoReader implements IndusCommand
         return ds;
     }
 
-    public static String[] getAllType()
+    /**
+     * @deprecated replaced by getAllType
+     * @return
+     */
+    public static String[] getAllTypeOld()
     {
         return getList(CMD_GET_ALL_TYPE);
+    }
+
+    /**
+     * read the list of all types from the database
+     * 2006-06-21 Jie Bao 
+     */
+    public static Object[] getAllType()
+    {
+        String sql = "    SELECT name From types ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);
+
+        String defaults[] = DataType.DEFAULT_TYPES.split(";");
+        for (int i = 0; i < defaults.length; i++)
+        {
+            all.add(0, defaults[i]);
+        }
+
+        return all.toArray();
     }
 
     public static String[] getAllView()

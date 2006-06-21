@@ -44,7 +44,7 @@ public abstract class IndusPane extends JPanel
      * @return String
      * @since 2005-03-30
      */
-    protected String askForName(String exist[])
+    protected String askForName(Object exist[])
     {
         while (true)
         {
@@ -67,7 +67,7 @@ public abstract class IndusPane extends JPanel
                 boolean used = false;
                 for (int i = 0; i < exist.length; i++)
                 {
-                    if (exist[i].equalsIgnoreCase(typeName))
+                    if (exist[i].equals(typeName))
                     {
                         JOptionPane.showMessageDialog(this, "The name '"
                                 + typeName + "' already exists");

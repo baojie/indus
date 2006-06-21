@@ -163,7 +163,7 @@ public abstract class SchemaPanelGUI
 
     public void onUpdateTypeList(ActionEvent evt)
     {
-        String types[] = InfoReader.getAllType();
+        Object types[] = InfoReader.getAllType();
         if (types == null)
         {
             types = new String[]

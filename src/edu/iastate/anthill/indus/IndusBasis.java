@@ -31,7 +31,7 @@ public class IndusBasis
 
     Logging logger = new Logging(System.getProperty("user.dir") + "\\",
                                  "indus-log");
-    public IndusDB indusSystemDB = new IndusDB(); // to store system ontology and information
+    public static IndusDB indusSystemDB = new IndusDB(); // to store system ontology and information
     public IndusDB indusCacheDB = new IndusDB(); // to store view cache
 
     //2005-03-27

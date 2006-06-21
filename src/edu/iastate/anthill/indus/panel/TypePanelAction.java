@@ -210,7 +210,7 @@ public abstract class TypePanelAction
     public void onCreateNewType(ActionEvent e)
     {
         // ==== 1. ask for name =======
-        String used[] = InfoReader.getAllType();
+        Object used[] = InfoReader.getAllType();
         String name = askForName(used);
 
         if (name == null)
@@ -371,7 +371,7 @@ public abstract class TypePanelAction
             return;
         }
 
-        String used[] = InfoReader.getAllType();
+        Object used[] = InfoReader.getAllType();
         String name = askForName(used);
 
         if (name != null)

@@ -113,7 +113,7 @@ public class AVH extends DAG implements Configable {
 
             e.printStackTrace();
         }
-        Debug.trace("before encoding: "+buf.length());
+        //Debug.trace("before encoding: "+buf.length());
         
         return buf.toString();
     }

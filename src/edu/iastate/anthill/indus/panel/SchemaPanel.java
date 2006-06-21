@@ -306,7 +306,7 @@ public class SchemaPanel
         {
             // find missing types
             Set used = newSchema.getTypeSet(); // types used in this schema
-            String types[] = InfoReader.getAllType(); // types in the system
+            Object types[] = InfoReader.getAllType(); // types in the system
             Set available = new HashSet();
             for (int i = 0; i < types.length; i++)
             {
