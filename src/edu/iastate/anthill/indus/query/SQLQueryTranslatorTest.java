@@ -96,7 +96,7 @@ public class SQLQueryTranslatorTest
                     ops[i], location[j], ZConstantEx.AVH);
                 System.out.println("Old: " + q);
 
-                ZExpression ze = qe.translateAVHAtomWhere(q, remoteColName,
+                ZExp ze = qe.translateAVHAtomWhere(q, remoteColName,
                     mapping);
                 System.out.println("New: " + ze + "\n");
             }

@@ -21,6 +21,14 @@ public class SimpleConnector
         super(newname);
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
     /**
      * Export to XML
      * @return String

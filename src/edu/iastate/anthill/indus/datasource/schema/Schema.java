@@ -195,6 +195,15 @@ public class Schema
         return attTypeList.size();
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
+    
     public String toXML()
     {
         StringBuffer buf = new StringBuffer();

@@ -8,8 +8,8 @@ import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.view.View;
-import javax.swing.JOptionPane;
-import edu.iastate.anthill.indus.IndusConstants;
+import edu.iastate.utils.Debug;
+import edu.iastate.utils.string.Zip;
 
 /**
  * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
@@ -31,7 +31,19 @@ public class InfoWriter
 
     public static boolean writeType(DataType type)
     {
-        return write(CMD_UPDATE_TYPE, type.getName(), type);
+        // the old XML-based storage
+        //return write(CMD_UPDATE_TYPE, type.getName(), type);
+        
+        // 2006-06-20 compressed plain text
+        // @see InfoReader
+        String text = Zip.encode(type.toText());
+        Debug.trace("after encoding: "+text.length());
+        // send to server
+        IndusHttpClient client = new IndusHttpClient();
+        String res = client.sendCmd(
+                CMD_UPDATE_TYPE + ";name=" + type.getName() + ";value=" + text);
+        return res.equals(RES_OK);
+
     }
 
     public static boolean writeMapping(DataSourceMapping mapping)
@@ -64,7 +76,7 @@ public class InfoWriter
                                  Configable toWrite)
     {
         // general XML
-        String xml = toWrite.toXML();
+        String xml = toWrite.toText();
 
         // send to server
         IndusHttpClient client = new IndusHttpClient();

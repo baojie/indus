@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -50,12 +51,15 @@ public abstract class TypePanelGUI
     JPanel jPanel1 = new JPanel();
     BorderLayout borderLayout1 = new BorderLayout();
     JPanel jPanel2 = new JPanel();
-    JButton btnUpdateAVT = new JButton();
+    JButton btnSave = new JButton();
     JScrollPane jScrollPaneTree = new JScrollPane();
     BorderLayout borderLayout2 = new BorderLayout();
     FlowLayout flowLayout1 = new FlowLayout();
-    JButton btnExportType = new JButton();
-
+    JButton btnExportXML = new JButton();
+    JButton btnExportText = new JButton();
+    JButton btnReload = new JButton("Reload");
+    
+    
     void jbInit() throws Exception
     {
         //Debug.trace(this, "DataTypePanelGUI:jbInit");
@@ -71,7 +75,7 @@ public abstract class TypePanelGUI
         jp.setBorder(BorderFactory.createTitledBorder("Registered types"));
         jp.getViewport().add(listAllTypes);
 
-        btnUpdateAVT.setText("Save Type");
+        btnSave.setText("Save Type");
         leftPanel.add(jp, BorderLayout.CENTER);
 
         // right panel
@@ -84,10 +88,14 @@ public abstract class TypePanelGUI
 
         // button
         btnNewType.setText("New Type");
-        btnExportType.setText("Export XML");
-        jPanel2.add(btnUpdateAVT);
+        btnExportXML.setText("Export XML");
+        btnExportText.setText("Export Text");
+        
+        jPanel2.add(btnReload);
+        jPanel2.add(btnSave);
         jPanel2.add(btnNewType);
-        jPanel2.add(btnExportType, null);
+        jPanel2.add(btnExportXML, null);
+        jPanel2.add(btnExportText, null);
         jPanel2.setLayout(flowLayout1);
         rightPanel.add(jPanel2, BorderLayout.SOUTH);
 

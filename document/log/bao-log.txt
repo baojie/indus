@@ -8,4 +8,56 @@ Old logs (2004-2005) are in two notebooks (hand writing)
 
 2006-06-15
 * Mapping panel: focus on correponding terms and connectors when select a mapping rule
-* 
+
+2006-06-18
+* change the query engine translation rules: SQLQueryTranslator.translateAtomWhere()
+
+2006-06-19
+* Improve scaleability of reading/writing a datatype
+  (it takes 1-2 minutes to r/w an ontology of 3k terms now) 
+  ** DataType.toText()
+  ** SimpleDataType.fromText()
+  ** SimpleDataType.toText()
+  
+  Change TypedTree
+  
+  ** TypedTree.fromStream()
+  ** TypedTree.fromString()
+  ** TypedTree.fromStream() - change
+  ** TypedTree.toStream()
+  ** TypedTree.toText(TypedNode node)
+  ** TypedTree.testToFromText()
+  
+  Change AVH
+  
+  ** AVH.toText()
+  ** AVH.fromText()
+  ** AVH.getSize()
+  ** AVHText.testToFromXML()
+  ** AVHText.testToFromText()
+  
+  AVHTest
+  
+  Load and save  
+  ** Configable.fromText()
+  ** Configable.toText()
+  ** Add this two methods to all subclasses of Configable
+  ** InfoWriter.write
+  ** InforReader.readDataType
+  ** InforReader.readDataTypeNativePlain
+  
+  compress/depress: cgi can not accpet mutliple lines
+
+Comparsion
+  
+XML reading time: 0.031 second(s)
+XML parsing time: 61.86 second(s) or 1 minute(s) 1 second(s)
+Tree Size 1963
+Text reading time: 0.015 second(s)
+Text parsing time: 0.078 second(s)
+Tree Size 1963
+End of test
+  
+  
+   
+  

@@ -6,6 +6,9 @@ import java.util.Vector;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -29,6 +32,7 @@ import edu.iastate.anthill.indus.iterator.DB2TreeFactory;
 
 import edu.iastate.utils.Debug;
 import edu.iastate.utils.gui.ProgressBarWin;
+import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
 
@@ -70,11 +74,13 @@ public abstract class TypePanelAction
         try
         {
             MessageMap.mapAction(this.btnNewType, this, "onCreateNewType");
-            MessageMap.mapAction(this.btnUpdateAVT, this, "onUpdateType");
-            MessageMap.mapAction(this.btnExportType, this, "onExport");
+            MessageMap.mapAction(this.btnSave, this, "onSave");
+            MessageMap.mapAction(this.btnExportXML, this, "onExport");
             MessageMap.mapAction(this.menuDelete, this, "onDeleteType");
             MessageMap.mapAction(this.menuCopyType, this, "onCopyType");
-
+            MessageMap.mapAction(this.btnExportText, this, "onExportText");
+            MessageMap.mapAction(this.btnReload, this, "onReload");
+            
             listAllTypes.addListSelectionListener(new ListSelectionListener()
             {
                 public void valueChanged(ListSelectionEvent e)
@@ -130,12 +136,12 @@ public abstract class TypePanelAction
                     public void run()
                     {
                         //load it
-                        loadType(currentSelectedType);
+                        loadType(currentSelectedType,false);
 
                         // enable / disenable "deletetype" button
                         // deleting of predefined type is not allowed
 
-                        btnUpdateAVT.setEnabled(!AVH.isPredefinedType(
+                        btnSave.setEnabled(!AVH.isPredefinedType(
                             currentSelectedType));
 
                     }
@@ -152,13 +158,13 @@ public abstract class TypePanelAction
      * @param selected String
      * @version 2004-09-30
      */
-    protected void loadType(String selected)
+    protected void loadType(String selected, boolean forceReload)
     {
         int pb = parent.statusBar.addProgressBar(true, 0, 0);
         parent.statusBar.updateProgressBar(pb, "Loading type " + selected);
 
         DataType dt;
-        dt = InfoReader.readDataType(selected);
+        dt = InfoReader.readDataType(selected,forceReload);
         parent.statusBar.removeProgressBar(pb);
 
         if (dt != null)
@@ -288,7 +294,7 @@ public abstract class TypePanelAction
 
     }
 
-    public void onUpdateType(ActionEvent e)
+    public void onSave(ActionEvent e)
     {
         save();
     }
@@ -370,7 +376,7 @@ public abstract class TypePanelAction
 
         if (name != null)
         {
-            DataType dt = InfoReader.readDataType(typeName);
+            DataType dt = InfoReader.readDataType(typeName,false);
             dt.setName(name);
             if (InfoWriter.writeType(dt))
             {
@@ -522,4 +528,52 @@ public abstract class TypePanelAction
         }
     }
 
+    /**
+     * Export the ontology as plain text
+     * 
+     * @author baojie
+     * @since 2006-06-21
+     * @param e
+     */
+    public void onExportText(ActionEvent e)
+    {
+        if (this.currentType != null)
+        {
+            String text = currentType.toText();
+            // save as 
+            final String title = "Export to plain text" ;
+            final String extension = "txt" ;
+            final String description = "Text Documents" ;
+
+            String fileName = getFileName(title, extension, description, true) ;
+            // get the ontology from the database
+            if(fileName != null)
+            {
+                try
+                {
+                    FileUtils.writeFile(fileName, text);
+                }
+                catch ( Exception e1)
+                {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(
+                this, "No type is defined");
+        }
+    }
+    
+    public void onReload(ActionEvent e)
+    {
+        String typeName = (String) listAllTypes.getSelectedValue();
+        // predefined types do not need reloading
+        if (!DataType.isPredefinedType(typeName))
+        {
+            loadType(typeName, true);
+        }
+    }
 }

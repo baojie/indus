@@ -320,4 +320,11 @@ public class IndusDataSource extends LocalDBConnection implements Configable {
 		this.schemaName = schemaName;
 	}
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
 }

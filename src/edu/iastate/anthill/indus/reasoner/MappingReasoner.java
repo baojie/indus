@@ -45,8 +45,8 @@ public class MappingReasoner
                 i);
             addOntologyMapping(om);
 
-            AVH from = (AVH) InfoReader.readDataType(om.from);
-            AVH to = (AVH) InfoReader.readDataType(om.to);
+            AVH from = (AVH) InfoReader.readDataType(om.from,false);
+            AVH to = (AVH) InfoReader.readDataType(om.to,false);
             addAVH(from);
             addAVH(to);
         }

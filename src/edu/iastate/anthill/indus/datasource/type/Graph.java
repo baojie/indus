@@ -343,6 +343,15 @@ public class Graph
         return getTaggedText().toXML();
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
+    
     /**
      * @author Jie Bao
      * @since 1.0 2004-10-18
@@ -574,4 +583,6 @@ public class Graph
         System.out.println(dag1);
         System.out.println(dag1.toXML());
     }
+
+
 }

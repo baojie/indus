@@ -131,7 +131,7 @@ public abstract class MappingPanelAction extends MappingPanelGUI implements
 				root.add(node);
 
 				// read attribute value, build a tree
-				DataType dt = InfoReader.readDataType(typeName);
+				DataType dt = InfoReader.readDataType(typeName,false);
 				if (dt != null && dt instanceof AVH) {
 					dt.readOnly = true;
 

@@ -72,6 +72,14 @@ public class OntologyMapping
             "<to>" + to + "</to>" + buf.toString();
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
     /**
      * @return String
      * @author Jie Bao
@@ -231,9 +239,9 @@ public class OntologyMapping
      * @author Jie Bao
      * @since 2005-03-21
      */
-    public Vector findMapped(String fromTerm)
+    public Vector<BridgeRule> findMapped(String fromTerm)
     {
-        Vector foundBridge = new Vector();
+        Vector<BridgeRule> foundBridge = new Vector<BridgeRule>();
         for (int i = 0; i < mapList.size(); i++)
         {
             BridgeRule m = (BridgeRule) mapList.elementAt(i);

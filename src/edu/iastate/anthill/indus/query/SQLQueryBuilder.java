@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
+import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
+import edu.iastate.utils.Debug;
+
 import Zql.ZConstant;
 import Zql.ZExp;
 import Zql.ZExpression;
@@ -119,6 +122,54 @@ public class SQLQueryBuilder
             }
         }
         return exp;
+    }
+    
+    // Jie Bao 2006-06-18
+    public static boolean hasOperand(ZExpression e)
+    {
+        Vector op = e.getOperands();
+        if (op == null) return false;
+        else return (op.size() !=0);                
+    }
+    
+    public static ZExp optimize(ZExpression exp)
+    {
+        while(removeNullClause(exp)) {;}
+        
+                
+        return removeOrphanAndOr(exp);
+        
+        // other oprimizations...
+    }
+    
+    // Jie Bao 2006-06-19
+    public static boolean removeNullClause(ZExpression exp)
+    {
+        System.out.println("    -- removeNullClause " + exp);
+        boolean changed = false;
+        
+        Vector<ZExp> opr = exp.getOperands();
+        for (Iterator it = opr.iterator(); it.hasNext();)
+        {
+            ZExp e = (ZExp) it.next();
+            if (e instanceof ZExpression)
+            {                
+                if (hasOperand((ZExpression)e)) {
+                    
+                    //removeOrphanAndOr
+                    
+                    changed = changed || removeNullClause((ZExpression)e);
+                }
+                else {
+//                  remove this expression from its parent
+                    it.remove();
+                    Debug.trace("remove : "+ e);
+                    changed = true;
+                }               
+            }
+        }
+        
+        return changed;        
     }
 
     /**

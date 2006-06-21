@@ -141,5 +141,7 @@ public abstract class DataType
 
     abstract public String toString();
 
+    abstract public String toText();
+
     abstract public String getInformation();
 }

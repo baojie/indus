@@ -52,6 +52,15 @@ public class View
         return buf.toString();
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
+    
     /**
      * write to xml string
      * @return String

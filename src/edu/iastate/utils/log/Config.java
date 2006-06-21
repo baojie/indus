@@ -79,7 +79,7 @@ abstract public class Config
             byte[] plainText = str.getBytes("UTF-8");
             //Debug.trace("plainText.length=" + plainText.length);
 
-            byte[] output = new byte[1024];
+            byte[] output = new byte[str.length()];
             compressor.setInput(plainText);
             compressor.finish();
             int compressedDataLength = compressor.deflate(output);
@@ -129,7 +129,7 @@ abstract public class Config
 
             decompressor.setInput(plainText);
 
-            byte[] result = new byte[1024];
+            byte[] result = new byte[str.length()];
             int resultLength = decompressor.inflate(result);
             decompressor.end();
 

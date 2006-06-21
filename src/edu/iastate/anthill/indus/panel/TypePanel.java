@@ -39,7 +39,7 @@ public class TypePanel extends TypePanelAction {
 								.equals(defaultToShow)) {
 							// show it
 							listAllTypes.setSelectedIndex(i);
-							loadType(defaultToShow);
+							loadType(defaultToShow,false);
 							break;
 						}
 					}
@@ -66,7 +66,7 @@ public class TypePanel extends TypePanelAction {
 						+ currentSelectedType
 						+ "' is changed, do you want to update it? ");
 				if (answer == JOptionPane.YES_OPTION) {
-					onUpdateType(null);
+					onSave(null);
 				}
 			}
 		}

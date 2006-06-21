@@ -104,6 +104,13 @@ public class DataSourceMapping
             ex.printStackTrace();
         }
     }
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
 
     public String toXML()
     {

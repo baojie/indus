@@ -15,6 +15,8 @@ import edu.iastate.utils.log.Config;
 import edu.iastate.anthill.indus.tree.SortTreeModel;
 
 /**
+ * XML Serialization for AVH
+ * 
  * @author Jie Bao
  * @since 2005-03-31
  */
@@ -31,7 +33,7 @@ class AVHSerializer
         createBlankNew();
         Node root = addChildTag(configXML, "type");
     }
-
+    
     protected void objToXML(Object obj)
     {
         AVH avh = (AVH) obj;
@@ -114,8 +116,8 @@ class AVHSerializer
 
         // get doc tree top
         Element tree = findNode(null, "/type/tree/node");
-        String rootName = this.getProperty(tree, "name");
-        String rootComment = this.getProperty(tree, "comment");
+        String rootName = Config.getProperty(tree, "name");
+        String rootComment = Config.getProperty(tree, "comment");
         DataSourceNode rootNode = new DataSourceNode(rootName,
             DataSourceNode.AVH, avh.name, rootComment);
 
@@ -152,8 +154,8 @@ class AVHSerializer
             for (int i = 0; i < nodelist.getLength(); i++)
             {
                 Element elem = (Element) nodelist.item(i);
-                String name = this.getProperty(elem, "name");
-                String comment = this.getProperty(elem, "comment");
+                String name = Config.getProperty(elem, "name");
+                String comment = Config.getProperty(elem, "comment");
                 //System.out.println(name + ":" + comment);
                 DataSourceNode newNode = new DataSourceNode(name,
                     DataSourceNode.AVH, typeName, comment);

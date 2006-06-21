@@ -24,6 +24,14 @@ public class NumericConnector
         this.expression = expression;
     }
 
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
     public String toXML()
     {
         return "<connectorname>" + name + "</connectorname>" +

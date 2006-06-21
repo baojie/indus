@@ -12,8 +12,8 @@ package edu.iastate.anthill.indus.datasource;
 public interface Configable
 {
     public void fromXML(String xml);
-
     public String toXML();
-
     public String toString();
+    public String toText();      
+    public void fromText(String text);
 }

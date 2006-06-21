@@ -3,6 +3,14 @@ package edu.iastate.utils.lang ;
 import java.util.Date ;
 
 /**
+ * 
+ * Example:
+ *      StopWatch w = new StopWatch() ;
+        w.start() ;
+        treeLoader.makeDagFromRootsQuick(this, cutoff, true, this) ;
+        w.stop();
+        System.out.println(w.print());
+ * 
  * <p>@author Jie Bao</p>
  * <p>@since 2005-08-30</p>
  */
@@ -16,7 +24,7 @@ public class StopWatch
     {
         startTime = new Date().getTime() ;
     }
-
+    
     public void peek()
     {
         currentTime = new Date().getTime() ;
@@ -30,20 +38,31 @@ public class StopWatch
 
     public long getSeconds()
     {
-        return(currentTime - startTime) / 1000 ;
+        return (currentTime - startTime) / 1000 ;
     }
 
+    public long getMSeconds()
+    {
+        return (currentTime - startTime) ;
+    }
+    
     public String print()
     {
         long duration = getSeconds() ;
+        long ms = getMSeconds();
+        
+        
+        
         long days = duration / (60 * 60 * 24) ;
         long remains = duration - days * (60 * 60 * 24) ;
+        
         long hours = remains / (60 * 60) ;
         remains = remains - hours * (60 * 60) ;
+        
         long minute = remains / 60 ;
         long seconds = remains - minute * 60 ;
 
-        String str = duration + " second(s)" ;
+        String str = (ms/1000.00) + " second(s)" ;
         if(duration > 60)
         {
             str += " or " + ((days > 0) ? days + " day(s) " : "") ;

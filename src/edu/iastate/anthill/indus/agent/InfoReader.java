@@ -4,18 +4,18 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.AVH;
-import edu.iastate.anthill.indus.datasource.type.DAG;
 import edu.iastate.anthill.indus.datasource.type.DataType;
+import edu.iastate.anthill.indus.datasource.type.DbAVH;
 import edu.iastate.anthill.indus.datasource.type.SimpleDataType;
 import edu.iastate.anthill.indus.datasource.view.View;
-import edu.iastate.anthill.indus.datasource.type.*;
+import edu.iastate.utils.lang.StopWatch;
+import edu.iastate.utils.string.Zip;
 
 /**
  * Read information stored on the server
@@ -23,23 +23,29 @@ import edu.iastate.anthill.indus.datasource.type.*;
  * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
  * <p>@since 2005-03-26</p>
  */
-public class InfoReader
-    implements IndusCommand
+public class InfoReader implements IndusCommand
 {
     public InfoReader()
-    {
-    }
+    {}
 
-    static protected boolean read(String command, String name,
-                                  Configable newObj)
+    static protected boolean read(String command, String name, Configable newObj)
     {
+        System.out.print("read " + name);
+        StopWatch w = new StopWatch();
+        w.start();
+
         String xml = IndusHttpClient.getDetails(command, name);
-        //Debug.trace(xml);
+        //System.out.println(xml);
+        w.stop();
+        System.out.print("   ,  read XML: " + w.print());
 
         if (xml != null)
         {
+            w.start();
             newObj.fromXML(xml);
             //Debug.trace(newObj.toXML());
+            w.stop();
+            System.out.println("   ,  parse XML: " + w.print());
             return true;
         }
         return false;
@@ -65,8 +71,8 @@ public class InfoReader
         read(CMD_GET_SCHEMA_DETAILS, name, newObj);
         return newObj;
     }
-    
-    static HashMap<String,DataType> dataTypeCache = new HashMap<String,DataType>(); 
+
+    static HashMap<String, DataType> dataTypeCache = new HashMap<String, DataType>();
 
     /**
      * read/store datatype in cache 
@@ -75,17 +81,17 @@ public class InfoReader
      * @param name
      * @return
      */
-    public static DataType readDataType(String name)
-    {	
-    	DataType d= dataTypeCache.get(name);
-    	if (d == null)
-    	{
-    		d = readDataTypeNative(name);
-    		dataTypeCache.put(name,d);
-    	}
-    	return d;
+    public static DataType readDataType(String name, boolean forceReload)
+    {
+        DataType d = dataTypeCache.get(name);
+        if (d == null || forceReload)
+        {
+            d = readDataTypeNative(name);
+            dataTypeCache.put(name, d);
+        }
+        return d;
     }
-    
+
     /**
      * Update datatype cache
      * @author baojie
@@ -95,10 +101,42 @@ public class InfoReader
      */
     public static void updateDataTypeCache(String name, DataType d)
     {
-    	dataTypeCache.put(name,d);
+        dataTypeCache.put(name, d);
     }
-    
-    
+
+    // Jie Bao 2006-06-20
+    public static DataType readDataTypeNativePlain(String name, String text)
+    {
+        DataType newType = new SimpleDataType(name, "");
+        if (!DataType.isPredefinedType(name))
+        {
+            newType.fromText(text);
+        }
+        if (newType.getName() == null)
+        {
+            newType.setName(name);
+        }
+
+        if ("AVH".equals(newType.getSupertype()))
+        {
+            newType = new AVH(name, null);
+            ((AVH) newType).fromText(text, false);
+
+            String template = ((AVH) newType).template;
+            if (template != null)
+            {
+                newType = new DbAVH(name, null, template);
+            }
+            
+            if (!DataType.isPredefinedType(name))
+            {
+                newType.fromText(text);
+            }
+        }
+        if (newType != null) dataTypeCache.put(name, newType);
+        return newType;
+    }
+
     /**
      * read the data type given its XML
      * @author baojie
@@ -109,7 +147,8 @@ public class InfoReader
      */
     public static DataType readDataTypeNative(String name, String datatypeinXML)
     {
-    	DataType newType = null;
+        DataType newType = null;
+        //System.out.println(datatypeinXML);
         if (datatypeinXML != null)
         {
             String supertype = DataType.parseSupertype(datatypeinXML).trim();
@@ -129,12 +168,12 @@ public class InfoReader
                     newType = new AVH(name, null);
                 }
             }
-            else if ("DAG".equals(supertype))
-            {
-                //System.out.println("Build DAG data type");
-
-                newType = new DAG(name);
-            }
+            //            else if ("DAG".equals(supertype))
+            //            {
+            //                //System.out.println("Build DAG data type");
+            //
+            //                newType = new DAG(name);
+            //            }
             else
             {
                 //System.out.println("Build simple data type");
@@ -151,24 +190,44 @@ public class InfoReader
                 newType.setName(name);
             }
         }
-        if (newType!= null)
-        	dataTypeCache.put(name,newType);
-        return  newType;
+        if (newType != null) dataTypeCache.put(name, newType);
+        return newType;
         //System.out.println(newType.getClass());
     }
-    
+
     public static DataType readDataTypeNative(String name)
     {
         try
         {
-            if (DataType.isPredefinedType(name))
+            if (DataType.isPredefinedType(name)) { return new SimpleDataType(
+                    name, null); }
+
+            System.out.print("readDataType - " + name);
+            StopWatch w = new StopWatch();
+            w.start();
+            String sourceText = IndusHttpClient.getDetails(CMD_GET_TYPE_DETAILS, name);
+            w.stop();
+            System.out.print(" ,  read source text: " + w.print());
+
+            DataType newType;
+            w.start();
+            if (sourceText.startsWith("<"))// XML
             {
-                return new SimpleDataType(name, null);
+                System.out.print(" XML Format ");                
+                newType = readDataTypeNative(name, sourceText);
+            }
+            else
+            // plain text
+            {
+                System.out.print(" Plain Text Format ");
+                // encoded in InfoWriter.writeType()
+                sourceText = Zip.decode(sourceText);
+                newType = readDataTypeNativePlain(name, sourceText);
             }
 
-            //System.out.println("readDataType - " + name);
-            String datatypeinXML = IndusHttpClient.getDetails(CMD_GET_TYPE_DETAILS, name);
-            DataType newType = readDataTypeNative(name,datatypeinXML);
+            w.stop();
+            System.out.println(",  parse source: " + w.print());
+
             return newType;
         }
         catch (Exception ex)
@@ -189,11 +248,11 @@ public class InfoReader
     {
         Map attributeToAVH = new HashMap();
         Map attList = remoteSchema.getAttList();
-        for (Iterator it = attList.keySet().iterator(); it.hasNext(); )
+        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
         {
             String attribute = (String) it.next();
             String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type);
+            DataType dt = readDataType(type,false);
             //Debug.trace(dt.getClass());
             if (dt != null)
             {
@@ -223,23 +282,24 @@ public class InfoReader
     {
         Map attributeToSupertype = new HashMap();
         Map attList = schema.getAttList();
-        for (Iterator it = attList.keySet().iterator(); it.hasNext(); )
+        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
         {
             String attribute = (String) it.next();
             String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type);
+            DataType dt = readDataType(type,false);
             //Debug.trace(dt.getClass());
             if (dt != null)
             {
                 if (dt.getSupertype() != null)
                 {
-                    attributeToSupertype.put(attribute.toLowerCase(),
-                                             dt.getSupertype());
+                    attributeToSupertype.put(attribute.toLowerCase(), dt
+                            .getSupertype());
                 }
-                else // no super type
+                else
+                // no super type
                 {
-                    attributeToSupertype.put(attribute.toLowerCase(),
-                                             dt.getName());
+                    attributeToSupertype.put(attribute.toLowerCase(), dt
+                            .getName());
                 }
             }
             else
@@ -252,8 +312,7 @@ public class InfoReader
     }
 
     // 2005-03-25
-    public static IndusDataSource readDataSource(Connection cacheDB,
-                                                 String name)
+    public static IndusDataSource readDataSource(Connection cacheDB, String name)
     {
         IndusDataSource ds = new IndusDataSource();
         ds.fromDB(cacheDB, name);
@@ -300,8 +359,8 @@ public class InfoReader
             if (!res.equals(RES_GENERAL_ERROR))
             {
                 String items[] = res.split(";");
-                if (items != null && items.length == 1 &&
-                    items[0].trim().length() == 0)
+                if (items != null && items.length == 1
+                        && items[0].trim().length() == 0)
                 {
                     return null;
                 }

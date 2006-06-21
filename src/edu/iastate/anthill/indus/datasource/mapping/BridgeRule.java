@@ -82,6 +82,15 @@ public class BridgeRule
             "<connector>" + connector.toXML() + "</connector>" +
             "<term2>" + toTerm + "</term2></bridge>";
     }
+    
+    public String toText() {
+        return toXML();
+    }
+
+    public void fromText(String text) {
+        fromXML(text);        
+    }
+
 
     public String toString()
     {

@@ -3,6 +3,13 @@ package edu.iastate.anthill.indus.datasource.type;
 import java.util.Vector;
 
 import java.awt.BorderLayout;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -29,8 +36,6 @@ public class SimpleDataType
     /**
      *
      * @param datatypeinXML String
-     * @todo Implement this edu.iastate.anthill.indus.applet.type.DataType
-     *   method
      */
     public void fromXML(String datatypeinXML)
     {
@@ -129,4 +134,48 @@ public class SimpleDataType
         return "Type: " + name + "\n" + getInformation();
     }
 
+    /**
+     * Save datatype to plain text
+     * @author baojie
+     * @since 2006-06-19
+     */
+    public String toText() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(";typename="+name+"\n");
+        if (supertype != null)
+        {
+            buf.append(";subTypeOf="+supertype+"\n");            
+        }
+        return buf.toString();
+    }    
+    /**
+     * Read the datatype from plain text
+     * 
+     * @author baojie
+     * @since 2006-06-19
+     * @param datatypeinText
+     */
+    public void fromText(String datatypeinText)
+    {
+        try {
+            BufferedReader in = new BufferedReader(new StringReader(datatypeinText));
+            String str;
+            while ((str = in.readLine()) != null) {
+                int pos = str.lastIndexOf('=');
+                String value = str.substring(pos+1);
+                if (str.startsWith(";typename="))
+                {
+                    name = value;
+                }else if (str.startsWith(";subTypeOf="))
+                {
+                    supertype = value;
+                }
+                if (!str.startsWith(";"))
+                    break;
+                
+            }
+            in.close();
+        } catch (IOException e) {
+        }
+    }
 }
