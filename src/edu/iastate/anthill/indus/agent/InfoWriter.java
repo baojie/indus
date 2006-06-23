@@ -124,11 +124,19 @@ public class InfoWriter
         return res.equals(RES_OK);
     }
 
-    public static boolean deleteType(String name)
+    public static boolean deleteTypeOld(String name)
     {
         return delete(CMD_DELETE_TYPE, name);
     }
 
+    // 2006-06-22
+    public static boolean deleteType(String name)
+    {
+        String sql = "DELETE FROM types WHERE name = '"+name+"'";
+        Connection db = IndusBasis.indusSystemDB.db;        
+        return JDBCUtils.updateDatabase(db,sql);
+    }
+    
     public static boolean deleteSchema(String name)
     {
         return delete(CMD_DELETE_SCHEMA, name);

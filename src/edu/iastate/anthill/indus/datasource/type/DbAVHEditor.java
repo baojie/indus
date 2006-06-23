@@ -31,8 +31,7 @@ import edu.iastate.utils.undo.BulkEditingAction;
 import edu.iastate.utils.undo.EditingAction;
 
 // popup menu on the tree
-public class DbAVHEditor
-    extends AVHEditor
+public class DbAVHEditor extends AVHEditor
 {
 
     public DbAVHEditor(JPanel panel, AVH avh)
@@ -51,8 +50,8 @@ public class DbAVHEditor
             {
                 tree.setSelectionPath(selPath);
 
-                final TypedNode selectedNode = (TypedNode)
-                    selPath.getLastPathComponent();
+                final TypedNode selectedNode = (TypedNode) selPath
+                        .getLastPathComponent();
 
                 //Debug.trace("double clicked on " + selectedNode);
                 addOneLevel(selectedNode);
@@ -81,10 +80,10 @@ public class DbAVHEditor
         // if there is no new child
         if (subTree.getTop().getChildCount() > 0)
         {
-            BulkEditingAction action = amendNode(tree, selectedNode,
-                                                 subTree.getTop());
-            action.summary = "Insert from template, root = '" + root +
-                "', cutoff = '" + c + "'";
+            BulkEditingAction action = amendNode(tree, selectedNode, subTree
+                    .getTop());
+            action.summary = "Insert from template, root = '" + root
+                    + "', cutoff = '" + c + "'";
             history.addAction(action);
             changed(selectedNode);
         }
@@ -101,18 +100,17 @@ public class DbAVHEditor
             {
                 popup.add(new JSeparator());
                 addMenuItem("Add subtree from template",
-                            IndusConstants.iconDbTree,
-                            new AddFromTemplateAction(selectedNode));
+                        IndusConstants.iconDbTree, new AddFromTemplateAction(
+                                selectedNode));
                 addMenuItem("Add term set from template",
-                            IndusConstants.iconDbSet,
-                            new AddSetFromTemplateAction(selectedNode));
+                        IndusConstants.iconDbSet, new AddSetFromTemplateAction(
+                                selectedNode));
             }
         }
     }
 
     // 2005-03-31
-    class AddFromTemplateAction
-        implements ActionListener
+    class AddFromTemplateAction implements ActionListener
     {
         TypedNode theNode;
 
@@ -128,37 +126,38 @@ public class DbAVHEditor
             DbAVH myDbAVH = (DbAVH) avh;
             // ask for insert root and cutoff level on template tree
             // ask for root the cutoff
-            String root = JOptionPane.showInputDialog(
-                "Give the sub tree you want to be imported from template '" +
-                avh.template + "'" + "\nLeave it blank if you want the '" +
-                avh.template + "' root node" +
-                "\n\nYou will be asked for the cutoff depth of the subtree in the next step"
-                , theNode.getUserObject());
-            if (root == null)
-            {
-                return;
-            }
+            String root = JOptionPane
+                    .showInputDialog(
+                            "Give the sub tree you want to be imported from template '"
+                                    + avh.template
+                                    + "'"
+                                    + "\nLeave it blank if you want the '"
+                                    + avh.template
+                                    + "' root node"
+                                    + "\n\nYou will be asked for the cutoff depth of the subtree in the next step",
+                            theNode.getUserObject());
+            if (root == null) { return; }
 
             if (root.trim().equals(""))
             {
                 root = myDbAVH.templateTree.getRootId();
-                String info = "You will import from '" + avh.template + "':" +
-                    root;
+                String info = "You will import from '" + avh.template + "':"
+                        + root;
                 JOptionPane.showMessageDialog(null, info);
             }
 
             String cutoff = JOptionPane.showInputDialog(
-                "Give the cutoff depth of the new subtree" +
-                "\n put -1 here if you want the whole sub tree", "1");
-            if (cutoff == null)
-            {
-                return;
-            }
+                    "Give the cutoff depth of the new subtree"
+                            + "\n put -1 here if you want the whole sub tree",
+                    "1");
+            if (cutoff == null) { return; }
 
             try
             {
                 int c = Integer.parseInt(cutoff);
                 TypedTree subTree = myDbAVH.templateTree.getTree(root, c);
+                //System.out.println(subTree);
+
                 // if there is no new child
                 if (subTree.getTop().getChildCount() == 0)
                 {
@@ -167,10 +166,10 @@ public class DbAVHEditor
                 }
                 else
                 {
-                    BulkEditingAction action = amendNode(tree, theNode,
-                        subTree.getTop());
-                    action.summary = "Insert from template, root = '" + root +
-                        "', cutoff = '" + c + "'";
+                    BulkEditingAction action = amendNode(tree, theNode, subTree
+                            .getTop());
+                    action.summary = "Insert from template, root = '" + root
+                            + "', cutoff = '" + c + "'";
                     history.addAction(action);
                     changed(theNode);
                 }
@@ -178,7 +177,7 @@ public class DbAVHEditor
             catch (NumberFormatException ex)
             {
                 JOptionPane.showMessageDialog(null,
-                                              "Cutoff value is not correct!");
+                        "Cutoff value is not correct!");
                 return;
             }
 
@@ -186,63 +185,63 @@ public class DbAVHEditor
     }
 
     /**
+     * Merge newNode with oldNode
+     * 
      * @since 2005-04-21
      * @param tree TypedTree
-     * @param node TypedNode
+     * @param oldNode TypedNode
      * @param newNode TypedNode
      */
-    public BulkEditingAction amendNode(TypedTree tree, TypedNode node,
-                                       TypedNode newNode)
+    public BulkEditingAction amendNode(TypedTree tree, TypedNode oldNode,
+            TypedNode newNode)
     {
         DefaultTreeModel model = tree.getModel();
-        BulkEditingAction bulk = new BulkEditingAction(node);
+        BulkEditingAction bulk = new BulkEditingAction(oldNode);
 
         // get the existing children
         Vector oldSons = new Vector();
-        int oldSonCount = node.getChildCount();
+        int oldSonCount = oldNode.getChildCount();
 
         for (int j = 0; j < oldSonCount; j++)
         {
-            TypedNode son = (TypedNode) node.getChildAt(j);
+            TypedNode son = (TypedNode) oldNode.getChildAt(j);
             oldSons.add(son.getUserObject());
         }
-        if (node.getUserObject().equals(newNode.getUserObject()))
+
+        // add all children of new node to oldNode if it's new
+        Vector newSons = new Vector();
+        for (Enumeration e = newNode.children(); e.hasMoreElements();)
         {
-            // add all children of new node to oldNode if it's new
-            Vector newSons = new Vector();
-            for (Enumeration e = newNode.children(); e.hasMoreElements(); )
-            {
-                newSons.add(e.nextElement());
-            }
-
-            for (Enumeration e = newSons.elements(); e.hasMoreElements(); )
-            {
-                TypedNode kid = (TypedNode) e.nextElement();
-                System.out.println(kid);
-                // new id, insert it
-                if (!oldSons.contains(kid.getUserObject()))
-                {
-                    model.insertNodeInto(kid, node, node.getChildCount());
-                    EditingAction action = new TreeNodeInsertEditing(
-                        tree, kid, node);
-                    bulk.addAction(action);
-                }
-                else // old id , amend it
-                {
-                    int idx = oldSons.indexOf(kid.getUserObject());
-                    TypedNode oldSon = (TypedNode) node.getChildAt(idx);
-                    EditingAction action = amendNode(tree, oldSon,kid);
-                    bulk.addAction(action);
-                }
-            }
-
+            newSons.add(e.nextElement());
         }
+
+        for (Enumeration e = newSons.elements(); e.hasMoreElements();)
+        {
+            TypedNode kid = (TypedNode) e.nextElement();
+            //System.out.println(kid);
+            // new id, insert it
+            if (!oldSons.contains(kid.getUserObject()))
+            {
+                model.insertNodeInto(kid, oldNode, oldNode.getChildCount());
+                EditingAction action = new TreeNodeInsertEditing(tree, kid,
+                        oldNode);
+                bulk.addAction(action);
+            }
+            else
+            // old id , amend it
+            {
+                int idx = oldSons.indexOf(kid.getUserObject());
+                TypedNode oldSon = (TypedNode) oldNode.getChildAt(idx);
+                EditingAction action = amendNode(tree, oldSon, kid);
+                bulk.addAction(action);
+            }
+        }
+
         return bulk;
     }
 
     // 2005-04-07
-    class AddSetFromTemplateAction
-        implements ActionListener
+    class AddSetFromTemplateAction implements ActionListener
     {
         TypedNode theNode;
 
@@ -260,11 +259,11 @@ public class DbAVHEditor
             LabelledItemPanel myContentPane = new LabelledItemPanel();
             myContentPane.setBorder(BorderFactory.createEtchedBorder());
             myContentPane.addItem(" ", new JLabel(
-                "Please give a set of id, ONE id per line"));
+                    "Please give a set of id, ONE id per line"));
             JTextArea idSet = new JTextArea(10, 20);
             myContentPane.addItem("ID Set", new JScrollPane(idSet,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
             dlg.setContentPane(myContentPane);
             dlg.pack();
             dlg.setVisible(true);
@@ -275,8 +274,8 @@ public class DbAVHEditor
                 Set ids = new HashSet(Arrays.asList(all));
                 Debug.trace(ids);
 
-                BulkEditingAction
-                    action = myDbAVH.templateTree.insertSet(avh.treeAVT, ids);
+                BulkEditingAction action = myDbAVH.templateTree.insertSet(
+                        avh.treeAVT, ids);
                 action.summary = "Add " + ids.size() + " terms from template";
 
                 history.addAction(action);

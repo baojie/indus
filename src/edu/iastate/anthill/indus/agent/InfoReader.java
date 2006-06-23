@@ -114,12 +114,17 @@ public class InfoReader implements IndusCommand
         DataType newType = new SimpleDataType(name, "");
         if (!DataType.isPredefinedType(name))
         {
-            newType.fromText(text);
+            newType.fromText(text);            
         }
         if (newType.getName() == null)
         {
             newType.setName(name);
         }
+        else
+        {
+            name = newType.getName();
+        }
+        
 
         if ("AVH".equals(newType.getSupertype()))
         {

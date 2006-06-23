@@ -1,10 +1,10 @@
 package edu.iastate.anthill.indus.panel;
 
-import java.util.HashMap;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.util.HashMap;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -12,7 +12,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -56,6 +55,7 @@ public abstract class TypePanelGUI
     BorderLayout borderLayout2 = new BorderLayout();
     FlowLayout flowLayout1 = new FlowLayout();
     JButton btnExportXML = new JButton();
+    JButton btnImportText = new JButton("Import(Text)");
     JButton btnExportText = new JButton();
     JButton btnReload = new JButton("Reload");
     
@@ -88,14 +88,15 @@ public abstract class TypePanelGUI
 
         // button
         btnNewType.setText("New Type");
-        btnExportXML.setText("Export XML");
-        btnExportText.setText("Export Text");
+        btnExportXML.setText("Export(XML)");
+        btnExportText.setText("Export(Text)");
         
         jPanel2.add(btnReload);
         jPanel2.add(btnSave);
         jPanel2.add(btnNewType);
         jPanel2.add(btnExportXML, null);
         jPanel2.add(btnExportText, null);
+        jPanel2.add(btnImportText, null);
         jPanel2.setLayout(flowLayout1);
         rightPanel.add(jPanel2, BorderLayout.SOUTH);
 

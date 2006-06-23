@@ -92,7 +92,7 @@ public class DataSourceMapping
                     for (int i = 0; i < vec.size(); i++)
                     {
                         String avh = (String) vec.elementAt(i);
-                        OntologyMapping m = new OntologyMapping(null, null);
+                        InMemoryOntologyMapping m = new InMemoryOntologyMapping(null, null);
                         m.fromXML(avh);
                         avhMappingList.add(m);
                     }
@@ -127,7 +127,7 @@ public class DataSourceMapping
         for (int i = 0; i < avhMappingList.size(); i++)
         {
             buf.append("<avh>" +
-                       ( (OntologyMapping) avhMappingList.elementAt(i)).
+                       ( (InMemoryOntologyMapping) avhMappingList.elementAt(i)).
                        toXML() +
                        "</avh>");
         }
@@ -136,7 +136,7 @@ public class DataSourceMapping
     }
 
     public SchemaMapping schemaMapping = new SchemaMapping("", "");
-    public Vector avhMappingList = new Vector(); // vector of OntologyMapping
+    public Vector avhMappingList = new Vector(); // vector of InMemoryOntologyMapping
     public String name = null;
 
     public void setSchemaMapping(SchemaMapping schemaMapping)
@@ -144,7 +144,7 @@ public class DataSourceMapping
         this.schemaMapping = schemaMapping;
     }
 
-    public void addAVHMapping(OntologyMapping avhMapping)
+    public void addAVHMapping(InMemoryOntologyMapping avhMapping)
     {
         avhMappingList.add(avhMapping);
     }
@@ -167,14 +167,14 @@ public class DataSourceMapping
         // find the AVH mapping
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping m = (OntologyMapping) avhMappingList.elementAt(i);
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
             if (m.from.equals(AVH1) && m.to.equals(AVH2))
             {
                 return m.addMapping(term1, c, term2);
             }
         }
         // not find
-        OntologyMapping m = new OntologyMapping(AVH1, AVH2);
+        InMemoryOntologyMapping m = new InMemoryOntologyMapping(AVH1, AVH2);
         BridgeRule t = m.addMapping(term1, c, term2);
         avhMappingList.add(m);
         return t;
@@ -195,7 +195,7 @@ public class DataSourceMapping
         // find the AVH mapping
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping m = (OntologyMapping) avhMappingList.elementAt(i);
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
             if (m.from.equals(AVH1) && m.to.equals(AVH2))
             {
                 m.deleteMapping(term1, c, term2);
@@ -241,7 +241,7 @@ public class DataSourceMapping
         // find the AVH1
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping avhMapping = (OntologyMapping) avhMappingList.
+            InMemoryOntologyMapping avhMapping = (InMemoryOntologyMapping) avhMappingList.
                 elementAt(i);
             if (avhMapping.from.equals(AVH1))
             {
@@ -269,7 +269,7 @@ public class DataSourceMapping
         // find the AVH1
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping avhMapping = (OntologyMapping) avhMappingList.
+            InMemoryOntologyMapping avhMapping = (InMemoryOntologyMapping) avhMappingList.
                 elementAt(i);
             if (avhMapping.to.equals(AVH2))
             {
@@ -304,7 +304,7 @@ public class DataSourceMapping
         }
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping o = ( (OntologyMapping) avhMappingList.elementAt(i));
+            InMemoryOntologyMapping o = ( (InMemoryOntologyMapping) avhMappingList.elementAt(i));
             vec.addAll(o.getUserConnectors());
         }
         return vec;
@@ -314,15 +314,15 @@ public class DataSourceMapping
      * Find the right mapping given from and to AVH name
      * @param avhFrom String
      * @param avhTo String
-     * @return OntologyMapping
+     * @return InMemoryOntologyMapping
      * @author Jie Bao
      * @since 2005-03-21
      */
-    public OntologyMapping findAVHMapping(String avhFrom, String avhTo)
+    public InMemoryOntologyMapping findAVHMapping(String avhFrom, String avhTo)
     {
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            OntologyMapping o = ( (OntologyMapping) avhMappingList.elementAt(i));
+            InMemoryOntologyMapping o = ( (InMemoryOntologyMapping) avhMappingList.elementAt(i));
             if (o.from.equals(avhFrom) && o.to.equals(avhTo))
             {
                 return o;
@@ -341,7 +341,7 @@ public class DataSourceMapping
 
         for (int i = 0; i < this.avhMappingList.size(); i++)
         {
-            OntologyMapping m = (OntologyMapping) avhMappingList.elementAt(i);
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
             inverse.avhMappingList.add(m.getMirror());
         }
         return inverse;

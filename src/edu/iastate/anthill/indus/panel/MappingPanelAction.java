@@ -29,7 +29,7 @@ import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
 import edu.iastate.anthill.indus.datasource.mapping.Connector;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
-import edu.iastate.anthill.indus.datasource.mapping.OntologyMapping;
+import edu.iastate.anthill.indus.datasource.mapping.InMemoryOntologyMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.AVH;
@@ -475,7 +475,7 @@ public abstract class MappingPanelAction extends MappingPanelGUI implements
 		// clear current
 		mappingRuleListModel.clear();
 		// build new rule set
-		OntologyMapping schemaMap = map.schemaMapping;
+		InMemoryOntologyMapping schemaMap = map.schemaMapping;
 		if (schemaMap != null) {
 			// Debug.trace(this, "" + schemaMap.mapList.size());
 			for (int j = 0; j < schemaMap.mapList.size(); j++) {
@@ -486,7 +486,7 @@ public abstract class MappingPanelAction extends MappingPanelGUI implements
 		}
 		// Debug.trace(this, "" + map.avhMappingList.size());
 		for (int i = 0; i < map.avhMappingList.size(); i++) {
-			OntologyMapping avhMap = (OntologyMapping) map.avhMappingList
+			InMemoryOntologyMapping avhMap = (InMemoryOntologyMapping) map.avhMappingList
 					.elementAt(i);
 			for (int j = 0; j < avhMap.mapList.size(); j++) {
 				BridgeRule b = (BridgeRule) avhMap.mapList.elementAt(j);

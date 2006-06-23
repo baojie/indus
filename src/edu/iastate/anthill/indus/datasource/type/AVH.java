@@ -1,5 +1,6 @@
 package edu.iastate.anthill.indus.datasource.type;
 
+import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -7,11 +8,9 @@ import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreeSelectionModel;
-
 
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.DataSourceNode;
@@ -20,8 +19,6 @@ import edu.iastate.anthill.indus.tree.TreeNodeMoveEditing;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
 import edu.iastate.anthill.indus.tree.TypedTreeRender;
-
-import edu.iastate.utils.Debug;
 import edu.iastate.utils.gui.DragDropListener;
 import edu.iastate.utils.string.SimpleXMLParser;
 
@@ -31,10 +28,11 @@ import edu.iastate.utils.string.SimpleXMLParser;
  */
 
 public class AVH extends DAG implements Configable {
+
+    private static final long serialVersionUID = -205004159734123062L;
+
     TypedTree treeAVT = null;
-
     String nameOfOrder = null;
-
     public String template = null; // 2005-03-30
 
     public AVH() {

@@ -23,6 +23,9 @@ import edu.iastate.utils.Utility ;
  */
 public class JDBCUtils
 {
+    private static final boolean DEBUG = false;
+    
+    
     /**
      *
      * @param db Connection
@@ -210,7 +213,7 @@ public class JDBCUtils
         // add it into the database
         try
         {
-            System.out.println("     " + sql) ;
+            if (DEBUG)  System.out.println("     " + sql) ;
             PreparedStatement updatest = db.prepareStatement(sql) ;
             updatest.executeUpdate() ;
             updatest.close() ;
@@ -237,7 +240,7 @@ public class JDBCUtils
         try
         {
             // add it into the database
-            System.out.println("     " + sql) ;
+            if (DEBUG) System.out.println("     " + sql) ;
             PreparedStatement updatest = db.prepareStatement(sql) ;
             updatest.executeUpdate() ;
             updatest.close() ;
@@ -310,7 +313,7 @@ public class JDBCUtils
     {
         try
         {
-            System.out.println(sql) ;
+            if (DEBUG) System.out.println(sql) ;
 
             Statement stmt = db.createStatement() ;
             ResultSet resultSet = stmt.executeQuery(sql) ;
@@ -336,7 +339,7 @@ public class JDBCUtils
     {
         try
         {
-            System.out.println(sql) ;
+            if (DEBUG) System.out.println(sql) ;
 
             Statement stmt = db.createStatement() ;
             ResultSet resultSet = stmt.executeQuery(sql) ;
@@ -373,7 +376,7 @@ public class JDBCUtils
     {
         try
         {
-            System.out.println(sql) ;
+            if (DEBUG) System.out.println(sql) ;
 
             Statement stmt = db.createStatement() ;
             ResultSet resultSet = stmt.executeQuery(sql) ;
@@ -403,7 +406,7 @@ public class JDBCUtils
     {
         try
         {
-            System.out.println(sql) ;
+            if (DEBUG) System.out.println(sql) ;
 
             Statement stmt = db.createStatement() ;
             ResultSet resultSet = stmt.executeQuery(sql) ;
@@ -436,7 +439,7 @@ public class JDBCUtils
     {
         try
         {
-            System.out.println(sql) ;
+            if (DEBUG) System.out.println(sql) ;
             // Select the number of rows in the table
             Statement stmt = db.createStatement() ;
             ResultSet resultSet = stmt.executeQuery(sql) ;
@@ -445,7 +448,7 @@ public class JDBCUtils
             if(resultSet.next())
             {
                 int rowcount = resultSet.getInt(1) ;
-                System.out.println("    ==>" + rowcount) ;
+                if (DEBUG) System.out.println("    ==>" + rowcount) ;
                 return rowcount ;
             }
             else
@@ -476,7 +479,7 @@ public class JDBCUtils
         {
             sql = sql + " WHERE " + where + ";" ;
         }
-        System.out.println(sql) ;
+        if (DEBUG) System.out.println(sql) ;
         return getCount(db, sql) ;
     }
 
@@ -629,8 +632,7 @@ public class JDBCUtils
      * @since 2005-03-03
      */
     public static boolean insertOrUpdateDatabase(Connection db,
-        String tableName,
-        Map field_value, String Pk)
+        String tableName,  Map field_value, String Pk)
     {
         // query it
         String pkValue = (String)field_value.get(Pk) ;

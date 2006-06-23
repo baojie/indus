@@ -2,8 +2,9 @@ package edu.iastate.anthill.indus.query;
 
 import java.util.Map;
 
+import edu.iastate.anthill.indus.datasource.SampleBuilder;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
-import edu.iastate.anthill.indus.datasource.mapping.OntologyMapping;
+import edu.iastate.anthill.indus.datasource.mapping.InMemoryOntologyMapping;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 
 import Zql.ZExp;
@@ -16,7 +17,7 @@ import Zql.ZQuery;
  * @since 1.0 2005-03-20
  */
 public class SQLQueryTranslatorTest
-    extends SQLQuerySampleBuilder
+    extends SampleBuilder
 {
     /**
      * @author Jie Bao
@@ -79,7 +80,7 @@ public class SQLQueryTranslatorTest
     public static void testTranslateAVHAtomWhere()
     {
         String remoteColName = "madeIn";
-        OntologyMapping mapping = buildSampleOntologyMapping();
+        InMemoryOntologyMapping mapping = buildSampleOntologyMapping();
 
         SQLQueryTranslator qe = new SQLQueryTranslator();
 

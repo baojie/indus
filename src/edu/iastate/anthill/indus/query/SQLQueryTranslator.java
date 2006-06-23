@@ -9,7 +9,7 @@ import java.util.Vector;
 import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
-import edu.iastate.anthill.indus.datasource.mapping.OntologyMapping;
+import edu.iastate.anthill.indus.datasource.mapping.InMemoryOntologyMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SchemaMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
@@ -28,7 +28,8 @@ import Zql.ZSelectItem;
  * @author Jie Bao
  * @since 1.0 2005-03-18
  */
-public class SQLQueryTranslator extends SQLQueryRewriter {
+public class SQLQueryTranslator extends SQLQueryRewriter
+{
     /**
      * @since 2005-03-29
      * @param localSelect
@@ -41,32 +42,41 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      *            Schema
      */
     Vector translateInverseSelect(Vector localSelect,
-            DataSourceMapping mapping, Schema localSchema, Schema remoteSchema) {
+            DataSourceMapping mapping, Schema localSchema, Schema remoteSchema)
+    {
         SchemaMapping s_mapping = mapping.schemaMapping;
 
         Vector remoteSelects = new Vector();
-        for (Iterator it = localSelect.iterator(); it.hasNext();) {
+        for (Iterator it = localSelect.iterator(); it.hasNext();)
+        {
             ZSelectItem col = (ZSelectItem) it.next();
             String colName = col.getColumn();
 
             BridgeRule r = s_mapping.findCompatibleOrEqual(colName);
             // Debug.trace("the rule: " + r);
-            if (r != null) {
+            if (r != null)
+            {
                 String remoteColName = r.toTerm;
                 ZSelectItem remoteCol;
                 // 2005-03-29 make inverse mapping
-                if (r.connector instanceof NumericConnector) {
+                if (r.connector instanceof NumericConnector)
+                {
                     NumericConnector nc = (NumericConnector) r.connector;
-                    if (nc.inverseExpression != null) {
+                    if (nc.inverseExpression != null)
+                    {
                         String cast = "(CAST (" + remoteColName + " AS real))";
                         String str = nc.inverseExpression.toLowerCase()
                                 .replaceAll("x", cast);
                         remoteCol = new ZSelectItem(str);
 
-                    } else {
+                    }
+                    else
+                    {
                         remoteCol = new ZSelectItem(remoteColName);
                     }
-                } else // string, avh, date, boolean
+                }
+                else
+                // string, avh, date, boolean
                 {
                     // non numeric attribute,
 
@@ -76,17 +86,20 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
                     String remoteType = remoteSchema.getType(remoteColName);
 
                     // second, find the right AVH mapping in the DS mapping
-                    OntologyMapping avhMapping = mapping.findAVHMapping(
-                            localType, remoteType);
+                    InMemoryOntologyMapping avhMapping = mapping
+                            .findAVHMapping(localType, remoteType);
                     if (avhMapping == null) // no such mapping
                     {
                         remoteCol = new ZSelectItem(remoteColName);
-                    } else {
+                    }
+                    else
+                    {
                         // get the set of equalvalence
                         Vector equ = avhMapping.getEQU();
                         StringBuffer cast = new StringBuffer();
                         cast.append("CASE ");
-                        for (int i = 0; i < equ.size(); i++) {
+                        for (int i = 0; i < equ.size(); i++)
+                        {
                             BridgeRule rule = (BridgeRule) equ.elementAt(i);
                             cast.append(" WHEN " + remoteColName + " ='"
                                     + rule.toTerm + "' THEN '" + localType
@@ -103,7 +116,9 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
                 }
                 remoteSelects.add(remoteCol);
                 // Debug.trace(colName + " is mapped to " + remoteColName);
-            } else {
+            }
+            else
+            {
                 // if there is no mapping for this attribute, return empty
                 // string
                 ZSelectItem remoteCol = new ZSelectItem("null");
@@ -133,7 +148,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      */
     public ZQuery translateQuery(ZQuery localQuery, String remoteDataSource,
             DataSourceMapping mapping, Schema localSchema, Schema remoteSchema,
-            boolean returnInLocalTerm) {
+            boolean returnInLocalTerm)
+    {
         SchemaMapping s_mapping = mapping.schemaMapping;
         // Debug.trace(s_mapping);
 
@@ -152,11 +168,15 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         // where
         ZExp where = localQuery.getWhere();
         if (where == null || "".equals(where.toString())
-                || "()".equals(where.toString())) {
-        } else if (where instanceof ZExpression) {
+                || "()".equals(where.toString()))
+        {}
+        else if (where instanceof ZExpression)
+        {
             remoteQuery.addWhere(translateWhere((ZExpression) where, mapping,
                     localSchema, remoteSchema));
-        } else {
+        }
+        else
+        {
             remoteQuery.addWhere(where);
         }
         // Debug.trace("where = " + remoteQuery.getWhere());
@@ -186,27 +206,35 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      */
     private Vector translateSelect(ZQuery localQuery,
             DataSourceMapping mapping, Schema localSchema, Schema remoteSchema,
-            boolean returnInLocalTerm, SchemaMapping s_mapping) {
+            boolean returnInLocalTerm, SchemaMapping s_mapping)
+    {
         // select : we don't process * , only column names
         Vector localSelect = localQuery.getSelect();
         Vector remoteSelects = new Vector();
-        if (returnInLocalTerm) {
+        if (returnInLocalTerm)
+        {
             remoteSelects = translateInverseSelect(localSelect, mapping,
                     localSchema, remoteSchema);
-        } else {
-            for (Iterator it = localSelect.iterator(); it.hasNext();) {
+        }
+        else
+        {
+            for (Iterator it = localSelect.iterator(); it.hasNext();)
+            {
                 ZSelectItem col = (ZSelectItem) it.next();
                 String colName = col.getColumn();
 
                 BridgeRule r = s_mapping.findCompatibleOrEqual(colName);
                 // Debug.trace("the rule: " + r);
-                if (r != null) {
+                if (r != null)
+                {
                     String remoteColName = r.toTerm;
                     ZSelectItem remoteCol;
                     remoteCol = new ZSelectItem(remoteColName);
                     remoteSelects.add(remoteCol);
                     // Debug.trace(colName + " is mapped to " + remoteColName);
-                } else {
+                }
+                else
+                {
                     // if there is no mapping for this attribute, return empty
                     // string
                     ZSelectItem remoteCol = new ZSelectItem("null");
@@ -234,35 +262,43 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
 
     {
         // System.out.println(where);
-        if (isAtomWhere(where)) {
+        if (isAtomWhere(where))
+        {
             // System.out.println(" is Atom Where Expression ");
             return translateAtomWhere(where, mapping, localSchema, remoteSchema);
-        } else {
+        }
+        else
+        {
             // System.out.println(" not Atom Where Expression ");
             // rewrite its component clauses
             ZExpression newExp = new ZExpression(where.getOperator());
             Vector ops = where.getOperands();
-            for (Iterator it = ops.iterator(); it.hasNext();) {
+            for (Iterator it = ops.iterator(); it.hasNext();)
+            {
                 ZExp element = (ZExp) it.next();
                 // System.out.println(" sub expression: " + element +
                 // " of " + element.getClass());
 
-                if (element instanceof ZExpression) {
+                if (element instanceof ZExpression)
+                {
                     ZExp zzz = translateWhere((ZExpression) element, mapping,
                             localSchema, remoteSchema);
                     // don't add null or empty expression
-                    if (zzz instanceof ZExpression) {
-                        if (!SQLQueryBuilder.hasOperand((ZExpression)zzz))
+                    if (zzz instanceof ZExpression)
+                    {
+                        if (!SQLQueryBuilder.hasOperand((ZExpression) zzz))
                             continue;
-//                        if (((ZExpression) zzz).getOperands() == null) {
-//                            continue;
-//                        }
-//                        if (((ZExpression) zzz).getOperands().size() == 0) {
-//                            continue;
-//                        }
+                        //                        if (((ZExpression) zzz).getOperands() == null) {
+                        //                            continue;
+                        //                        }
+                        //                        if (((ZExpression) zzz).getOperands().size() == 0) {
+                        //                            continue;
+                        //                        }
                     }
                     newExp.addOperand(zzz);
-                } else {
+                }
+                else
+                {
                     newExp.addOperand(element);
                 }
             }
@@ -294,7 +330,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      * @since 2005-03-21
      */
     public ZExp translateAtomWhere(ZExpression where,
-            DataSourceMapping mapping, Schema localSchema, Schema remoteSchema) {
+            DataSourceMapping mapping, Schema localSchema, Schema remoteSchema)
+    {
         // System.out.println(where);
         // Debug.trace(where);
         // System.out.println(where.getOperand(0).getClass());
@@ -317,7 +354,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         BridgeRule r = s_mapping.findCompatibleOrEqual(localAttributeName);
         // System.out.println("BridgeRule = " + r);
 
-        if (r == null) {
+        if (r == null)
+        {
             // can't find a peer remote attribute,
             return new ZExpression("AND");
         }
@@ -327,22 +365,28 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         ZExp operand2 = where.getOperand(1);
         ZConstantEx operand2Type = (ZConstantEx) operand2;
 
-        if (operand2Type.getType() == ZConstantEx.STRING) {
+        if (operand2Type.getType() == ZConstantEx.STRING)
+        {
             // If it is a string, simply do nothing.
             return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
                     operator, localValue, ZConstantEx.STRING);
-        } else if (operand2Type.getType() == ZConstantEx.NUMBER) {
+        }
+        else if (operand2Type.getType() == ZConstantEx.NUMBER)
+        {
             String newValue = localValue;
             // if there is a numberical bridge rule between localAttributeName
             // and
             // remoteAttributeName
-            if (r.connector instanceof NumericConnector) {
+            if (r.connector instanceof NumericConnector)
+            {
                 newValue = ((NumericConnector) r.connector).eval(localValue);
             }
 
             return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
                     operator, newValue, ZConstantEx.NUMBER);
-        } else if (operand2Type.getType() == ZConstantEx.COLUMNNAME) {
+        }
+        else if (operand2Type.getType() == ZConstantEx.COLUMNNAME)
+        {
             // If it is a column name, change the name in terms of the data
             // source schema.
             r = s_mapping.findEqual(localValue);
@@ -350,7 +394,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
 
             return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
                     operator, remoteOperandName2, ZConstantEx.COLUMNNAME);
-        } else if (operand2Type.getType() == ZConstantEx.AVH) // This is for
+        }
+        else if (operand2Type.getType() == ZConstantEx.AVH) // This is for
         // AVH Only
         {
             // find the right AVH mapping for given local and remote attribute
@@ -363,8 +408,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
 
             // second, find the right AVH mapping in the DS mapping
             // System.out.println(localType+","+remoteType);
-            OntologyMapping avhMapping = mapping.findAVHMapping(localType,
-                    remoteType);
+            InMemoryOntologyMapping avhMapping = mapping.findAVHMapping(
+                    localType, remoteType);
 
             return translateAVHAtomWhere(where, remoteAttributeName, avhMapping);
         }
@@ -382,7 +427,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      * @since 2005-03-21
      */
     private ZExpression translateAVHAtomWhereOld(ZExpression where,
-            String remoteColName, OntologyMapping mapping) {
+            String remoteColName, InMemoryOntologyMapping mapping)
+    {
         // System.out.println(where + " is AVH Atom Where");
         String localOperator = (String) where.getOperator();
         // String localColName = ( (ZConstantEx)
@@ -399,7 +445,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         BridgeRule rule = mapping.findEqual(localValueName);
         // System.out.println(localValueName + ": " +rule);
 
-        if (rule != null) {
+        if (rule != null)
+        {
             // System.out.println(" Find EQU rule " + rule);
             String remoteValueName = rule.toTerm;
             ZExpression translated = SQLQueryBuilder.buildAttributeValuePair(
@@ -409,18 +456,21 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
             return translated;
         }
 
-        else {
+        else
+        {
             // find applicable bridge rules
             Vector applicableRules = mapping.findMapped(localValueName);
             ZExpression modifiedWhere = new ZExpression("AND");
 
-            for (Iterator it = applicableRules.iterator(); it.hasNext();) {
+            for (Iterator it = applicableRules.iterator(); it.hasNext();)
+            {
                 BridgeRule aRule = (BridgeRule) it.next();
                 // System.out.println("Find a rule " + aRule);
 
                 if (aRule.connector.equals(SimpleConnector.ONTO)) // >=
                 {
-                    if (localOperator.equals("<=") || localOperator.equals("<")) {
+                    if (localOperator.equals("<=") || localOperator.equals("<"))
+                    {
                         String remoteValueName = aRule.toTerm;
                         ZExpression clause = SQLQueryBuilder
                                 .buildAttributeValuePair(remoteColName,
@@ -428,9 +478,11 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
                                         ZConstantEx.AVH);
                         modifiedWhere.addOperand(clause);
                     }
-                } else if (aRule.connector.equals(SimpleConnector.INTO)) // <=
+                }
+                else if (aRule.connector.equals(SimpleConnector.INTO)) // <=
                 {
-                    if (localOperator.equals(">=") || localOperator.equals(">")) {
+                    if (localOperator.equals(">=") || localOperator.equals(">"))
+                    {
                         String remoteValueName = aRule.toTerm;
                         ZExpression clause = SQLQueryBuilder
                                 .buildAttributeValuePair(remoteColName,
@@ -438,10 +490,12 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
                                         ZConstantEx.AVH);
                         modifiedWhere.addOperand(clause);
                     }
-                } else if (aRule.connector.equals(SimpleConnector.UNEQU)) // !=
+                }
+                else if (aRule.connector.equals(SimpleConnector.UNEQU)) // !=
                 {
                     if (localOperator.equals("=") || localOperator.equals("<")
-                            || localOperator.equals("<=")) {
+                            || localOperator.equals("<="))
+                    {
                         String remoteValueName = aRule.toTerm;
                         ZExpression clause = SQLQueryBuilder
                                 .buildAttributeValuePair(remoteColName, "!=",
@@ -477,8 +531,9 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      * @param mapping
      * @return
      */
-    public ZExp translateAVHAtomWhere(ZExpression where,
-            String remoteColName, OntologyMapping mapping) {
+    public ZExp translateAVHAtomWhere(ZExpression where, String remoteColName,
+            InMemoryOntologyMapping mapping)
+    {
 
         String localOperator = (String) where.getOperator(); // e.g. <=
         String localValueName = ((ZConstantEx) (where.getOperand(1)))
@@ -491,7 +546,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         ZExpression ontoClause = new ZExpression("OR");
         ZExpression intoClause = new ZExpression("AND");
 
-        for (BridgeRule aRule : applicableRules) {
+        for (BridgeRule aRule : applicableRules)
+        {
             // System.out.println("Find a rule " + aRule);
             String remoteValueName = aRule.toTerm;
             ZExpression clause = SQLQueryBuilder.buildAttributeValuePair(
@@ -501,27 +557,31 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
             if (aRule.connector.equals(SimpleConnector.EQU)) // =
             {
                 equClause.addOperand(clause);
-            } else if (aRule.connector.equals(SimpleConnector.ONTO)) // >=
+            }
+            else if (aRule.connector.equals(SimpleConnector.ONTO)) // >=
             {
-                if (localOperator.equals("<=") || localOperator.equals("<")) {
+                if (localOperator.equals("<=") || localOperator.equals("<"))
+                {
 
                     ontoClause.addOperand(clause);
                 }
-            } else if (aRule.connector.equals(SimpleConnector.INTO)) // <=
+            }
+            else if (aRule.connector.equals(SimpleConnector.INTO)) // <=
             {
-                if (localOperator.equals(">=") || localOperator.equals(">")) {
+                if (localOperator.equals(">=") || localOperator.equals(">"))
+                {
                     intoClause.addOperand(clause);
                 }
             }
         }
-        
-        if (SQLQueryBuilder.hasOperand(equClause) )
+
+        if (SQLQueryBuilder.hasOperand(equClause))
             modifiedWhere.addOperand(equClause);
         if (SQLQueryBuilder.hasOperand(ontoClause))
             modifiedWhere.addOperand(ontoClause);
         if (SQLQueryBuilder.hasOperand(intoClause))
             modifiedWhere.addOperand(intoClause);
-        
+
         // avoid empty AND clause
         //modifiedWhere.addOperand(new ZConstantEx("1",ZConstantEx.NUMBER));
 
@@ -532,8 +592,6 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         return translated;
 
     }
-    
-
 
     /**
      * an expression is an atom where expression if it 1. has two oprand 2. the
@@ -545,21 +603,18 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      *            ZExp
      * @return boolean
      */
-    private boolean isAtomWhere(ZExpression where) {
+    private boolean isAtomWhere(ZExpression where)
+    {
         // condition 1, 4
         if (where.getOperands().size() != 2
-                || !SQLQueryBuilder.isAvhOp(where.getOperator())) {
-            return false;
-        }
+                || !SQLQueryBuilder.isAvhOp(where.getOperator())) { return false; }
 
         // condition 2,3 part 1
         ZExp oprand1 = where.getOperand(0);
         ZExp oprand2 = where.getOperand(1);
 
         if (!(oprand1 instanceof ZConstantEx)
-                && !(oprand2 instanceof ZConstantEx)) {
-            return false;
-        }
+                && !(oprand2 instanceof ZConstantEx)) { return false; }
 
         // condition 2,3 part 2
         ZConstantEx op1 = (ZConstantEx) oprand1;
@@ -569,9 +624,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
                 || (op2.getType() != ZConstantEx.STRING
                         && op2.getType() != ZConstantEx.NUMBER
                         && op2.getType() != ZConstantEx.COLUMNNAME && op2
-                        .getType() != ZConstantEx.AVH)) {
-            return false;
-        }
+                        .getType() != ZConstantEx.AVH)) { return false; }
         return true;
     }
 
@@ -594,7 +647,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
     public ZQuery doTranslate(ZQuery localQuery, String remoteDataSourceName,
             DataSourceMapping dsMapping, Map localAttributeToAVH,
             Map remoteAttributeToAVH, Schema localSchema, Schema remoteSchema,
-            boolean inLocalTerm) {
+            boolean inLocalTerm)
+    {
         // do the query rewriting wrt local AVHs
         System.out.println("Original: " + localQuery);
 
@@ -604,7 +658,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
 
         // add the local world limitation
         ZExp where = q.getWhere();
-        if (where instanceof ZExpression) {
+        if (where instanceof ZExpression)
+        {
             q.addWhere(addLocalWorldLimitation((ZExpression) where,
                     localAttributeToAVH));
         }
@@ -612,7 +667,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
 
         // remove all IN and NOT IN
         where = q.getWhere();
-        if (where instanceof ZExpression) {
+        if (where instanceof ZExpression)
+        {
             where = removeIN((ZExpression) where);
             q.addWhere(where);
         }
@@ -626,9 +682,9 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         System.out.println("Translated: " + q);
 
         // rewriting the query wrt remote AVHs
-        q = rewriteWithAVH(q, remoteAttributeToAVH, false, false);
+        q = rewriteWithAVH(q, remoteAttributeToAVH, false, true);
         System.out.println("Final: " + q);
-        
+
         //SQLQueryBuilder.optimize((ZExpression)q.getWhere());
 
         return q;
@@ -648,13 +704,15 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      * @since 2005-03-22
      */
     public ZExpression addLocalWorldLimitation(ZExpression where,
-            Map attributeToAVH) {
+            Map attributeToAVH)
+    {
         ZExpression ze = new ZExpression("AND");
         ze.addOperand(where);
 
         Set usedColumn = getUsedColumn(where, attributeToAVH);
 
-        for (Iterator it = usedColumn.iterator(); it.hasNext();) {
+        for (Iterator it = usedColumn.iterator(); it.hasNext();)
+        {
             String attribute = (String) it.next();
             AVH avhTree = (AVH) attributeToAVH.get(attribute);
             TypedTree ontology = avhTree.getTreeAVH();
@@ -675,37 +733,45 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
      * @return Vector
      * @since 2005-03-22
      */
-    public Set getUsedColumn(ZExpression where, Map attributeToAVH) {
+    public Set getUsedColumn(ZExpression where, Map attributeToAVH)
+    {
         Set result = new HashSet();
         // System.out.println(where);
 
-        if (isAtomWhere(where)) {
+        if (isAtomWhere(where))
+        {
             ZConstantEx op1 = (ZConstantEx) where.getOperand(0);
             ZConstantEx op2 = (ZConstantEx) where.getOperand(1);
             String name1 = op1.getValue();
             String name2 = op2.getValue();
 
             if (op1.getType() == ZConstantEx.COLUMNNAME
-                    && attributeToAVH.get(name1) != null) {
+                    && attributeToAVH.get(name1) != null)
+            {
                 result.add(name1);
             }
             if (op2.getType() == ZConstantEx.COLUMNNAME
-                    && attributeToAVH.get(name2) != null) {
+                    && attributeToAVH.get(name2) != null)
+            {
                 result.add(name2);
             }
 
-        } else {
+        }
+        else
+        {
             Vector ops = where.getOperands();
-            if (ops == null || ops.size() == 0) {
-                return result;
-            }
+            if (ops == null || ops.size() == 0) { return result; }
 
-            for (Iterator it = ops.iterator(); it.hasNext();) {
+            for (Iterator it = ops.iterator(); it.hasNext();)
+            {
                 ZExp element = (ZExp) it.next();
-                if (element instanceof ZExpression) {
+                if (element instanceof ZExpression)
+                {
                     result.addAll(getUsedColumn((ZExpression) element,
                             attributeToAVH));
-                } else {
+                }
+                else
+                {
                     return result;
                 }
 
@@ -714,7 +780,8 @@ public class SQLQueryTranslator extends SQLQueryRewriter {
         return result;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         SQLQueryTranslatorTest.testDoQuery();
     }
 }

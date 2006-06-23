@@ -73,5 +73,46 @@ End of test
 	* empty clause e.g. 'A > 1 AND ()'
 	* orphan clause: (AND (A>1)) => A>1
 
-   
+===================================================================
+
+	Improve the scaleability of mapping and query 
+	
+	1. measure the memory requirement for mappings
+	
+	Measure by serialization
+	* new class Serialization
+	* new class MappingTest
+	      an OntologyMapping object with 200k rules has 
+	      serialization space requirement: 8706163(8.303 MB)
+	      
+	      1k - 37.854 KB
+	      10k - 389.378 KB
+	      100k - 4.046 MB
+	      1M - 42.047 MB
+
+2006-06-22
+	
+	new class InMemoryOntologyMapping (was OntologyMapping)
+	          DbOntologyMapping 
+	          OntologyMapping - as super class of the above two
+	          
+	In memory search : (worst) time used 
+ 	     size of mapping v.s.  tiem (seconds)
+	            1				0
+	            10				0
+				100				0
+				1000			0
+				10000			0.015
+				100000			0.047
+				1000000			0.078
+				10000000		0.203  
+
+    Improved EC iterator: the whole EC database  (4546 ontology terms, 4931 database items)
+        ECIterator
+    
+    Import type from plain text: TypePanelAction.onImportText()
+    
+    Fix bug in DB2Tree    
+    
+    to do : import scop ontology 
   

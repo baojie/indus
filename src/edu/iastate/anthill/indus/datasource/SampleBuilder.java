@@ -1,34 +1,35 @@
-package edu.iastate.anthill.indus.query;
+package edu.iastate.anthill.indus.datasource;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
-import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
-import edu.iastate.anthill.indus.datasource.mapping.OntologyMapping;
-import edu.iastate.anthill.indus.datasource.mapping.SchemaMapping;
-import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
-import edu.iastate.anthill.indus.datasource.schema.Schema;
-import edu.iastate.anthill.indus.datasource.type.AVH;
-import edu.iastate.anthill.indus.tree.TypedNode;
-import edu.iastate.anthill.indus.tree.TypedTree;
-
 import Zql.ZExpression;
 import Zql.ZFromItem;
 import Zql.ZQuery;
 import Zql.ZSelectItem;
+import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
+import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
+import edu.iastate.anthill.indus.datasource.mapping.InMemoryOntologyMapping;
+import edu.iastate.anthill.indus.datasource.mapping.SchemaMapping;
+import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
+import edu.iastate.anthill.indus.datasource.schema.Schema;
+import edu.iastate.anthill.indus.datasource.type.AVH;
+import edu.iastate.anthill.indus.query.SQLQueryBuilder;
+import edu.iastate.anthill.indus.query.SQLQueryTranslator;
+import edu.iastate.anthill.indus.query.ZConstantEx;
+import edu.iastate.anthill.indus.tree.TypedNode;
+import edu.iastate.anthill.indus.tree.TypedTree;
 
 /**
  * Class to create sample AVH, Schema, Mapping, Data Source, View for test purpose
  * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
  * <p>@since 2005-03-25</p>
  */
-public class SQLQuerySampleBuilder
+public class SampleBuilder
 {
-    public SQLQuerySampleBuilder()
-    {
-    }
+    public SampleBuilder()
+    {}
 
     protected static AVH buildSampleAVH_Location()
     {
@@ -76,7 +77,7 @@ public class SQLQuerySampleBuilder
         for (int i = 0; i < ops.length; i++)
         {
             ZExpression ze = qe.rewriteAtomWhere(attribute, ops[i], value,
-                                                 ontology);
+                    ontology);
             System.out.println(ops[i] + " : " + ze);
         }
 
@@ -85,16 +86,16 @@ public class SQLQuerySampleBuilder
         for (int i = 0; i < ops.length; i++)
         {
             ZExpression ze = qe.rewriteAtomWhere(attribute, ops[i], value,
-                                                 ontology);
+                    ontology);
             System.out.println(ops[i] + " : " + ze);
         }
 
         System.out.println("Test leaf node");
         value = "Ames";
-        for (int i = 0; ; i++)
+        for (int i = 0;; i++)
         {
             ZExpression ze = qe.rewriteAtomWhere(attribute, ops[i], value,
-                                                 ontology);
+                    ontology);
             System.out.println(ops[i] + " : " + ze);
         }
     }
@@ -109,8 +110,7 @@ public class SQLQuerySampleBuilder
 
         TypedNode iowa = new TypedNode("Hawkeye");
         sam.add(iowa);
-        TypedNode midiowa = new TypedNode(
-            "MidHawkeye");
+        TypedNode midiowa = new TypedNode("MidHawkeye");
         iowa.add(midiowa);
 
         midiowa.add(new TypedNode("Cyclone"));
@@ -133,12 +133,12 @@ public class SQLQuerySampleBuilder
 
     /**
      * build a sample ontology mapping. the ontologies are
-     * @return OntologyMapping
+     * @return InMemoryOntologyMapping
      * @since 2005-03-21
      */
-    public static OntologyMapping buildSampleOntologyMapping()
+    public static InMemoryOntologyMapping buildSampleOntologyMapping()
     {
-        OntologyMapping mapping = new OntologyMapping("Location", "Nickname");
+        InMemoryOntologyMapping mapping = new InMemoryOntologyMapping("Location", "Nickname");
 
         mapping.addMapping("USA", SimpleConnector.EQU, "UncleSam");
         mapping.addMapping("Iowa", SimpleConnector.EQU, "Hawkeye");
@@ -150,7 +150,7 @@ public class SQLQuerySampleBuilder
         mapping.addMapping("Ames", SimpleConnector.UNEQU, "LastSouthernCity");
         mapping.addMapping("Richmond", SimpleConnector.UNEQU, "Cyclone");
         mapping.addMapping("Petersberg", SimpleConnector.EQU,
-                           "LastSouthernCity");
+                "LastSouthernCity");        
 
         System.out.println("Ontology Mapping\n" + mapping.toString());
         return mapping;
@@ -180,7 +180,7 @@ public class SQLQuerySampleBuilder
     }
 
     /**
-     * @return OntologyMapping
+     * @return InMemoryOntologyMapping
      * @since 2005-03-21
      */
     public static DataSourceMapping buildSampleDataSourceMapping()
@@ -194,24 +194,25 @@ public class SQLQuerySampleBuilder
 
         // create a schema mapping
         SchemaMapping mySchemaMapping = new SchemaMapping(fromSchema.getName(),
-            toSchema.getName());
+                toSchema.getName());
 
         NumericConnector doubleIt = new NumericConnector("F2C", "(x-32)*0.5555");
 
         mySchemaMapping.addMapping("temp", doubleIt, "temperature");
         mySchemaMapping.addMapping("name", SimpleConnector.EQU, "item");
-        mySchemaMapping.addMapping("soldAt", SimpleConnector.EQU, "deliveredTo");
-        mySchemaMapping.addMapping("produced_at", SimpleConnector.EQU, "madeIn");
+        mySchemaMapping
+                .addMapping("soldAt", SimpleConnector.EQU, "deliveredTo");
+        mySchemaMapping
+                .addMapping("produced_at", SimpleConnector.EQU, "madeIn");
 
         System.out.println("Schema Mapping\n" + mySchemaMapping);
 
         // create an ontoloy mapping
-        OntologyMapping myOntologyMapping = buildSampleOntologyMapping();
+        InMemoryOntologyMapping myOntologyMapping = buildSampleOntologyMapping();
 
         // create the data source mapping
-        DataSourceMapping myDSMapping = new DataSourceMapping(fromSchema.
-            getName(),
-            toSchema.getName(), "testDSMapping");
+        DataSourceMapping myDSMapping = new DataSourceMapping(fromSchema
+                .getName(), toSchema.getName(), "testDSMapping");
         myDSMapping.setSchemaMapping(mySchemaMapping);
         myDSMapping.addAVHMapping(myOntologyMapping);
 
@@ -229,7 +230,7 @@ public class SQLQuerySampleBuilder
         valueSet.addOperand(new ZConstantEx("Des Moines", ZConstantEx.AVH));
 
         ZConstantEx column = new ZConstantEx("producedAt",
-                                             ZConstantEx.COLUMNNAME);
+                ZConstantEx.COLUMNNAME);
 
         ZExpression clause = new ZExpression(op);
         clause.addOperand(column);
@@ -261,14 +262,14 @@ public class SQLQuerySampleBuilder
     public static ZQuery buildSampleLocalQuery()
     {
         ZExpression[] test = new ZExpression[4];
-        test[0] = SQLQueryBuilder.buildAttributeValuePair(
-            "produced_at", "=", "produced_at", ZConstantEx.COLUMNNAME);
-        test[1] = SQLQueryBuilder.buildAttributeValuePair(
-            "temp", ">=", "50", ZConstantEx.NUMBER);
-        test[2] = SQLQueryBuilder.buildAttributeValuePair(
-            "item", "=", "iPod", ZConstantEx.STRING);
-        test[3] = SQLQueryBuilder.buildAttributeValuePair(
-            "produced_at", ">", "Iowa", ZConstantEx.AVH);
+        test[0] = SQLQueryBuilder.buildAttributeValuePair("produced_at", "=",
+                "produced_at", ZConstantEx.COLUMNNAME);
+        test[1] = SQLQueryBuilder.buildAttributeValuePair("temp", ">=", "50",
+                ZConstantEx.NUMBER);
+        test[2] = SQLQueryBuilder.buildAttributeValuePair("item", "=", "iPod",
+                ZConstantEx.STRING);
+        test[3] = SQLQueryBuilder.buildAttributeValuePair("produced_at", ">",
+                "Iowa", ZConstantEx.AVH);
         ZExpression t1 = new ZExpression("AND", test[0], test[1]);
         ZExpression t2 = new ZExpression("AND", test[2], test[3]);
         ZExpression where = new ZExpression("OR", t1, t2);

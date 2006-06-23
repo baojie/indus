@@ -47,8 +47,8 @@ public class SQLPanel
     {
         messageMap();
 
-        jLabel1.setText(
-            "Input SQL sentence here:(example SELECT * FROM mytable WHERE ID=1);");
+        jLabel1.setText("Input SQL sentence here");
+                //(example SELECT * FROM mytable WHERE ID=1);");
         sqlInput.setBorder(BorderFactory.createEtchedBorder());
         this.setLayout(borderLayout2);
 

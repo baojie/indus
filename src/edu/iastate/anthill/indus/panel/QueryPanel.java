@@ -28,6 +28,7 @@ import edu.iastate.anthill.indus.query.SQLQueryPlanner;
 import edu.iastate.utils.gui.GUIUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
+import edu.iastate.utils.lang.StopWatch;
 
 import Zql.ZFromItem;
 import Zql.ZQuery;
@@ -36,8 +37,8 @@ import Zql.ZQuery;
  * @author Jie Bao
  * @since 1.0
  */
-public class QueryPanel
-    extends QueryPanelGUI implements MessageHandler, ISQLBuilder
+public class QueryPanel extends QueryPanelGUI implements MessageHandler,
+        ISQLBuilder
 {
     BorderLayout borderLayout1 = new BorderLayout();
 
@@ -101,8 +102,8 @@ public class QueryPanel
             Schema localSchema = InfoReader.readSchema(schemaName);
             //System.out.println(localSchema);
 
-            Map attributeToSupertype = InfoReader.findAttributeSupertypeMapping(
-                localSchema); // eg produecd_at -> AVH, id -> integer
+            Map attributeToSupertype = InfoReader
+                    .findAttributeSupertypeMapping(localSchema); // eg produecd_at -> AVH, id -> integer
             //System.out.println(attributeToSupertype);
 
             // get the data source -> mapping map
@@ -111,8 +112,8 @@ public class QueryPanel
             Map dsName2Mapping = new HashMap();
             Map dsName2Schema = new HashMap();
 
-            for (Iterator it = datasourceMapping.keySet().iterator();
-                 it.hasNext(); )
+            for (Iterator it = datasourceMapping.keySet().iterator(); it
+                    .hasNext();)
             {
                 String dsName = (String) it.next();
 
@@ -145,8 +146,8 @@ public class QueryPanel
 
                 System.out.println(columnName);
                 // column type
-                String columnType = (String) attributeToSupertype.get(
-                    columnName);
+                String columnType = (String) attributeToSupertype
+                        .get(columnName);
                 System.out.println(columnType);
 
                 if (columnType.equals("integer") || columnType.equals("float"))
@@ -173,28 +174,26 @@ public class QueryPanel
     /**
      * translateAVHColumn
      */
-    private void translateAVHColumn(String columnName,
-                                    String avhName,
-                                    int columnIndex,
-                                    Map dsName2Mapping)
+    private void translateAVHColumn(String columnName, String avhName,
+            int columnIndex, Map dsName2Mapping)
     {
         System.out.println(dsName2Mapping);
 
-// do the translation row by row
+        // do the translation row by row
         JTable table = this.dbPanel.getTable();
         int rows = table.getRowCount();
 
         for (int i = 0; i < rows; i++)
         {
             String dsName = (String) table.getValueAt(i, this.dsOriginColIndex);
-            DataSourceMapping mapping = (DataSourceMapping) dsName2Mapping.get(
-                dsName);
+            DataSourceMapping mapping = (DataSourceMapping) dsName2Mapping
+                    .get(dsName);
             if (mapping != null)
             {
                 // the usable inverse mapping
                 String oldValue = (String) table.getValueAt(i, columnIndex);
                 String newValue = mapping.findAVHFirstMappedTo(avhName,
-                    oldValue, true);
+                        oldValue, true);
                 System.out.println(newValue);
                 table.setValueAt(newValue, i, columnIndex);
             }
@@ -206,18 +205,17 @@ public class QueryPanel
      * translateNumberColumn
      */
     private void translateNumberColumn(String columnName, int columnIndex,
-                                       Map dsName2Mapping)
+            Map dsName2Mapping)
     {
         System.out.println(dsName2Mapping);
 
         // collect needed information
         Map ds2inverseBridge = new HashMap();
-        for (Iterator it = dsName2Mapping.keySet().iterator();
-             it.hasNext(); )
+        for (Iterator it = dsName2Mapping.keySet().iterator(); it.hasNext();)
         {
             String dsName = (String) it.next();
-            DataSourceMapping mapping = (DataSourceMapping) dsName2Mapping.get(
-                dsName);
+            DataSourceMapping mapping = (DataSourceMapping) dsName2Mapping
+                    .get(dsName);
             SchemaMapping sMapping = mapping.schemaMapping;
 
             // find an applicable numeric bridge rule for each data source
@@ -227,8 +225,8 @@ public class QueryPanel
             {
                 if (rules[i].connector instanceof NumericConnector)
                 {
-                    translator = (NumericConnector) rules[i].connector.
-                        getMirror();
+                    translator = (NumericConnector) rules[i].connector
+                            .getMirror();
                     break;
                 }
             }
@@ -247,8 +245,8 @@ public class QueryPanel
         for (int i = 0; i < rows; i++)
         {
             String ds = (String) table.getValueAt(i, this.dsOriginColIndex);
-            NumericConnector translator = (NumericConnector) ds2inverseBridge.
-                get(ds);
+            NumericConnector translator = (NumericConnector) ds2inverseBridge
+                    .get(ds);
             if (translator != null)
             {
                 String oldValue = (String) table.getValueAt(i, columnIndex);
@@ -270,11 +268,10 @@ public class QueryPanel
         try
         {
             final SQLBuilderPane sqlBuilder = new SQLBuilderPane(this,
-                parent.indusCacheDB.db);
+                    parent.indusCacheDB.db);
             frame = new JFrame("Query Builder");
             frame.getContentPane().add(sqlBuilder);
-            frame.addWindowListener(new WindowAdapter()
-            {
+            frame.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent evt)
                 {
                     sqlBuilder.cancel();
@@ -303,16 +300,18 @@ public class QueryPanel
 
             // ask if the user want the result in local terms
             int answer = JOptionPane.showConfirmDialog(this,
-                "Do you want the result shown in local terms?");
+                    "Do you want the result shown in local terms?");
             boolean inLocalTerm = false;
             if (answer == JOptionPane.YES_OPTION)
             {
-                inLocalTerm = true; ;
+                inLocalTerm = true;
+                ;
             }
 
             // run it
-            SQLQueryPlanner planner = new SQLQueryPlanner(parent.indusCacheDB.db,
-                parent.indusSystemDB.db);
+            SQLQueryPlanner planner = new SQLQueryPlanner(
+                    parent.indusCacheDB.db, parent.indusSystemDB.db);
+
             planner.doQuery(myZQuery, viewName, inLocalTerm);
 
             // show it on the GUI
@@ -346,8 +345,7 @@ public class QueryPanel
     static int dsOriginColIndex = -1;
 
     public void created(boolean init)
-    {
-    }
+    {}
 
     public void cancel()
     {

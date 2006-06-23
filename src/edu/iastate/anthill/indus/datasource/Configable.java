@@ -1,19 +1,20 @@
 package edu.iastate.anthill.indus.datasource;
 
+import java.io.Serializable;
+
 /**
- * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
- *
- * <p>@since </p>
- *
- * <p> </p>
- *
- * <p> </p> not attributable
+ * @author Jie Bao , baojie@cs.iastate.edu
+ * @since 
  */
-public interface Configable
+public interface Configable extends Serializable
 {
     public void fromXML(String xml);
+
     public String toXML();
+
     public String toString();
-    public String toText();      
+
+    public String toText();
+
     public void fromText(String text);
 }

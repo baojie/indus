@@ -9,7 +9,7 @@ import edu.iastate.anthill.indus.reasoner.*;
  * @since 1.0 2004-10-16
  */
 public class SchemaMapping
-    extends OntologyMapping implements Configable
+    extends InMemoryOntologyMapping implements Configable
 {
 
     public SchemaMapping(String from, String to)

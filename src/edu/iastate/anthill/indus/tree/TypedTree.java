@@ -259,8 +259,8 @@ public class TypedTree extends JTreeEx {
 
             int k = str.indexOf(':');
             if (k != -1) {
-                fullName = str.substring(0, k);
-                comments = str.substring(k + 1);
+                fullName = str.substring(0, k).trim();
+                comments = str.substring(k + 1).trim();
             }
 
             // create the node

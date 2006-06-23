@@ -7,7 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
-import edu.iastate.anthill.indus.datasource.mapping.OntologyMapping;
+import edu.iastate.anthill.indus.datasource.mapping.InMemoryOntologyMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.datasource.type.AVH;
 
@@ -41,7 +41,7 @@ public class MappingReasoner
         }
         for (int i = 0; i < dsm.avhMappingList.size(); i++)
         {
-            OntologyMapping om = (OntologyMapping) dsm.avhMappingList.elementAt(
+            InMemoryOntologyMapping om = (InMemoryOntologyMapping) dsm.avhMappingList.elementAt(
                 i);
             addOntologyMapping(om);
 
@@ -52,7 +52,7 @@ public class MappingReasoner
         }
     }
 
-    void addOntologyMapping(OntologyMapping om)
+    void addOntologyMapping(InMemoryOntologyMapping om)
     {
         for (int i = 0; i < om.mapList.size(); i++)
         {

@@ -1,15 +1,15 @@
 package edu.iastate.anthill.indus.iterator.ec;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.IndusDB;
-
 import edu.iastate.utils.io.IOUtils;
-import edu.iastate.utils.sql.pgJDBCUtils;
+import edu.iastate.utils.sql.JDBCUtils;
 
 /**
  * @author Jie Bao , baojie@cs.iastate.edu
@@ -18,10 +18,10 @@ import edu.iastate.utils.sql.pgJDBCUtils;
 
  CREATE TABLE ec
  (
-   id char(20) NOT NULL,
-   name varchar(256),
-   parent varchar,
-   CONSTRAINT "EC_pkey" PRIMARY KEY (id)
+ id char(20) NOT NULL,
+ name varchar(256),
+ parent varchar,
+ CONSTRAINT "EC_pkey" PRIMARY KEY (id)
  )
  WITHOUT OIDS;
  ALTER TABLE ec OWNER TO indus;
@@ -30,14 +30,14 @@ import edu.iastate.utils.sql.pgJDBCUtils;
  ftp://ftp.expasy.org/databases/enzyme/release/enzuser.txt
 
  */
-public class ECIterator
-    extends IndusDB
+public class ECIterator extends IndusDB
 {
     public static void test()
     {
         ECIterator ec = new ECIterator();
 
-        ec.connect(IndusConstants.dbURL);
+        //ec.connect(IndusConstants.dbLocalURL);
+        ec.connect(IndusConstants.dbURL); 
         ec.clearAllData();
         ec.loadToDB();
         ec.disconnect();
@@ -51,7 +51,6 @@ public class ECIterator
     {
         loadTop3Level();
         loadLeaves();
-
     }
 
     /**
@@ -78,71 +77,120 @@ public class ECIterator
 
 
      The currently  used line  types, along with their respective line codes,
-        are listed below:
+     are listed below:
 
      ID  Identification                         (Begins each entry; 1 per entry)
-        DE  Description (official name)            (>=1 per entry)
-        AN  Alternate name(s)                      (>=0 per entry)
-        CA  Catalytic activity                     (>=0 per entry)
-        CF  Cofactor(s)                            (>=0 per entry)
-        CC  Comments                               (>=0 per entry)
-        DI  Disease(s) associated with the enzyme  (>=0 per entry)
-        PR  Cross-references to PROSITE            (>=0 per entry)
-        DR  Cross-references to SWISS-PROT         (>=0 per entry)
-        //  Termination line                       (Ends each entry; 1 per entry)
+     DE  Description (official name)            (>=1 per entry)
+     AN  Alternate name(s)                      (>=0 per entry)
+     CA  Catalytic activity                     (>=0 per entry)
+     CF  Cofactor(s)                            (>=0 per entry)
+     CC  Comments                               (>=0 per entry)
+     DI  Disease(s) associated with the enzyme  (>=0 per entry)
+     PR  Cross-references to PROSITE            (>=0 per entry)
+     DR  Cross-references to SWISS-PROT         (>=0 per entry)
+     //  Termination line                       (Ends each entry; 1 per entry)
 
 
      Some entries  do not  contain all of the line types, and some line types
      occur many  times in  a single  entry. Each  entry must  begin  with  an
-        identification line (ID) and end with a terminator line (//).
+     identification line (ID) and end with a terminator line (//).
 
      A detailed description of each line type is given in the next section of
-        this document.
+     this document.
 
      @author Jie Bao
      @since 2005-03-31
      */
     private void loadLeaves()
     {
-        String url =
-            "ftp://ftp.expasy.org/databases/enzyme/release/enzyme.dat";
+        //String url = "ftp://ftp.expasy.org/databases/enzyme/release/enzyme.dat";
+
         try
         {
-            BufferedReader in = IOUtils.openInputStream(url);
+            //BufferedReader in = IOUtils.openInputStream(url);
+            FileInputStream fin = new FileInputStream("c:\\tmp\\enzyme.dat");
+
+            BufferedReader in = IOUtils.openInputStream(fin);
+
             String str;
             int count = 0;
-            String ID = "", DE = "";
+            String ID = "", DE = "", AN = "", CA = "", CF = "", CC = "", DI = "", PR = "", DR = "";
             // read it line by line
-            while ( (str = in.readLine()) != null)
+            while ((str = in.readLine()) != null)
             {
                 //System.out.println(str);
+                String value = "";
+                if (str.length()> 3)
+                {
+                    value = str.substring(3).trim();    
+                }
+                
+                
                 if (str.matches("\\s*")) // blank
                 {
                     continue;
                 }
                 else if (str.startsWith("ID")) // Identification
                 {
-                    ID = str.substring(3).trim();
+                    ID = value;
                 }
-                else if (str.startsWith("DE")) // Identification
+                else if (str.startsWith("DE")) // Description (official name) 
                 {
-                    DE += str.substring(3).trim();
+                    DE += value;
+                }
+                else if (str.startsWith("AN"))
+                {
+                    AN += value;
+                }
+                else if (str.startsWith("CA"))
+                {
+                    CA += value;
+                }
+                else if (str.startsWith("CF"))
+                {
+                    CF += value;
+                }
+                else if (str.startsWith("CC"))
+                {
+                    CC += value;
+                }
+                else if (str.startsWith("DI"))
+                {
+                    DI += value;
+                }
+                else if (str.startsWith("PR"))
+                {
+                    PR += value;
+                }
+                else if (str.startsWith("DR"))
+                {
+                    DR += value;
                 }
                 else if (str.startsWith("//")) // Termination line
                 {
-                    Map map = new HashMap();
-                    map.put("id", ID);
-                    map.put("parent", getParentId(ID));
-                    map.put("name", DE);
-
-                    System.out.print(++count + " : ");
-                    if (!pgJDBCUtils.insertOrUpdateDatabase(db, "ec", map, "id"))
+                    if (!ID.equals(""))
                     {
-                        //Debug.pause();
+                        Map<String,String> map = new HashMap<String,String>();
+                        map.put("id", ID);
+                        map.put("parent", getParentId(ID));
+                        map.put("de", DE);
+                        map.put("an", AN);
+                        map.put("ca", CA);
+                        map.put("cf", CF);
+                        map.put("cc", CC);
+                        map.put("di", DI);
+                        map.put("pr", PR);
+                        map.put("dr", DR);
+
+                        //System.out.print(++count + " : ");
+                        if (!JDBCUtils.insertOrUpdateDatabase(db, "ec", map,
+                                "id"))
+                        {
+                            //Debug.pause();
+                        }
+                        map.clear();
                     }
-                    map.clear();
-                    ID = "";
-                    DE = "";
+                    ID = DE = AN = CA = CF = CC = DI = PR = DR = "";
                 }
             } // while
         }
@@ -156,26 +204,27 @@ public class ECIterator
     String getParentId(String id)
     {
         int lastdot = id.lastIndexOf(".");
-        String parent = (lastdot == -1) ? "" :
-            id.substring(0, lastdot);
+        String parent = (lastdot == -1) ? "" : id.substring(0, lastdot);
         return parent;
     }
 
     private void loadTop3Level()
     {
-        String url =
-            "ftp://ftp.expasy.org/databases/enzyme/release/enzclass.txt";
+        //String url = "ftp://ftp.expasy.org/databases/enzyme/release/enzclass.txt";
         try
         {
-//            FtpUtils ftp = new FtpUtils();
-//            BufferedReader in = IOUtils.openUnixFtpInputStream("ftp.expasy.org",
-//                "Anonymous", "null", "/databases/enzyme/release/enzclass.txt", ftp);
-            BufferedReader in = IOUtils.openInputStream(url);
+            //            FtpUtils ftp = new FtpUtils();
+            //            BufferedReader in = IOUtils.openUnixFtpInputStream("ftp.expasy.org",
+            //                "Anonymous", "null", "/databases/enzyme/release/enzclass.txt", ftp);
+            FileInputStream fin = new FileInputStream("c:\\tmp\\enzclass.txt");
+            BufferedReader in = IOUtils.openInputStream(fin);
             String str;
             int count = 0;
             // read it line by line
-            while ( (str = in.readLine()) != null)
+            while ((str = in.readLine()) != null)
             {
+                //System.out.println(str);
+                
                 if (str.matches("\\s*")) // blank
                 {
                     continue;
@@ -184,7 +233,8 @@ public class ECIterator
                 {
                     // ignore it
                 }
-                else // an entry
+                else
+                // an entry
                 {
                     // 2 colums divided by the last -
                     // eg:
@@ -204,16 +254,17 @@ public class ECIterator
 
                     String des = str.substring(blank + 2, str.length()).trim();
 
-                    Map map = new HashMap();
+                    Map<String,String> map = new HashMap<String, String>();
                     map.put("id", id);
                     map.put("parent", getParentId(id));
-                    map.put("name", des);
+                    map.put("de", des);
 
-                    System.out.print(++count + " : ");
-                    if (!pgJDBCUtils.insertOrUpdateDatabase(db, "ec", map, "id"))
+                    //System.out.print(++count + " : ");
+                    if (!JDBCUtils.insertOrUpdateDatabase(db, "ec", map, "id"))
                     {
-                        //Debug.pause();
+                        System.out.println("database updating failed");
                     }
+                    //Debug.trace("pause");
                     map.clear();
 
                 }
@@ -232,7 +283,7 @@ public class ECIterator
      */
     private void clearAllData()
     {
-        pgJDBCUtils.clearTable(db, "ec");
+        JDBCUtils.clearTable(db, "ec");
     }
 
     public static void main(String[] args)

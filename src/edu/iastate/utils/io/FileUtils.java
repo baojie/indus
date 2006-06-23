@@ -9,12 +9,12 @@
  *
  * Description: Provides some useful methods when working with files.
  *
- * File version: $Revision: 1.1 $
+ * File version: $Revision: 1.2 $
  *
  * Project version: $Name:  $
  *                  ("Name" means no concrete version has been checked out)
  *
- * $Id: FileUtils.java,v 1.1 2006/06/14 22:34:44 baojie Exp $
+ * $Id: FileUtils.java,v 1.2 2006/06/23 07:55:07 baojie Exp $
  *
  */
 package edu.iastate.utils.io;
@@ -37,7 +37,7 @@ import java.io.InputStream;
  * Provides some useful methods when working with files.
  * @author <a href="mailto:jsanleandro@yahoo.es"
            >Jose San Leandro Armendáriz</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @stereotype Utils
  */
 public abstract class FileUtils
@@ -59,8 +59,7 @@ public abstract class FileUtils
      * @throws IOException if some I/O exception occurs.
      */
     public static String readFile(String filePath) throws FileNotFoundException,
-        SecurityException,
-        IOException
+        SecurityException,  IOException
     {
         return readFile(new File(filePath));
     }
@@ -75,8 +74,7 @@ public abstract class FileUtils
      * @throws IOException if some I/O exception occurs.
      */
     public static String readFile(File file) throws FileNotFoundException,
-        SecurityException,
-        IOException
+        SecurityException,  IOException
     {
         String result = null;
 

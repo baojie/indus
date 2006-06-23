@@ -50,12 +50,20 @@ public class Utility
             fmt.setMaximumFractionDigits(decimalPos) ;
         }
         final double size = longSize ;
-        double val = size / (1024 * 1024) ;
+
+        double val = size / (1024 * 1024 * 1024) ;
+        if(val > 1)
+        {
+            return fmt.format(val).concat(" GB") ;
+        }
+        
+        val = size / (1024 * 1024) ;
         if(val > 1)
         {
             return fmt.format(val).concat(" MB") ;
         }
         val = size / 1024 ;
+        
         if(val > 1)
         {
             return fmt.format(val).concat(" KB") ;

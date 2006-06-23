@@ -321,7 +321,7 @@ abstract public class DB2Tree
      */
     public TypedTree getTree(String from_id, int cutoff)
     {
-        if (from_id == null)
+        if (from_id == null || from_id.length() ==0)
         {
             from_id = this.getRootId();
         }

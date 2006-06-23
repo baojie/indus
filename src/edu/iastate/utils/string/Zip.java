@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringBufferInputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -28,15 +29,16 @@ public class Zip
 
     static final int BUFFER = 2048;
 
+    // return the Hex encoding of the compressed array
     public static String encode(String str)
     {
         return StringUtils.encodeHex(encodeByte(str));
     }
     
-    public static byte[] encodeByte(String str)
+    public static byte[] encodeByte(InputStream fi)
     {
         try
-        {
+        {            
             BufferedInputStream origin = null;
             ByteArrayOutputStream dest = new ByteArrayOutputStream();
 
@@ -47,7 +49,6 @@ public class Zip
 
             byte data[] = new byte[BUFFER];
 
-            StringBufferInputStream fi = new StringBufferInputStream(str);
             origin = new BufferedInputStream(fi, BUFFER);
             int count;
             while ((count = origin.read(data, 0, BUFFER)) != -1)
@@ -65,9 +66,22 @@ public class Zip
         {
             e.printStackTrace();
         }
-        return null;
+        return null;        
+    }
+    
+    public static byte[] encodeByte(String str)
+    {
+        StringBufferInputStream fi = new StringBufferInputStream(str);
+        return encodeByte(fi);
     }
 
+    // 2006-06-22
+    public static byte[] encodeByte(byte data[])
+    {
+        ByteArrayInputStream fi = new ByteArrayInputStream(data);
+        return encodeByte(fi);
+    }
+    
     public static String decode(String encoded)
     {
         byte[] result = decodeByte(encoded);
@@ -75,12 +89,17 @@ public class Zip
         return outputString;        
     }
     
+    // 2006-06-22
     public static byte[] decodeByte(String encoded)
+    {
+        byte[] source = StringUtils.decodeHex(encoded);
+        return decodeByte(source);
+    }
+    
+    public static byte[] decodeByte(byte[] source)
     {
         try
         {
-            byte[] source = StringUtils.decodeHex(encoded);
-
             ByteArrayInputStream fis = new ByteArrayInputStream(source);
             InflaterInputStream zis = new InflaterInputStream(
                     new BufferedInputStream(fis));
@@ -124,6 +143,5 @@ public class Zip
 
         String restored = decode(encoded);
         System.out.println(restored.length());
-
     }
 }

@@ -14,6 +14,7 @@ import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.view.View;
 
 import edu.iastate.utils.Debug;
+import edu.iastate.utils.lang.StopWatch;
 import edu.iastate.utils.sql.JDBCUtils;
 
 import Zql.ZQuery;
@@ -56,8 +57,8 @@ public class SQLQueryPlanner
         Schema localSchema = InfoReader.readSchema(localSchemaName);
         //System.out.println("[localSchema] " + localSchema);
 
-        Map localAttributeToAVH = InfoReader.findAttributeToAVHMapping(
-            localSchema);
+        Map localAttributeToAVH = InfoReader
+                .findAttributeToAVHMapping(localSchema);
         //System.out.println("[localAttributeToAVH] " + localAttributeToAVH);
 
         // the local cache table should already been createed
@@ -66,14 +67,13 @@ public class SQLQueryPlanner
         // get the set of remote data source and the mapping
         Map datasourceMapping = view.getDatasourceMapping();
         //Vector allResult = new Vector();
-        for (Iterator it = datasourceMapping.keySet().iterator();
-             it.hasNext(); )
+        for (Iterator it = datasourceMapping.keySet().iterator(); it.hasNext();)
         {
             String datasourceName = (String) it.next();
             String mapping = (String) datasourceMapping.get(datasourceName);
 
             IndusDataSource dataSource = InfoReader.readDataSource(systemDB,
-                datasourceName);
+                    datasourceName);
             //System.out.println("[dataSource] " + dataSource);
             DataSourceMapping dsMapping = InfoReader.readMapping(mapping);
             //System.out.println("[dsMapping] " + dsMapping);
@@ -82,20 +82,25 @@ public class SQLQueryPlanner
             Schema remoteSchema = InfoReader.readSchema(schemaName);
             //System.out.println("[remoteSchema] " + remoteSchema);
 
-            Map remoteAttributeToAVH = InfoReader.findAttributeToAVHMapping(
-                remoteSchema);
+            Map remoteAttributeToAVH = InfoReader
+                    .findAttributeToAVHMapping(remoteSchema);
             //System.out.println("[remoteAttributeToAVH] " + remoteAttributeToAVH);
 
+            StopWatch w = new StopWatch();
+            w.start();
             ResultSet r = doSingleQuery(localQuery, dsMapping,
-                                        localAttributeToAVH,
-                                        remoteAttributeToAVH, dataSource,
-                                        localSchema, remoteSchema, inLocalTerm);
+                    localAttributeToAVH, remoteAttributeToAVH, dataSource,
+                    localSchema, remoteSchema, inLocalTerm);
+            w.stop();
+            System.err.println("Time used for " + datasourceName + " : "
+                    + w.print());
 
             if (r != null)
                 appendResult(view.getName(), select, r, datasourceName);
             else
             {
-                Debug.trace("Data Source " + datasourceName + " returns no records (may be an error)");
+                Debug.trace("Data Source " + datasourceName
+                        + " returns no records (may be an error)");
             }
         }
         //return allResult;
@@ -119,7 +124,7 @@ public class SQLQueryPlanner
      * @since 2005-03-25
      */
     private void appendResult(String localCacheName, String select[],
-                              ResultSet rs, String fromDS)
+            ResultSet rs, String fromDS)
     {
 
         try
@@ -130,7 +135,7 @@ public class SQLQueryPlanner
             // make sure result has the same number of columns to the local query "select"
             if (numberOfColumns + 1 != select.length)
             {
-            	System.out.println("appendResult: wrong number of columns!");
+                System.out.println("appendResult: wrong number of columns!");
                 return;
             }
 
@@ -138,7 +143,7 @@ public class SQLQueryPlanner
             int count = 0;
             while (rs.next())
             {
-            	//System.out.println(count);
+                //System.out.println(count);
                 for (int i = 0; i < numberOfColumns; i++)
                 {
                     v[i] = rs.getString(i + 1);
@@ -147,8 +152,8 @@ public class SQLQueryPlanner
                 JDBCUtils.insertDatabase(cacheDB, localCacheName, select, v);
                 count++;
             }
-            Debug.trace("Data Source " + fromDS + " returns " + count +
-                        " records");
+            System.out.println("Data Source " + fromDS + " returns " + count
+                    + " records");
         }
         catch (SQLException ex)
         {
@@ -167,35 +172,27 @@ public class SQLQueryPlanner
      * @author Jie Bao
      */
     public ResultSet doSingleQuery(ZQuery localQuery,
-                                   DataSourceMapping dsMapping,
-                                   Map localAttributeToAVH,
-                                   Map remoteAttributeToAVH,
-                                   IndusDataSource dataSource,
-                                   Schema localSchema,
-                                   Schema remoteSchema,
-                                   boolean inLocalTerm)
+            DataSourceMapping dsMapping, Map localAttributeToAVH,
+            Map remoteAttributeToAVH, IndusDataSource dataSource,
+            Schema localSchema, Schema remoteSchema, boolean inLocalTerm)
     {
         SQLQueryTranslator translator = new SQLQueryTranslator();
-        ZQuery newQuery = translator.doTranslate(localQuery,
-                                                 dataSource.getName(),
-                                                 dsMapping,
-                                                 localAttributeToAVH,
-                                                 remoteAttributeToAVH,
-                                                 localSchema, remoteSchema,
-                                                 inLocalTerm);
+        ZQuery newQuery = translator.doTranslate(localQuery, dataSource
+                .getName(), dsMapping, localAttributeToAVH,
+                remoteAttributeToAVH, localSchema, remoteSchema, inLocalTerm);
         try
         {
-            ResultSet result = dataSource.executeNativeQuery(newQuery) ;
-            return result ;
+            ResultSet result = dataSource.executeNativeQuery(newQuery);
+            return result;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            return null ;
+            return null;
         }
     }
 
     public static void main(String[] args)
     {
-        // QueryPlanner queryplanner = new QueryPlanner();
+    // QueryPlanner queryplanner = new QueryPlanner();
     }
 }

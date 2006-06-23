@@ -4,6 +4,7 @@ import java.util.Map;
 
 import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.agent.InfoReader;
+import edu.iastate.anthill.indus.datasource.SampleBuilder;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 
 import Zql.ZQuery;
@@ -13,7 +14,7 @@ import Zql.ZQuery;
  * <p>@since 2005-03-24</p>
  */
 public class SQLQueryPlannerTest
-    extends SQLQuerySampleBuilder
+    extends SampleBuilder
 {
     /**
      * @since 2005-03-25

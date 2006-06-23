@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -41,8 +42,8 @@ import edu.iastate.utils.lang.MessageMap;
  * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
  * <p>@since 2005-03-29</p>
  */
-public abstract class TypePanelAction
-    extends TypePanelGUI implements MessageHandler
+public abstract class TypePanelAction extends TypePanelGUI implements
+        MessageHandler
 {
     public TypePanelAction()
     {
@@ -57,9 +58,9 @@ public abstract class TypePanelAction
         }
     }
 
-    JMenuItem menuDelete = new JMenuItem("Delete");
-    JMenuItem menuCopyType = new JMenuItem("Copy Type");
-    final JPopupMenu menu = new JPopupMenu();
+    JMenuItem        menuDelete   = new JMenuItem("Delete");
+    JMenuItem        menuCopyType = new JMenuItem("Copy Type");
+    final JPopupMenu menu         = new JPopupMenu();
 
     void jbInit2() throws Exception
     {
@@ -80,17 +81,16 @@ public abstract class TypePanelAction
             MessageMap.mapAction(this.menuCopyType, this, "onCopyType");
             MessageMap.mapAction(this.btnExportText, this, "onExportText");
             MessageMap.mapAction(this.btnReload, this, "onReload");
-            
-            listAllTypes.addListSelectionListener(new ListSelectionListener()
-            {
+            MessageMap.mapAction(this.btnImportText, this, "onImportText");
+
+            listAllTypes.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e)
                 {
                     onSelectedTypeChanged(e);
                 }
             });
             // Set the component to show the popup menu
-            listAllTypes.addMouseListener(new MouseAdapter()
-            {
+            listAllTypes.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent evt)
                 {
                     int row = listAllTypes.locationToIndex(evt.getPoint());
@@ -131,18 +131,17 @@ public abstract class TypePanelAction
             // Get all selected items
             if (currentSelectedType != null)
             {
-                Thread t = new Thread()
-                {
+                Thread t = new Thread() {
                     public void run()
                     {
                         //load it
-                        loadType(currentSelectedType,false);
+                        loadType(currentSelectedType, false);
 
                         // enable / disenable "deletetype" button
                         // deleting of predefined type is not allowed
 
-                        btnSave.setEnabled(!AVH.isPredefinedType(
-                            currentSelectedType));
+                        btnSave.setEnabled(!AVH
+                                .isPredefinedType(currentSelectedType));
 
                     }
                 };
@@ -160,47 +159,55 @@ public abstract class TypePanelAction
      */
     protected void loadType(String selected, boolean forceReload)
     {
+
         int pb = parent.statusBar.addProgressBar(true, 0, 0);
         parent.statusBar.updateProgressBar(pb, "Loading type " + selected);
 
-        DataType dt;
-        dt = InfoReader.readDataType(selected,forceReload);
+        DataType dt = InfoReader.readDataType(selected, forceReload);
         parent.statusBar.removeProgressBar(pb);
+        loadType(dt);
+
+    }
+
+    protected void loadType(DataType dt)
+    {
+        String selected = dt.getName();
 
         if (dt != null)
         {
             currentType = dt;
-            String info = "Selected Type : '" + (String) selected + "', " +
-                currentType.getInformation();
+            String info = "Selected Type : '" + (String) selected + "', "
+                    + currentType.getInformation();
             labelSelectedType.setText(info);
-            
-            String  supertype = currentType.getSupertype();
+
+            String supertype = currentType.getSupertype();
             ImageIcon icon = IndusConstants.iconDatatype;
-            
-		    if (AVH.isAVH( selected, supertype))
-		    {
-		        icon = IndusConstants.iconTreetype;
-		    }
-		    else if (DataType.isNumber( selected, supertype))
-		    {
-		        icon = IndusConstants.iconNumber;
-		    }
-		    else if (DataType.isString( selected, supertype))
-		    {
-		        icon = IndusConstants.iconString;
-		    }
-		    typeIcon.put(selected, icon);
+
+            if (AVH.isAVH(selected, supertype))
+            {
+                icon = IndusConstants.iconTreetype;
+            }
+            else if (DataType.isNumber(selected, supertype))
+            {
+                icon = IndusConstants.iconNumber;
+            }
+            else if (DataType.isString(selected, supertype))
+            {
+                icon = IndusConstants.iconString;
+            }
+            typeIcon.put(selected, icon);
 
             //Debug.trace(currentType.getClass());
 
             jScrollPaneTree.getViewport().removeAll();
-            jScrollPaneTree.getViewport().add(currentType.getEditorPane(), null);
+            jScrollPaneTree.getViewport()
+                    .add(currentType.getEditorPane(), null);
             currentType.modified = false;
         }
         else
         {
-            String info = "Type definition is not available for '"
-                + selected + "'";
+            String info = "Type definition is not available for '" + selected
+                    + "'";
             JOptionPane.showMessageDialog(this, info);
         }
     }
@@ -213,21 +220,15 @@ public abstract class TypePanelAction
         Object used[] = InfoReader.getAllType();
         String name = askForName(used);
 
-        if (name == null)
-        {
-            return;
-        }
+        if (name == null) { return; }
 
         // ======== 2. select father type =======
         String data[] = DataType.getPredefinedTypes();
         String fatherType = (String) JOptionPane.showInputDialog(this,
-            "Choose one", "Input", JOptionPane.INFORMATION_MESSAGE, null,
-            data, data[0]);
+                "Choose one", "Input", JOptionPane.INFORMATION_MESSAGE, null,
+                data, data[0]);
 
-        if (fatherType == null)
-        {
-            return;
-        }
+        if (fatherType == null) { return; }
 
         // ======== 3. create new type ===========
         String treetype = null;
@@ -238,11 +239,8 @@ public abstract class TypePanelAction
             while (true)
             {
                 treetype = JOptionPane.showInputDialog(
-                    "Please give the type of the tree", "ISA");
-                if (treetype == null)
-                {
-                    return;
-                }
+                        "Please give the type of the tree", "ISA");
+                if (treetype == null) { return; }
 
                 // validate the name
                 if (!AVH.isLegalName(treetype))
@@ -257,12 +255,14 @@ public abstract class TypePanelAction
 
             // select template
             String temp[] = DB2TreeFactory.allTemplete;
-            String template = (String) JOptionPane.showInputDialog(this,
-                "Choose one tree template, or click cancel if you don't need any template" +
-                "\n\n A template is a tree predefined by INDUS. If you selected a template to\n" +
-                " the new AVH, you can copy the whole or part of the template into your new AVH",
-                "Input", JOptionPane.INFORMATION_MESSAGE, null,
-                temp, temp[0]);
+            String template = (String) JOptionPane
+                    .showInputDialog(
+                            this,
+                            "Choose one tree template, or click cancel if you don't need any template"
+                                    + "\n\n A template is a tree predefined by INDUS. If you selected a template to\n"
+                                    + " the new AVH, you can copy the whole or part of the template into your new AVH",
+                            "Input", JOptionPane.INFORMATION_MESSAGE, null,
+                            temp, temp[0]);
 
             if (temp == null)
             {
@@ -312,7 +312,7 @@ public abstract class TypePanelAction
                 {
 
                     JOptionPane.showMessageDialog(this,
-                                                  "This is a read only type, cannot be updated");
+                            "This is a read only type, cannot be updated");
                     return true;
                 }
 
@@ -324,31 +324,32 @@ public abstract class TypePanelAction
                     if (suc)
                     {
                         currentType.modified = false;
-                        
+
                         // 2006-06-15, update the data type cache
-                        InfoReader.updateDataTypeCache(typeName,currentType);
-                                                
-                        JOptionPane.showMessageDialog(this,
-                            "Type '" + typeName + "' saved successfully");
+                        InfoReader.updateDataTypeCache(typeName, currentType);
+
+                        JOptionPane.showMessageDialog(this, "Type '" + typeName
+                                + "' saved successfully");
                         return true;
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(this,
-                            "Cannot communicate with server, saving failed!");
+                        JOptionPane
+                                .showMessageDialog(this,
+                                        "Cannot communicate with server, saving failed!");
                         return false;
                     }
                 }
             }
             JOptionPane.showMessageDialog(this,
-                                          "No current type! saving failed");
+                    "No current type! saving failed");
             return false;
 
         }
         catch (Exception ex)
         {
-            JOptionPane.showMessageDialog(this, "Type '" + typeName +
-                                          "' can't be updated");
+            JOptionPane.showMessageDialog(this, "Type '" + typeName
+                    + "' can't be updated");
             ex.printStackTrace();
             System.out.println(currentType.print());
         }
@@ -376,13 +377,13 @@ public abstract class TypePanelAction
 
         if (name != null)
         {
-            DataType dt = InfoReader.readDataType(typeName,false);
+            DataType dt = InfoReader.readDataType(typeName, false);
             dt.setName(name);
             if (InfoWriter.writeType(dt))
             {
                 updateTypesList();
-                String info = "Type " + name + " is copied from " + typeName +
-                    " sucessfully";
+                String info = "Type " + name + " is copied from " + typeName
+                        + " sucessfully";
                 JOptionPane.showMessageDialog(this, info);
             }
         }
@@ -406,37 +407,32 @@ public abstract class TypePanelAction
 
                 // Modal dialog with yes/no button
                 int answer = JOptionPane.showConfirmDialog(this,
-                    "Are you sure to delete type '" + typeName +
-                    "'? The deletion can't be undone");
-                if (answer != JOptionPane.YES_OPTION)
-                {
-                    return;
-                }
+                        "Are you sure to delete type '" + typeName
+                                + "'? The deletion can't be undone");
+                if (answer != JOptionPane.YES_OPTION) { return; }
 
                 boolean suc = InfoWriter.deleteType(typeName);
                 if (suc)
                 {
-                    JOptionPane.showMessageDialog(this, "Type '" + typeName +
-                                                  "' is deleted successfully");
+                    JOptionPane.showMessageDialog(this, "Type '" + typeName
+                            + "' is deleted successfully");
                     currentType.modified = false;
                     updateTypesList();
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(
-                        this, "Delete type '" + typeName + "' failed! --");
+                    JOptionPane.showMessageDialog(this, "Delete type '"
+                            + typeName + "' failed! --");
                 }
             }
             else
             {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Predefined type '" + typeName + "' cannot be deleted");
+                JOptionPane.showMessageDialog(this, "Predefined type '"
+                        + typeName + "' cannot be deleted");
             }
         }
         catch (Exception ex)
-        {
-        }
+        {}
     }
 
     /**
@@ -444,31 +440,33 @@ public abstract class TypePanelAction
      */
     protected void updateTypesList()
     {
-    	Object types[] = InfoReader.getAllType();
+        Object types[] = InfoReader.getAllType();
         Vector dbTypes = new Vector(Arrays.asList(types));
         //dbTypes.add("MIPS");
         //dbTypes.add("SCOP");
         //dbTypes.add("GO");
         types = dbTypes.toArray();
-        
+
         if (types != null)
         {
             //final ProgressBarWin win = new ProgressBarWin(new JFrame(),
             //    "Updating available types:", 100, false, 0, types.length);
             //win.start();
-        	
-        	final Object types1[] = types;
-            listAllTypes.setListData(types);
 
-            Thread t = new Thread()
+            final Object types1[] = types;
+            for (int i = 0 ; i < types.length; i++)
             {
+                model.addElement(types[i]);
+            }
+            //listAllTypes.setListData(types);
+
+            Thread t = new Thread() {
                 public void run()
                 {
-                	setTypeIcon(types1);
+                    setTypeIcon(types1);
                 }
-            } ;
-            t.start() ;
-            
+            };
+            t.start();
 
             //win.stop();
 
@@ -476,34 +474,35 @@ public abstract class TypePanelAction
         }
     }
 
-	private void setTypeIcon(Object[] types) {
-		// set icons, 2004-10-15
-		typeIcon.entrySet().clear();
-		// Debug.trace(this, typeIcon);
-		for (int i = 0; i < types.length; i++)
-		{
-			ImageIcon icon = IndusConstants.iconDatatype;
-		    
-//					    //win.step();
-//		    String supertype = IndusHttpClient.
-//		        getTopSuperType(types[i].toString());
-//		    //Debug.systrace(null, types[i] + ":" + supertype);
-//
-//		    if (AVH.isAVH( (String) types[i], supertype))
-//		    {
-//		        icon = IndusConstants.iconTreetype;
-//		    }
-//		    else if (DataType.isNumber( (String) types[i], supertype))
-//		    {
-//		        icon = IndusConstants.iconNumber;
-//		    }
-//		    else if (DataType.isString( (String) types[i], supertype))
-//		    {
-//		        icon = IndusConstants.iconString;
-//		    }
-		    typeIcon.put(types[i], icon);
-		}
-	}
+    private void setTypeIcon(Object[] types)
+    {
+        // set icons, 2004-10-15
+        typeIcon.entrySet().clear();
+        // Debug.trace(this, typeIcon);
+        for (int i = 0; i < types.length; i++)
+        {
+            ImageIcon icon = IndusConstants.iconDatatype;
+
+            //					    //win.step();
+            //		    String supertype = IndusHttpClient.
+            //		        getTopSuperType(types[i].toString());
+            //		    //Debug.systrace(null, types[i] + ":" + supertype);
+            //
+            //		    if (AVH.isAVH( (String) types[i], supertype))
+            //		    {
+            //		        icon = IndusConstants.iconTreetype;
+            //		    }
+            //		    else if (DataType.isNumber( (String) types[i], supertype))
+            //		    {
+            //		        icon = IndusConstants.iconNumber;
+            //		    }
+            //		    else if (DataType.isString( (String) types[i], supertype))
+            //		    {
+            //		        icon = IndusConstants.iconString;
+            //		    }
+            typeIcon.put(types[i], icon);
+        }
+    }
 
     /**
      * Export the XML for the type
@@ -516,15 +515,14 @@ public abstract class TypePanelAction
         if (this.currentType != null)
         {
             String xml = currentType.toXML();
-            String url = IndusConstants.typeBasisURL + currentType.getName() +
-                ".xml";
+            String url = IndusConstants.typeBasisURL + currentType.getName()
+                    + ".xml";
             //Debug.trace("This XML file is also available from " + url);
             IndusBasis.showXML(xml);
         }
         else
         {
-            JOptionPane.showMessageDialog(
-                this, "No type is defined");
+            JOptionPane.showMessageDialog(this, "No type is defined");
         }
     }
 
@@ -541,19 +539,19 @@ public abstract class TypePanelAction
         {
             String text = currentType.toText();
             // save as 
-            final String title = "Export to plain text" ;
-            final String extension = "txt" ;
-            final String description = "Text Documents" ;
+            final String title = "Export to plain text";
+            final String extension = "txt";
+            final String description = "Text Documents";
 
-            String fileName = getFileName(title, extension, description, true) ;
+            String fileName = getFileName(title, extension, description, true);
             // get the ontology from the database
-            if(fileName != null)
+            if (fileName != null)
             {
                 try
                 {
                     FileUtils.writeFile(fileName, text);
                 }
-                catch ( Exception e1)
+                catch (Exception e1)
                 {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -562,11 +560,59 @@ public abstract class TypePanelAction
         }
         else
         {
-            JOptionPane.showMessageDialog(
-                this, "No type is defined");
+            JOptionPane.showMessageDialog(this, "No type is defined");
         }
     }
-    
+
+    public void onImportText(ActionEvent e)
+    {
+        // save the current
+        promptSave();
+
+        // save as 
+        final String title = "Import from plain text";
+        final String extension = "txt";
+        final String description = "Text Documents";
+
+        String fileName = getFileName(title, extension, description, false);
+        // get the ontology from the database
+        if (fileName != null)
+        {
+            String text;
+            try
+            {
+                text = FileUtils.readFile(fileName);
+                DataType t = InfoReader
+                        .readDataTypeNativePlain("newType", text);
+
+                // add to list
+                currentType = t;
+                // check if the name is used
+                Object used[] = InfoReader.getAllType();
+                Vector v = new Vector(Arrays.asList(used));
+                if (v.contains(t.getName()))
+                {
+                    t.setName(t.getName() + "_1");
+                }
+
+                model.addElement(t.getName());
+                listAllTypes.setModel(model);
+                //listAllTypes.updateUI();
+                listAllTypes.setSelectedValue(t.getName(), true);
+
+                loadType(t);
+                InfoReader.updateDataTypeCache(t.getName(), t);
+                listAllTypes.repaint();
+            }
+            catch (Exception e1)
+            {
+                e1.printStackTrace();
+                Debug.trace("Error in reading the file");
+            }
+        }
+
+    }
+
     public void onReload(ActionEvent e)
     {
         String typeName = (String) listAllTypes.getSelectedValue();
