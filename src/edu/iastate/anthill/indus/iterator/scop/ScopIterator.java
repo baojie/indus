@@ -34,6 +34,19 @@ import edu.iastate.utils.string.ParserUtils;
  */
 
 /**
+ * 
+The scop parseable files can be found in scop.zip under this folder 
+
+Actually, I found the following PostgreSQL sentences are more efficient: 
+ 
+COPY scop_des (sunid,a2,scop_id,scop_short_name,description) FROM 'c:/tmp/dir.des.scop.txt_1.67'  WITH DELIMITER '\t';
+COPY scop_hie (sunid,parent,children) FROM  'c:/tmp/dir.hie.scop.txt_1.67'  WITH DELIMITER '\t';
+COPY scop_cla (scop_short_name,pdb_id,pdb_chain,scop_id,sunid,cl,cf,sf,fa,dm,sp,px) FROM  'c:/tmp/dir.cla.scop.txt_1.67'  WITH DELIMITER '\t';
+COPY scop_com (sunid,comments) FROM 'c:/tmp/dir.com.scop.txt_1.67'  WITH DELIMITER '!';
+
+However, the data files should be cleaned manually before loading
+
+ * 
  * @author Jie Bao
  * @since 1.0 2005-02-22
  */
