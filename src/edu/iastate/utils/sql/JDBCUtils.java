@@ -23,7 +23,7 @@ import edu.iastate.utils.Utility ;
  */
 public class JDBCUtils
 {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     
     
     /**

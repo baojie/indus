@@ -49,9 +49,9 @@ public class EC2Tree extends DB2Tree
     }
 
     @Override
-    public Vector<String[]> getChildren(Vector ids)
+    public Vector<String[]> getChildrenFast(String cacheTable)
     {
         return defaultGetChildren("ec", "id", "parent", null, null, "ec", "id",
-                "name", ids);
+                "name", cacheTable);
     }
 }

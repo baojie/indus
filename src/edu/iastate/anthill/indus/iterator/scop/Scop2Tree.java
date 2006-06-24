@@ -13,6 +13,7 @@ import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.IndusDB;
 import edu.iastate.anthill.indus.iterator.DB2Tree;
 import edu.iastate.anthill.indus.tree.TypedTree;
+import edu.iastate.utils.lang.StopWatch;
 
 /**
  * Read scop database and build a jtree
@@ -37,10 +38,10 @@ public class Scop2Tree
     
     // @Override
     // since 2006-06-24
-    public Vector<String[]> getChildren(Vector ids)
+    public Vector<String[]> getChildrenFast(String cacheTable)
     {
         return defaultGetChildren("scop", "id", "parent", null, null,
-                "scop", "id", "name", ids);
+                "scop", "id", "name", cacheTable);
     }
     
     // 2006-06-23
@@ -132,7 +133,12 @@ public class Scop2Tree
         conn.connect(IndusConstants.dbURL);
 
         Scop2Tree mm = new Scop2Tree(conn.db);
-        TypedTree t = mm.getTree("0", 2);
+
+        StopWatch w = new StopWatch();
+        w.start();
+        TypedTree t = mm.getTree("0", 4);
+        w.stop();
+        System.out.println(w.print());
         conn.disconnect();
 
         // show it
@@ -141,8 +147,7 @@ public class Scop2Tree
         JScrollPane scr = new JScrollPane(t);
         frame.getContentPane().add(scr);
         frame.setVisible(true);
-        System.out.print(t);
-
+        //System.out.print(t);
     }
 
 

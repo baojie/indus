@@ -25,10 +25,10 @@ public class MIPS2Tree extends DB2Tree
     }
 
     @Override
-    public Vector<String[]> getChildren(Vector ids)
+    public Vector<String[]> getChildrenFast(String cacheTable)
     {
         return defaultGetChildren("mips", "mips_id", "parent", null, null,
-                "mips", "mips_id", "description", ids);
+                "mips", "mips_id", "description", cacheTable);
     }
 
     protected String findComments(String id)

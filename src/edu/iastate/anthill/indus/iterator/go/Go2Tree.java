@@ -63,10 +63,10 @@ public class Go2Tree extends DB2Tree
     }
 
     @Override
-    public Vector<String[]> getChildren(Vector ids)
+    public Vector<String[]> getChildrenFast(String cacheTable)
     {
         return defaultGetChildren("go_relationship", "go_id1", "go_id2",
-                "relation", "is_a", "go_term", "go_id", "name", ids);
+                "relation", "is_a", "go_term", "go_id", "name",  cacheTable);
     }
 
 }

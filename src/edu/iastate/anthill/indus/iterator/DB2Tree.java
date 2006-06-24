@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -314,6 +316,13 @@ abstract public class DB2Tree
         }
     }
 
+    public String makeTimeStampName()
+    {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyyMMddHHmmssS");
+        return "cache" + dateFormat.format(new Date());
+    }
+
     /**
      * Build tree from the database
      *      10 times faster on MIPS than the old implementation!
@@ -332,41 +341,62 @@ abstract public class DB2Tree
         Map<String, DBTreeNode> id2Node = new HashMap<String, DBTreeNode>();
 
         String from_id = (String) from.getUserObject();
-        Vector<String> ids = new Vector<String>();
-        ids.add(from_id);
 
         id2Node.put(from_id, from);
 
         int level = cutoff;
 
-        while (level != 0 && ids.size() > 0)
+        String cacheTable = makeTimeStampName();
+        String sql = "CREATE TABLE " + cacheTable + " (id text, mark integer);";
+        sql += " INSERT INTO " + cacheTable + " (id) VALUES ('" + from_id
+                + "');";
+        JDBCUtils.updateDatabase(db, sql);
+
+        try
         {
-            System.out.println(ids.size());
-            
-            level--;
-            Vector<String[]> children = getChildren(ids);
-            ids.removeAllElements();
+            int size = 1;
 
-            for (String[] kid : children)
+            while (level != 0 && size > 0)
             {
-                String id = kid[0];
-                String comment = kid[1];
-                String pid = kid[2];
-                ids.add(id);
 
-                DBTreeNode node = createNode(id, comment);
-                id2Node.put(id, node);
+                System.out.println("level = " + level + ", ids " + size);
 
-                DBTreeNode parentNode = id2Node.get(pid);
-                parentNode.add(node);
-                
-                //System.out.println(id2Node +" ; "+ parentNode);
+                level--;
+                Vector<String[]> children = getChildrenFast(cacheTable);
+                size = children.size();
+                System.out.print("total " + size + ". ");
+                int count = 0;
+
+                for (String[] kid : children)
+                {
+                    count++;
+                    if ((count % 200) == 0) System.out.print(count + " ");
+
+                    String id = kid[0];
+                    String comment = kid[1];
+                    String pid = kid[2];
+
+                    DBTreeNode node = createNode(id, comment);
+                    id2Node.put(id, node);
+
+                    DBTreeNode parentNode = id2Node.get(pid);
+                    parentNode.add(node);
+
+                    //System.out.println(id2Node +" ; "+ parentNode);
+                }
             }
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        sql = "DROP TABLE " + cacheTable;
+        JDBCUtils.updateDatabase(db, sql);
 
     }
 
-    abstract public Vector<String[]> getChildren(Vector ids);
+    abstract public Vector<String[]> getChildrenFast(String cacheTable);
 
     /**
      * get children of a set of ids
@@ -381,15 +411,20 @@ abstract public class DB2Tree
      * @param commentTable
      * @param id_col
      * @param comment_col
-     * @param ids
+     * @param cacheTable - stores the parent ids before the operation
+     *                     stores the found children afer the operation 
      * @return a vector of triples: id, name, parent_id
      */
     protected Vector<String[]> defaultGetChildren(String relationTable,
             String childCol, String parentCol, String relationCol,
             String relationType, String commentTable, String id_col,
-            String comment_col, Vector ids)
+            String comment_col, String cacheTable)
     {
-
+        // mark old cache
+        String sqlMark = "UPDATE "+cacheTable + " SET mark = 1";
+        JDBCUtils.updateDatabase(db, sqlMark);
+        
+        // find child terms
         String r_id = relationTable + "." + childCol;
         String r_pid = relationTable + "." + parentCol;
         String c_id = commentTable + "." + id_col;
@@ -402,22 +437,16 @@ abstract public class DB2Tree
         {
             from = from + ", " + commentTable;
         }
-        
-        String condition = ids.toString();// [1, 2, 3, 4]
-        //System.out.println(condition);        
-        condition = condition.replaceAll(",\\s", "','");
-        condition = r_pid + " IN ('"
-                + condition.substring(1, condition.length() - 1) + "')";
-        //System.out.println(condition);
-        
-        // id IN ('1','2','3','4')
-        if (ids.size() == 0) condition = "false";
+
+        // IN clause does not scale very well
+        // use a temporary table
+        String condition = r_pid + " IN ( SELECT id FROM " + cacheTable + ")";
 
         if (!relationTable.equalsIgnoreCase(commentTable))
         {
             condition = condition + " AND " + r_id + " = " + c_id;
         }
-        
+
         if (relationCol != null && relationType != null)
         {
             condition += " AND " + c_rel + " ='" + relationType + "'";
@@ -425,9 +454,18 @@ abstract public class DB2Tree
 
         String where = " WHERE " + condition;
         String sql = select + from + where;
-        System.out.println(sql);
+        //System.out.println(sql);
 
-        return JDBCUtils.getValues(db, sql, 3);
+        Vector<String[]> s = JDBCUtils.getValues(db, sql, 3);
+
+        // update cache
+        String selectShort = " SELECT " + r_id;
+        String sqlShort = selectShort + from + where;
+        String sqlCache = "INSERT INTO " + cacheTable + sqlShort
+                + "; DELETE FROM " + cacheTable + " WHERE mark = 1";
+        JDBCUtils.updateDatabase(db, sqlCache);
+
+        return s;
     }
 
     /**
