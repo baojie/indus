@@ -47,9 +47,9 @@ public abstract class TypePanelGUI
     JList listAllTypes = new JList(model);
     JButton btnNewType = new JButton();
     JLabel labelSelectedType = new JLabel();
-    JPanel jPanel1 = new JPanel();
+    JPanel treePanel = new JPanel();
     BorderLayout borderLayout1 = new BorderLayout();
-    JPanel jPanel2 = new JPanel();
+    JPanel buttonPanel = new JPanel();
     JButton btnSave = new JButton();
     JScrollPane jScrollPaneTree = new JScrollPane();
     BorderLayout borderLayout2 = new BorderLayout();
@@ -82,23 +82,23 @@ public abstract class TypePanelGUI
         rightPanel.setLayout(borderLayout1);
 
         // tree panel
-        jPanel1.setLayout(borderLayout2);
-        jPanel1.add(jScrollPaneTree, BorderLayout.CENTER);
-        rightPanel.add(jPanel1, BorderLayout.CENTER);
+        treePanel.setLayout(borderLayout2);
+        treePanel.add(jScrollPaneTree, BorderLayout.CENTER);
+        rightPanel.add(treePanel, BorderLayout.CENTER);
 
         // button
         btnNewType.setText("New Type");
         btnExportXML.setText("Export(XML)");
         btnExportText.setText("Export(Text)");
         
-        jPanel2.add(btnReload);
-        jPanel2.add(btnSave);
-        jPanel2.add(btnNewType);
-        jPanel2.add(btnExportXML, null);
-        jPanel2.add(btnExportText, null);
-        jPanel2.add(btnImportText, null);
-        jPanel2.setLayout(flowLayout1);
-        rightPanel.add(jPanel2, BorderLayout.SOUTH);
+        buttonPanel.add(btnReload);
+        buttonPanel.add(btnSave);
+        buttonPanel.add(btnNewType);
+        buttonPanel.add(btnExportXML, null);
+        buttonPanel.add(btnExportText, null);
+        buttonPanel.add(btnImportText, null);
+        buttonPanel.setLayout(flowLayout1);
+        rightPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // the label
         labelSelectedType.setText("");

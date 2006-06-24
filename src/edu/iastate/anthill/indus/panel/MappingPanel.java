@@ -49,8 +49,6 @@ public class MappingPanel
      */
     private void localInit()
     {
-        jSplitPane1.setDividerLocation(0.2);
-
         tree1 = createTree(null, jScrollPane1, 1);
         tree2 = createTree(null, jScrollPane2, 2);
         readRegisteredMapping(null);

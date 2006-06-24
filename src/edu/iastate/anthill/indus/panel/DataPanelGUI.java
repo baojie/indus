@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import edu.iastate.anthill.indus.IndusGUI;
 
-abstract public class DataPaneGUI
+abstract public class DataPanelGUI
     extends IndusPane
 {
 
@@ -25,7 +25,7 @@ abstract public class DataPaneGUI
     JButton btnUpdateDSList = new JButton();
     JLabel jLabel2 = new JLabel();
 
-    public DataPaneGUI(IndusGUI parent)
+    public DataPanelGUI(IndusGUI parent)
     {
         super();
         try

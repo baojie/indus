@@ -417,7 +417,15 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                     JOptionPane.showMessageDialog(this, "Type '" + typeName
                             + "' is deleted successfully");
                     currentType.modified = false;
-                    updateTypesList();
+                    
+                    //{{ 2006-06-24 Jie Bao 
+                    currentType = null;
+                    jScrollPaneTree.getViewport().removeAll();  
+                    jScrollPaneTree.repaint();
+                    labelSelectedType.setText(null);
+                    model.removeElement(typeName);
+                    //}}
+                    //updateTypesList();
                 }
                 else
                 {

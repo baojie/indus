@@ -51,7 +51,7 @@ abstract public class DB2Tree
         {
             String sql = "SELECT " + comment_col + " FROM " + commentTable +
                 " WHERE " + id_col + "='" + id + "'";
-            System.out.println(sql);
+            //System.out.println(sql);
             Statement stmt = db.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next())
@@ -98,7 +98,7 @@ abstract public class DB2Tree
             {
                 sql += " AND " + relationCol + " ='" + relationType + "'";
             }
-            System.out.println(sql);
+            //System.out.println(sql);
             Statement stmt = db.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             SortedVector vec = new SortedVector();
@@ -147,7 +147,7 @@ abstract public class DB2Tree
             {
                 sql += " AND " + relationCol + " ='" + relationType + "'";
             }
-            System.out.println(sql);
+            //System.out.println(sql);
             Statement stmt = db.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             SortedVector vec = new SortedVector();
@@ -296,7 +296,10 @@ abstract public class DB2Tree
         {
             String ids = (String) from.getUserObject();
             Vector children = getChildren(ids);
-            System.out.println(ids + " -> " + children);
+            
+            String s = from.toString();
+            if (s.length() > 50 ) s = s.substring(0,49);
+            System.out.println(s + " -> " + children);
             for (int i = 0; i < children.size(); i++)
             {
                 String kid = (String) children.elementAt(i);

@@ -28,10 +28,10 @@ import edu.iastate.utils.sql.JDBCUtils;
  * @author Jie Bao
  * @since 1.0 2004-03-15
  */
-public class DataPane
-    extends DataPaneGUI implements MessageHandler
+public class DataPanel
+    extends DataPanelGUI implements MessageHandler
 {
-    public DataPane(IndusGUI parent)
+    public DataPanel(IndusGUI parent)
     {
         super(parent);
         try

@@ -114,5 +114,14 @@ End of test
     
     Fix bug in DB2Tree    
     
-    to do : import scop ontology 
+    to do : import scop ontology
+    
+2006-06-23
+
+	load scop ontology    
+    
+2006-06-24
+
+	Fix bug in deleting type 
+	Change spli panel in mapping panel to vertical splitting    
   

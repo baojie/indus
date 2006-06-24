@@ -61,17 +61,17 @@ abstract public class MappingPanelGUI
 
     TypedTree tree1 = new TypedTree();
     TypedTree tree2 = new TypedTree();
-    JPanel mapping_rightPanel = new JPanel();
+    JPanel mapping_botPanel = new JPanel();
     JButton btnSaveMapping = new JButton();
     JComboBox mappingFileList = new JComboBox();
-    JPanel mapping_leftPanel = new JPanel();
+    JPanel mapping_topPanel = new JPanel();
 
     DataSourceMapping myMapping = new DataSourceMapping("Unknown1", "Unknown2", null); // data structure for mapping
 
     DefaultListModel mappingConnectorListModel = new DefaultListModel();
     JList mappingConnectorsList = new JList(mappingConnectorListModel);
 
-    JSplitPane jSplitPane1 = new JSplitPane();
+    JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
     void jbInit() throws Exception
     {
@@ -95,21 +95,21 @@ abstract public class MappingPanelGUI
         mapping_LeftLeft.add(refreshBtn1, java.awt.BorderLayout.SOUTH);
 
         jScrollPane4.getViewport().add(mappingConnectorsList, null);
-        mapping_leftPanel.add(mapping_LeftLeft, null);
+        mapping_topPanel.add(mapping_LeftLeft, null);
 
         //1.1.2 the mapping choices
         mapping_LeftMid.setLayout(new BorderLayout());
         newConnectorBtn.setText("New...");
 
         mapping_LeftMid.add(jScrollPane4, java.awt.BorderLayout.CENTER);
-        mapping_leftPanel.setLayout(new GridLayout());
+        mapping_topPanel.setLayout(new GridLayout());
         mappingConnectorsList.setSelectionMode(ListSelectionModel.
                                                SINGLE_SELECTION);
         mappingConnectorsList.setSelectedIndex(0);
         mappingConnectorsList.setCellRenderer(new ConnectorListCellRenderer());
 
         jScrollPane4.setBorder(BorderFactory.createTitledBorder("Constraints"));
-        mapping_leftPanel.add(mapping_LeftMid);
+        mapping_topPanel.add(mapping_LeftMid);
 
         //1.1.3 tree 2
         schema2.setText(" ");
@@ -121,18 +121,18 @@ abstract public class MappingPanelGUI
 
         refreshBtn2.setText("Reload");
         refreshBtn2.setEnabled(false);
-        mapping_leftPanel.add(mapping_LeftRight, null);
+        mapping_topPanel.add(mapping_LeftRight, null);
 
         // 1.2 right panel
         // 1.2.1 mapping list
-        mapping_rightPanel.setLayout(new BorderLayout());
+        mapping_botPanel.setLayout(new BorderLayout());
         jScrollPane3.getViewport().add(mappingRuleList, null);
         jScrollPane3.setBorder(BorderFactory.createTitledBorder(
             "Mapping Rules"));
 
         //1.2.2 save button
         btnSaveMapping.setText("Save Mapping");
-        mapping_rightPanel.add(mapping_rightUpper, java.awt.BorderLayout.NORTH); // 2- the command panel - buttons
+        mapping_botPanel.add(mapping_rightUpper, java.awt.BorderLayout.NORTH); // 2- the command panel - buttons
         addBtn.setText("Add Mapping Rule");
         deleteBtn.setText("Delete Mapping");
         btnUpdateMappingList.setText("Update List");
@@ -144,14 +144,14 @@ abstract public class MappingPanelGUI
         commandPanel.add(btnValidate);
         commandPanel.add(exportBtn, null);
         jSplitPane1.setOneTouchExpandable(true);
-        jSplitPane1.add(mapping_rightPanel, JSplitPane.RIGHT);
-        jSplitPane1.add(mapping_leftPanel, JSplitPane.LEFT);
+        jSplitPane1.add(mapping_botPanel, JSplitPane.BOTTOM);
+        jSplitPane1.add(mapping_topPanel, JSplitPane.TOP);
         mappingPanel.add(jSplitPane1, BorderLayout.CENTER);
 
         // 3 - put all together
         this.add(mappingPanel, BorderLayout.CENTER);
         this.add(commandPanel, BorderLayout.SOUTH);
-        mapping_rightPanel.add(jScrollPane3, java.awt.BorderLayout.CENTER);
+        mapping_botPanel.add(jScrollPane3, java.awt.BorderLayout.CENTER);
         mapping_rightUpper.add(mappingFileList, java.awt.BorderLayout.CENTER);
         mapping_rightUpper.add(btnUpdateMappingList, java.awt.BorderLayout.EAST);
         mapping_LeftMid.add(newConnectorBtn, java.awt.BorderLayout.NORTH);
@@ -223,6 +223,12 @@ abstract public class MappingPanelGUI
 
             return retValue;
         }
+    }
+    
+    // 2006-06-24 Jie Bao
+    public void resetPanel()
+    {
+        jSplitPane1.setDividerLocation(0.5);
     }
 
 }

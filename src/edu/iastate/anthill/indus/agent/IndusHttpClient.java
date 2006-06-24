@@ -61,7 +61,7 @@ public class IndusHttpClient implements IndusCommand
     {
         IndusHttpClient client = new IndusHttpClient();
         String datatypeinXML = client.sendCmd(cmd + ";name=" + name);
-        if (!datatypeinXML.equals(RES_GENERAL_ERROR))
+        if (!RES_GENERAL_ERROR.equals(datatypeinXML))
         {
             return datatypeinXML;
         }

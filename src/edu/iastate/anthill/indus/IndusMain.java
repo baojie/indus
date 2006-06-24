@@ -15,9 +15,14 @@ import edu.iastate.utils.gui.GUIUtils;
 public class IndusMain
     extends IndusGUIAction
 {
+    private static final long serialVersionUID = 3970622403461846063L;
+
+    static public IndusMain theInstance ;
+    
     public IndusMain()
     {
         super();
+        theInstance = this ;
         //Debug.trace("IndusMain");
     }
 
@@ -27,12 +32,18 @@ public class IndusMain
                            IndusConstants.VER + ", build " +
                            IndusConstants.TIME);
 
-        GUIUtils.maximize(mainFrame);
+        GUIUtils.maximize(mainFrame);        
+        
         mainFrame.setVisible(true);
-
-        mainFrame.show();
+        
+        //to work aroun a bug of JSplitPane
+        //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4182558   
+        // Jie Bao 2006-06-24
+        mainFrame.validate();
+        paneMapping.resetPanel();
+        
     }
-
+ 
     static void showConsole()
     {
         try
@@ -57,5 +68,4 @@ public class IndusMain
             ex.printStackTrace();
         }
     }
-
 }

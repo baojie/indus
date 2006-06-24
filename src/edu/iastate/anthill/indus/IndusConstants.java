@@ -127,7 +127,7 @@ public class IndusConstants
     public static String infoAbout = "<html>" +
         "<font color=\"#FF0099\"><b>" +
         "INDUS Data Integration Environment</b></font><br>Version " + VER +
-        "<br>" + "<br><b>Jie Bao</b><br>Mar 2005<br>" +
+        "<br>" + "<br><b>Jie Bao</b><br>June 2006<br>" +
         "Iowa State University<br><a href=\"mailto:baojie@iastate.edu\">" +
         "baojie@iastate.edu</a><br><a href=\"http://www.cs.iastate.edu/~baojie\">" +
         "http://www.cs.iastate.edu/~baojie</a><br>" +

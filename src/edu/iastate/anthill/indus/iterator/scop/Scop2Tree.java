@@ -9,12 +9,20 @@ import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
+import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.IndusDB;
 import edu.iastate.anthill.indus.iterator.DB2Tree;
 import edu.iastate.anthill.indus.tree.TypedTree;
 
 /**
  * Read scop database and build a jtree
+ *
+ *
+ * CREATE OR REPLACE VIEW scop AS 
+     SELECT scop_hie.sunid AS id, ((scop_des.scop_id::text || ' ('::text) || scop_des.description) || ' )'::text AS name, scop_hie.parent
+     FROM scop_hie, scop_des
+     WHERE scop_hie.sunid::text = scop_des.sunid::text; 
+ *
  *
  * @author Jie Bao
  * @since 1.0 2005-03-03
@@ -26,8 +34,34 @@ public class Scop2Tree
     {
         super(db);
     }
+    
+    // 2006-06-23
+    protected String findComments(String id)
+    {
+        return defaultFindComments("scop", "id", "name", id);
+    }
 
-    protected Vector getChildren(String fromSunid)
+    // 2005-03-31
+    public String getRootId()
+    {
+        return "0";
+    }
+
+//  2006-06-23
+    protected Vector getChildren(String from_id)
+    {
+        return defaultGetChildren("scop", "id", "parent", from_id, null, null);
+    }
+
+//  2006-06-23
+    protected Vector getParent(String from_id)
+    {
+        return defaultGetParent("scop", "id", "parent", from_id, null, null);
+    }
+
+    ////////////////////////////  OLD OBSOLETE CODE //////////////////////////////////////////
+    
+    protected Vector getChildrenOld(String fromSunid)
     {
         // read the database and build the tree
         String sql = "SELECT children FROM scop_hie WHERE sunid = '" +
@@ -67,7 +101,7 @@ public class Scop2Tree
         return vec;
     }
 
-    protected String findComments(String id)
+    protected String findCommentsOld(String id)
     {
         return sunid2scopid(id);
     }
@@ -77,11 +111,17 @@ public class Scop2Tree
         return defaultFindComments("scop_des", "sunid", "scop_id", sunid);
     }
 
+    // 2005-03-31
+    protected Vector getParentOld(String from_id)
+    {
+        return defaultGetParent("scop_hie", "sunid", "parent", from_id, null, null);
+    }
+
     public static void main(String[] args)
     {
 
-        IndusDB conn = new IndusDB();
-        conn.connect();
+        IndusDB conn = new IndusDB();                
+        conn.connect(IndusConstants.dbURL);
 
         Scop2Tree mm = new Scop2Tree(conn.db);
         TypedTree t = mm.getTree("46456", 1);
@@ -97,16 +137,7 @@ public class Scop2Tree
 
     }
 
-    // 2005-03-31
-    protected Vector getParent(String from_id)
-    {
-        return defaultGetParent("scop_hie", "sunid", "parent", from_id, null, null);
-    }
 
-    // 2005-03-31
-    public String getRootId()
-    {
-        return "0";
-    }
+
 
 }

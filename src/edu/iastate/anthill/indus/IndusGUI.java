@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
-import edu.iastate.anthill.indus.panel.DataPane;
+import edu.iastate.anthill.indus.panel.DataPanel;
 import edu.iastate.anthill.indus.panel.TypePanel;
 import edu.iastate.anthill.indus.panel.IndusPane;
 import edu.iastate.anthill.indus.panel.MappingPanel;
@@ -74,7 +74,7 @@ public class IndusGUI
         paneOntology = new TypePanel(this, null);
         paneSchema = new SchemaPanel(this, null);
         paneMapping = new MappingPanel(this);
-        paneDataSource = new DataPane(this);
+        paneDataSource = new DataPanel(this);
         paneView = new ViewPanel(this);
         paneQuery = new QueryPanel(this);
 
@@ -91,7 +91,6 @@ public class IndusGUI
 
         mainFrame.getContentPane().add(this, BorderLayout.CENTER);
         menuFile.add(jMenuItem1);
-
     }
 
     public void switchToPane(IndusPane pane, String itemToShow)
@@ -113,12 +112,12 @@ public class IndusGUI
     JButton jButton1 = new JButton();
     JTabbedPane tabPanel = new JTabbedPane();
 
-    public IndusPane paneOntology;
-    public IndusPane paneSchema;
-    public IndusPane paneMapping;
-    public IndusPane paneDataSource;
-    public IndusPane paneView;
-    public IndusPane paneQuery;
+    public TypePanel paneOntology;
+    public SchemaPanel paneSchema;
+    public MappingPanel paneMapping;
+    public DataPanel paneDataSource;
+    public ViewPanel paneView;
+    public QueryPanel paneQuery;
     JMenuItem jMenuItem1 = new JMenuItem();
 
 }

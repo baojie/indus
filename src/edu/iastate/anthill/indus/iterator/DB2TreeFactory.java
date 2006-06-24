@@ -7,6 +7,7 @@ import edu.iastate.anthill.indus.IndusDB;
 import edu.iastate.anthill.indus.iterator.ec.EC2Tree;
 import edu.iastate.anthill.indus.iterator.go.Go2Tree;
 import edu.iastate.anthill.indus.iterator.mips.MIPS2Tree;
+import edu.iastate.anthill.indus.iterator.scop.Scop2Tree;
 
 /**
  * <p>@author Jie Bao , baojie@cs.iastate.edu</p>
@@ -40,7 +41,10 @@ public class DB2TreeFactory
         {
             return new EC2Tree(mydb);
         }
-        else
+        else if (name.equals("scop"))
+        {
+            return new Scop2Tree(mydb);
+        }        else
         {
             return null;
         }

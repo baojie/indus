@@ -1,14 +1,14 @@
 package edu.iastate.anthill.indus.datasource.type;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,11 +20,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import edu.iastate.anthill.indus.IndusConstants;
+import edu.iastate.anthill.indus.IndusMain;
 import edu.iastate.anthill.indus.tree.TreeNodeInsertEditing;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
-
 import edu.iastate.utils.Debug;
+import edu.iastate.utils.gui.JStatusBar;
 import edu.iastate.utils.gui.LabelledItemPanel;
 import edu.iastate.utils.gui.StandardDialog;
 import edu.iastate.utils.undo.BulkEditingAction;
@@ -123,7 +124,7 @@ public class DbAVHEditor extends AVHEditor
         {
             //System.out.println( "getChildCount: "+theNode.getChildCount());
 
-            DbAVH myDbAVH = (DbAVH) avh;
+            final DbAVH myDbAVH = (DbAVH) avh;
             // ask for insert root and cutoff level on template tree
             // ask for root the cutoff
             String root = JOptionPane
@@ -146,40 +147,58 @@ public class DbAVHEditor extends AVHEditor
                 JOptionPane.showMessageDialog(null, info);
             }
 
-            String cutoff = JOptionPane.showInputDialog(
+            final String  cutoff = JOptionPane.showInputDialog(
                     "Give the cutoff depth of the new subtree"
                             + "\n put -1 here if you want the whole sub tree",
                     "1");
             if (cutoff == null) { return; }
+            
+            final String from = root;
 
-            try
-            {
-                int c = Integer.parseInt(cutoff);
-                TypedTree subTree = myDbAVH.templateTree.getTree(root, c);
-                //System.out.println(subTree);
+            final JStatusBar statusBar = IndusMain.theInstance.statusBar;
+            Thread t = new Thread() {
+                public void run()
+                {
 
-                // if there is no new child
-                if (subTree.getTop().getChildCount() == 0)
-                {
-                    String info = "No child is found for " + theNode;
-                    JOptionPane.showMessageDialog(null, info);
+                    int pb = statusBar.addProgressBar(true, 0, 0);
+                    statusBar.updateProgressBar(pb, "Importing from '" + 
+                            avh.template + "':" + from);
+
+                    try
+                    {
+                        int c = Integer.parseInt(cutoff);
+
+                        TypedTree subTree = myDbAVH.templateTree.getTree(from,
+                                c);
+                        //System.out.println(subTree);
+
+                        // if there is no new child
+                        if (subTree.getTop().getChildCount() == 0)
+                        {
+                            String info = "No child is found for " + theNode;
+                            JOptionPane.showMessageDialog(null, info);
+                        }
+                        else
+                        {
+                            BulkEditingAction action = amendNode(tree, theNode,
+                                    subTree.getTop());
+                            action.summary = "Insert from template, root = '"
+                                    + from + "', cutoff = '" + c + "'";
+                            history.addAction(action);
+                            changed(theNode);
+                        }
+                    }
+                    catch (NumberFormatException ex)
+                    {
+                        JOptionPane.showMessageDialog(null,
+                                "Cutoff value is not correct!");
+                        return;
+                    }
+
+                    statusBar.removeProgressBar(pb);
                 }
-                else
-                {
-                    BulkEditingAction action = amendNode(tree, theNode, subTree
-                            .getTop());
-                    action.summary = "Insert from template, root = '" + root
-                            + "', cutoff = '" + c + "'";
-                    history.addAction(action);
-                    changed(theNode);
-                }
-            }
-            catch (NumberFormatException ex)
-            {
-                JOptionPane.showMessageDialog(null,
-                        "Cutoff value is not correct!");
-                return;
-            }
+            };
+            t.start();
 
         }
     }
