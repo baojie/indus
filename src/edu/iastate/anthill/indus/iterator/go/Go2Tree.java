@@ -15,8 +15,7 @@ import edu.iastate.anthill.indus.tree.TypedTree;
  * @author Jie Bao
  * @since 1.0 2005-03-11
  */
-public class Go2Tree
-    extends DB2Tree
+public class Go2Tree extends DB2Tree
 {
     public Go2Tree(Connection db)
     {
@@ -31,7 +30,7 @@ public class Go2Tree
     protected Vector getChildren(String from_id)
     {
         return defaultGetChildren("go_relationship", "go_id1", "go_id2",
-                                  from_id, "relation", "is_a");
+                from_id, "relation", "is_a");
     }
 
     public static void main(String[] args)
@@ -54,13 +53,20 @@ public class Go2Tree
 
     protected Vector getParent(String from_id)
     {
-        return defaultGetParent("go_relationship", "go_id1", "go_id2",
-                                from_id, "relation", "is_a");
+        return defaultGetParent("go_relationship", "go_id1", "go_id2", from_id,
+                "relation", "is_a");
     }
 
     public String getRootId()
     {
         return "0000000"; // our meta root for GO
+    }
+
+    @Override
+    public Vector<String[]> getChildren(Vector ids)
+    {
+        return defaultGetChildren("go_relationship", "go_id1", "go_id2",
+                "relation", "is_a", "go_term", "go_id", "name", ids);
     }
 
 }

@@ -12,16 +12,15 @@ import java.util.Vector;
 
  CREATE TABLE ec
  (
-   id char(20) NOT NULL,
-   name varchar(256),
-   parent varchar,
-   CONSTRAINT "EC_pkey" PRIMARY KEY (id)
+ id char(20) NOT NULL,
+ name varchar(256),
+ parent varchar,
+ CONSTRAINT "EC_pkey" PRIMARY KEY (id)
  )
 
 
  */
-public class EC2Tree
-    extends DB2Tree
+public class EC2Tree extends DB2Tree
 {
 
     public EC2Tree(Connection db)
@@ -47,5 +46,12 @@ public class EC2Tree
     protected Vector getParent(String from_id)
     {
         return defaultGetParent("ec", "id", "parent", from_id, null, null);
+    }
+
+    @Override
+    public Vector<String[]> getChildren(Vector ids)
+    {
+        return defaultGetChildren("ec", "id", "parent", null, null, "ec", "id",
+                "name", ids);
     }
 }

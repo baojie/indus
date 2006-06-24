@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -15,6 +17,7 @@ import edu.iastate.anthill.indus.tree.TreeNodeInsertEditing;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
 
+import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.undo.BulkEditingAction;
 import edu.iastate.utils.undo.EditingAction;
 import edu.iastate.utils.lang.SortedVector;
@@ -45,12 +48,12 @@ abstract public class DB2Tree
      * @author Jie Bao
      */
     protected String defaultFindComments(String commentTable, String id_col,
-                                         String comment_col, String id)
+            String comment_col, String id)
     {
         try
         {
-            String sql = "SELECT " + comment_col + " FROM " + commentTable +
-                " WHERE " + id_col + "='" + id + "'";
+            String sql = "SELECT " + comment_col + " FROM " + commentTable
+                    + " WHERE " + id_col + "='" + id + "'";
             //System.out.println(sql);
             Statement stmt = db.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -83,17 +86,14 @@ abstract public class DB2Tree
      * @return Vector
      * @since 2005-03-30
      * @author Jie Bao     */
-    protected Vector defaultGetChildren(String relationTable,
-                                        String childCol,
-                                        String parentCol,
-                                        String from_id,
-                                        String relationCol,
-                                        String relationType)
+    protected Vector defaultGetChildren(String relationTable, String childCol,
+            String parentCol, String from_id, String relationCol,
+            String relationType)
     {
         try
         {
-            String sql = "SELECT " + childCol + " FROM " + relationTable +
-                " WHERE " + parentCol + "='" + from_id + "'";
+            String sql = "SELECT " + childCol + " FROM " + relationTable
+                    + " WHERE " + parentCol + "='" + from_id + "'";
             if (relationCol != null && relationType != null)
             {
                 sql += " AND " + relationCol + " ='" + relationType + "'";
@@ -132,17 +132,14 @@ abstract public class DB2Tree
      * @since 2005-03-30
      * @author Jie Bao
      */
-    protected Vector defaultGetParent(String relationTable,
-                                      String childCol,
-                                      String parentCol,
-                                      String from_id,
-                                      String relationCol,
-                                      String relationType)
+    protected Vector defaultGetParent(String relationTable, String childCol,
+            String parentCol, String from_id, String relationCol,
+            String relationType)
     {
         try
         {
-            String sql = "SELECT " + parentCol + " FROM " + relationTable +
-                " WHERE " + childCol + "='" + from_id + "'";
+            String sql = "SELECT " + parentCol + " FROM " + relationTable
+                    + " WHERE " + childCol + "='" + from_id + "'";
             if (relationCol != null && relationType != null)
             {
                 sql += " AND " + relationCol + " ='" + relationType + "'";
@@ -223,13 +220,15 @@ abstract public class DB2Tree
             if (treePath != null)
             {
                 // find the position to insert
-                TypedNode toInsert = (TypedNode) treePath.getLastPathComponent();
+                TypedNode toInsert = (TypedNode) treePath
+                        .getLastPathComponent();
                 // insert remaining node under toInsert
                 for (int i = 0; i < newNode.size(); i++)
                 {
                     String id = (String) newNode.elementAt(i);
                     DBTreeNode node = createNode(id);
-                    model.insertNodeInto(node, toInsert, toInsert.getChildCount());
+                    model.insertNodeInto(node, toInsert, toInsert
+                            .getChildCount());
                     if (action == null)
                     {
                         action = new TreeNodeInsertEditing(tree, node, toInsert);
@@ -256,7 +255,7 @@ abstract public class DB2Tree
     public BulkEditingAction insertSet(TypedTree tree, Set values)
     {
         BulkEditingAction allActions = new BulkEditingAction(null);
-        for (Iterator it = values.iterator(); it.hasNext(); )
+        for (Iterator it = values.iterator(); it.hasNext();)
         {
             String id = (String) it.next();
             Vector path = getFirstParentPath(id);
@@ -274,32 +273,35 @@ abstract public class DB2Tree
      */
     public DBTreeNode createNode(String id)
     {
-        //System.out.println("DB2Tree.createNode() :" + id);
-        String descrption = findComments(id);
+        //      System.out.println("DB2Tree.createNode() :" + id);
+        return createNode(id, findComments(id));
+    }
+
+    public DBTreeNode createNode(String id, String descrption)
+    {
         return new DBTreeNode(id, descrption);
     }
 
     /**
-     *
+     * @deprecated replaced by a much faster version
      * @param cutoff int , < 0 if no cutoff, >=0 the cutoff depth
      * @param from DBTreeNode
+     * 
+     * @author Jie Bao
      * @since 2005-03-11
      */
-    protected void buildTree(TypedTree tree, int cutoff, DBTreeNode from)
+    protected void buildTreeOld(TypedTree tree, int cutoff, DBTreeNode from)
     {
         // if it's a null node
-        if (from == null)
-        {
-            return;
-        }
+        if (from == null) { return; }
         if (cutoff != 0)
         {
             String ids = (String) from.getUserObject();
             Vector children = getChildren(ids);
-            
+
             String s = from.toString();
-            if (s.length() > 50 ) s = s.substring(0,49);
-            System.out.println(s + " -> " + children);
+            if (s.length() > 50) s = s.substring(0, 49);
+            //System.out.println(s + " -> " + children);
             for (int i = 0; i < children.size(); i++)
             {
                 String kid = (String) children.elementAt(i);
@@ -310,7 +312,122 @@ abstract public class DB2Tree
                 buildTree(tree, cutoff - 1, node);
             }
         }
-        return;
+    }
+
+    /**
+     * Build tree from the database
+     *      10 times faster on MIPS than the old implementation!
+     * 
+     * @author Jie Bao
+     * @since 2006-06-24
+     * @param tree
+     * @param cutoff -  < 0 if no cutoff, >=0 the cutoff depth
+     * @param from
+     */
+    protected void buildTree(TypedTree tree, int cutoff, DBTreeNode from)
+    {
+        // if it's a null node
+        if (from == null) { return; }
+
+        Map<String, DBTreeNode> id2Node = new HashMap<String, DBTreeNode>();
+
+        String from_id = (String) from.getUserObject();
+        Vector<String> ids = new Vector<String>();
+        ids.add(from_id);
+
+        id2Node.put(from_id, from);
+
+        int level = cutoff;
+
+        while (level != 0 && ids.size() > 0)
+        {
+            System.out.println(ids.size());
+            
+            level--;
+            Vector<String[]> children = getChildren(ids);
+            ids.removeAllElements();
+
+            for (String[] kid : children)
+            {
+                String id = kid[0];
+                String comment = kid[1];
+                String pid = kid[2];
+                ids.add(id);
+
+                DBTreeNode node = createNode(id, comment);
+                id2Node.put(id, node);
+
+                DBTreeNode parentNode = id2Node.get(pid);
+                parentNode.add(node);
+                
+                //System.out.println(id2Node +" ; "+ parentNode);
+            }
+        }
+
+    }
+
+    abstract public Vector<String[]> getChildren(Vector ids);
+
+    /**
+     * get children of a set of ids
+     * @author Jie Bao
+     * @since 2006-06-24
+     * 
+     * @param relationTable
+     * @param childCol
+     * @param parentCol
+     * @param relationCol
+     * @param relationType
+     * @param commentTable
+     * @param id_col
+     * @param comment_col
+     * @param ids
+     * @return a vector of triples: id, name, parent_id
+     */
+    protected Vector<String[]> defaultGetChildren(String relationTable,
+            String childCol, String parentCol, String relationCol,
+            String relationType, String commentTable, String id_col,
+            String comment_col, Vector ids)
+    {
+
+        String r_id = relationTable + "." + childCol;
+        String r_pid = relationTable + "." + parentCol;
+        String c_id = commentTable + "." + id_col;
+        String c_cmt = commentTable + "." + comment_col;
+        String c_rel = relationTable + "." + relationCol;
+
+        String select = " SELECT " + r_id + ", " + c_cmt + ", " + r_pid;
+        String from = " FROM " + relationTable;
+        if (!relationTable.equalsIgnoreCase(commentTable))
+        {
+            from = from + ", " + commentTable;
+        }
+        
+        String condition = ids.toString();// [1, 2, 3, 4]
+        //System.out.println(condition);        
+        condition = condition.replaceAll(",\\s", "','");
+        condition = r_pid + " IN ('"
+                + condition.substring(1, condition.length() - 1) + "')";
+        //System.out.println(condition);
+        
+        // id IN ('1','2','3','4')
+        if (ids.size() == 0) condition = "false";
+
+        if (!relationTable.equalsIgnoreCase(commentTable))
+        {
+            condition = condition + " AND " + r_id + " = " + c_id;
+        }
+        
+        if (relationCol != null && relationType != null)
+        {
+            condition += " AND " + c_rel + " ='" + relationType + "'";
+        }
+
+        String where = " WHERE " + condition;
+        String sql = select + from + where;
+        System.out.println(sql);
+
+        return JDBCUtils.getValues(db, sql, 3);
     }
 
     /**
@@ -324,7 +441,7 @@ abstract public class DB2Tree
      */
     public TypedTree getTree(String from_id, int cutoff)
     {
-        if (from_id == null || from_id.length() ==0)
+        if (from_id == null || from_id.length() == 0)
         {
             from_id = this.getRootId();
         }

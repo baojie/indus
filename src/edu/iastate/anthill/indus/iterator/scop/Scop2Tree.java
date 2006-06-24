@@ -35,6 +35,14 @@ public class Scop2Tree
         super(db);
     }
     
+    // @Override
+    // since 2006-06-24
+    public Vector<String[]> getChildren(Vector ids)
+    {
+        return defaultGetChildren("scop", "id", "parent", null, null,
+                "scop", "id", "name", ids);
+    }
+    
     // 2006-06-23
     protected String findComments(String id)
     {
@@ -124,7 +132,7 @@ public class Scop2Tree
         conn.connect(IndusConstants.dbURL);
 
         Scop2Tree mm = new Scop2Tree(conn.db);
-        TypedTree t = mm.getTree("46456", 1);
+        TypedTree t = mm.getTree("0", 2);
         conn.disconnect();
 
         // show it
