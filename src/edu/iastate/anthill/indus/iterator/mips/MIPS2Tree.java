@@ -65,6 +65,7 @@ public class MIPS2Tree extends DB2Tree
 
         // show it
         JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         JScrollPane scr = new JScrollPane(t);
         frame.getContentPane().add(scr);

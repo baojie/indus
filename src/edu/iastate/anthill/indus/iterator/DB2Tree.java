@@ -453,7 +453,8 @@ abstract public class DB2Tree
         }
 
         String where = " WHERE " + condition;
-        String sql = select + from + where;
+        String orderby = " ORDER BY " + r_id;
+        String sql = select + from + where + orderby;
         //System.out.println(sql);
 
         Vector<String[]> s = JDBCUtils.getValues(db, sql, 3);

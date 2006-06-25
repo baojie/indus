@@ -11,9 +11,9 @@ import java.lang.reflect.*;
  * eg.    JMenuItem menuImportAmazonOnlineList = new JMenuItem();
  *        mapAction(menuImportAmazonOnlineList, this, "onImportAmazonOnlineList");
  *        public void onImportAmazonOnlineList(ActionEvent e)
-          {
-           ....
-          }
+ {
+ ....
+ }
  *
  * @author Jie Bao
  * @since 1.0 2005-03-05
@@ -32,64 +32,66 @@ public class MessageMap
      * @since 2005-03-05
      */
     static public void mapAction(Object source, final Object obj,
-                                 final String methodName) throws Exception
+            final String methodName) throws Exception
     {
         // Make sure source class has "addActionListener" method
         Class sourceCls = source.getClass();
-        Method addActionListener = sourceCls.getMethod
-            ("addActionListener", new Class[]
-             {ActionListener.class});
+        Method addActionListener = sourceCls.getMethod("addActionListener",
+                new Class[] { ActionListener.class });
 
         if (addActionListener != null)
         {
-            addActionListener.invoke(source, new Object[]
-                                     {new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    try
-                    {
-                        Class cls = obj.getClass();
-                        //System.out.println(cls);
-                        Method m = cls.getMethod(methodName, new Class[]
-                                                 {ActionEvent.class});
-                        //System.out.println(m);
-                        m.invoke(obj, new Object[]
-                                 {e});
+            addActionListener.invoke(source,
+                    new Object[] { new ActionListener() {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            try
+                            {
+                                Class cls = obj.getClass();
+                                //System.out.println(cls);
+                                Method m = cls.getMethod(methodName,
+                                        new Class[] { ActionEvent.class });
+                                //System.out.println(m);
+                                m.invoke(obj, new Object[] { e });
 
-                    }
-                    catch (NoSuchMethodException ex)
-                    {
-                        String cls = obj.getClass().getName();
-                        JOptionPane.showMessageDialog(null,
-                            "No handler is defined for command '" +
-                            e.getActionCommand() + "'\n" +
-                            "Please add : public " + cls + "." + methodName +
-                            "(ActionEvent e)" +
-                            "\n   Make sure the method is public!"
-                            );
-                        ex.printStackTrace();
-                    }
-                    catch (InvocationTargetException ex1)
-                    {
-                        ex1.printStackTrace();
-                    }
-                    catch (IllegalArgumentException ex1)
-                    {
-                        ex1.printStackTrace();
-                    }
-                    catch (IllegalAccessException ex1)
-                    {
-                        ex1.printStackTrace();
-                    }
-                }
-            }
-            });
+                            }
+                            catch (NoSuchMethodException ex)
+                            {
+                                String cls = obj.getClass().getName();
+                                JOptionPane
+                                        .showMessageDialog(
+                                                null,
+                                                "No handler is defined for command '"
+                                                        + e.getActionCommand()
+                                                        + "'\n"
+                                                        + "Please add : public "
+                                                        + cls
+                                                        + "."
+                                                        + methodName
+                                                        + "(ActionEvent e)"
+                                                        + "\n   Make sure the method is public!");
+                                ex.printStackTrace();
+                            }
+                            catch (InvocationTargetException ex1)
+                            {
+                                ex1.printStackTrace();
+                            }
+                            catch (IllegalArgumentException ex1)
+                            {
+                                ex1.printStackTrace();
+                            }
+                            catch (IllegalAccessException ex1)
+                            {
+                                ex1.printStackTrace();
+                            }
+                        }
+                    } });
         }
-        else //if ...
+        else
+        //if ...
         {
             throw new Exception(
-                "No mapping for such message source implemented!");
+                    "No mapping for such message source implemented!");
         }
 
     }

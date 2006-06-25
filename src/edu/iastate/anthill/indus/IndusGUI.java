@@ -66,6 +66,7 @@ public class IndusGUI
         mainMenu.add(menuHelp);
         menuHelp.add(menuHelpAbout);
         mainFrame.setJMenuBar(mainMenu);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //toolbar.add(jButton1);
         jButton1.setText("Some buttons will be put here");

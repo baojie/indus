@@ -136,13 +136,14 @@ public class Scop2Tree
 
         StopWatch w = new StopWatch();
         w.start();
-        TypedTree t = mm.getTree("0", 4);
+        TypedTree t = mm.getTree("0", 1);
         w.stop();
         System.out.println(w.print());
         conn.disconnect();
 
         // show it
         JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         JScrollPane scr = new JScrollPane(t);
         frame.getContentPane().add(scr);
