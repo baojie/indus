@@ -33,12 +33,13 @@ public class AVHDialog
     JButton btnCancel = new JButton();
     JButton btnOK = new JButton();
 
-    public AVHDialog(AVH avh, Object defaultValue, JFrame frame)
+    public AVHDialog(AVH avh, String defaultValue, JFrame frame)
     {
         super(frame, "AVH Dialog", true);
 
         this.myAVH = avh;
-        this.selectedValue = defaultValue;
+        this.selectedValue = defaultValue.trim();
+        //Debug.trace("'"+this.selectedValue+"'");
 
         try
         {
@@ -75,19 +76,24 @@ public class AVHDialog
         //Debug.trace(myAVH);
 
         TypedTree tree = myAVH.getTreeAVH();
+        //Debug.trace(tree.getTop());
+        tree.setExpandsSelectedPaths(true);
         DefaultMutableTreeNode n = tree.selectFirst(selectedValue);
+        //Debug.trace(n);
 
         JPanel treeEditor = myAVH.getEditorPane();
-        this.getContentPane().add(new JScrollPane(treeEditor),
-                                  java.awt.BorderLayout.CENTER);
+//      this.getContentPane().add(new JScrollPane(treeEditor),
+        //                          BorderLayout.CENTER);
+      this.getContentPane().add(new JScrollPane(tree),
+                                  BorderLayout.CENTER);
         btnCancel.setText("Cancel");
-        this.getContentPane().add(panel1, java.awt.BorderLayout.SOUTH);
+        this.getContentPane().add(panel1,BorderLayout.SOUTH);
         btnOK.setText("OK");
         panel1.add(btnOK, null);
         panel1.add(btnCancel, null);
         
         if(n != null){
-        	tree.scrollPathToVisible(JTreeEx.getPath(n)); // 2006-06-13, baojie
+        	tree.scrollPathToVisible(tree.getPath(n)); // 2006-06-13, baojie
         }
 
         this.pack();

@@ -68,6 +68,7 @@ public class AVH extends DAG implements Configable {
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         treeAVT.addDrageDropListener(new MyDropListener(this));
         treeAVT.setEnableDragDrop(true);
+        treeAVT.setCellRenderer(render);
     }
 
     public String toXML() {
@@ -153,12 +154,13 @@ public class AVH extends DAG implements Configable {
             
             // read the tree
             if (full) {
+                final String typeName = name;
                 treeAVT = new TypedTree()
                 {
                     public TypedNode newNode(String name, String comment)
                     {   
                         DataSourceNode newNode = new DataSourceNode(name,
-                                DataSourceNode.AVH, name, comment);
+                                DataSourceNode.AVH, typeName, comment);
                         return newNode;
                     }
                 };

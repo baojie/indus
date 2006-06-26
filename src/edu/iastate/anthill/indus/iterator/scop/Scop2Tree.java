@@ -136,7 +136,7 @@ public class Scop2Tree
 
         StopWatch w = new StopWatch();
         w.start();
-        TypedTree t = mm.getTree("0", 1);
+        TypedTree t = mm.getTree("0", -1);
         w.stop();
         System.out.println(w.print());
         conn.disconnect();

@@ -1,20 +1,22 @@
-package edu.iastate.utils.gui ;
+package edu.iastate.utils.gui;
 
-import java.util.ArrayList ;
-import java.util.Arrays ;
-import java.util.Collections ;
-import java.util.Enumeration ;
-import java.util.HashSet ;
-import java.util.List ;
-import java.util.Set ;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.JTree ;
-import javax.swing.tree.DefaultMutableTreeNode ;
-import javax.swing.tree.DefaultTreeModel ;
-import javax.swing.tree.MutableTreeNode ;
-import javax.swing.tree.TreeModel ;
-import javax.swing.tree.TreeNode ;
-import javax.swing.tree.TreePath ;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import edu.iastate.utils.Debug;
 
 /**
  * @author Jie Bao
@@ -24,11 +26,11 @@ public class JTreeEx extends DNDTree
 {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * @param tree JTree
      * @param parent TreePath
      * @param nodes Object[]
@@ -39,36 +41,36 @@ public class JTreeEx extends DNDTree
      *    2- by user object
      * @return TreePath
      */
-    protected static TreePath find2(JTree tree, TreePath parent, Object[] nodes,
-        int depth, int mode)
+    protected static TreePath find2(JTree tree, TreePath parent,
+            Object[] nodes, int depth, int mode)
     {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)parent.
-            getLastPathComponent() ;
-        Object onTree, toCompare ;
-        onTree = node ;
-        toCompare = nodes[depth] ;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) parent
+                .getLastPathComponent();
+        Object onTree, toCompare;
+        onTree = node;
+        toCompare = nodes[depth];
 
-        if(mode == 0) // by node
+        if (mode == 0) // by node
         {
-            onTree = node ;
-            toCompare = nodes[depth] ;
+            onTree = node;
+            toCompare = nodes[depth];
         }
-        else if(mode == 1) // by name
+        else if (mode == 1) // by name
         {
-            onTree = node.toString() ;
-            toCompare = nodes[depth].toString() ;
+            onTree = node.toString();
+            toCompare = nodes[depth].toString();
         }
-        else if(mode == 2) // by user object
+        else if (mode == 2) // by user object
         {
-            onTree = node.getUserObject() ;
-            if(nodes[depth] instanceof DefaultMutableTreeNode)
+            onTree = node.getUserObject();
+            if (nodes[depth] instanceof DefaultMutableTreeNode)
             {
-                toCompare = ((DefaultMutableTreeNode)nodes[depth]).
-                    getUserObject() ;
+                toCompare = ((DefaultMutableTreeNode) nodes[depth])
+                        .getUserObject();
             }
             else
             {
-                toCompare = nodes[depth] ;
+                toCompare = nodes[depth];
             }
         }
 
@@ -76,34 +78,27 @@ public class JTreeEx extends DNDTree
         //System.out.println("on tree: " + o);
         //System.out.println("to query: " + nodes[depth]);
 
-        if(onTree.equals(toCompare))
+        if (onTree.equals(toCompare))
         {
             // If at end, return match
-            if(depth == nodes.length - 1)
-            {
-                return parent ;
-            }
+            if (depth == nodes.length - 1) { return parent; }
 
             // Traverse children
-            if(node.getChildCount() >= 0)
+            if (node.getChildCount() >= 0)
             {
-                for(Enumeration e = node.children() ; e.hasMoreElements() ; )
+                for (Enumeration e = node.children(); e.hasMoreElements();)
                 {
-                    TreeNode n = (TreeNode)e.nextElement() ;
-                    TreePath path = parent.pathByAddingChild(n) ;
-                    TreePath result = find2(tree, path, nodes, depth + 1,
-                        mode) ;
+                    TreeNode n = (TreeNode) e.nextElement();
+                    TreePath path = parent.pathByAddingChild(n);
+                    TreePath result = find2(tree, path, nodes, depth + 1, mode);
                     // Found a match
-                    if(result != null)
-                    {
-                        return result ;
-                    }
+                    if (result != null) { return result; }
                 }
             }
         }
 
         // No match at this branch
-        return null ;
+        return null;
     }
 
     // Finds the path in tree as specified by the array of names. The names array is a
@@ -111,8 +106,8 @@ public class JTreeEx extends DNDTree
     // Comparison is done using String.equals(). Returns null if not found.
     public static TreePath findByName(JTree tree, String[] names)
     {
-        TreeNode root = (TreeNode)tree.getModel().getRoot() ;
-        return find2(tree, new TreePath(root), names, 0, 1) ;
+        TreeNode root = (TreeNode) tree.getModel().getRoot();
+        return find2(tree, new TreePath(root), names, 0, 1);
     }
 
     /**
@@ -122,33 +117,40 @@ public class JTreeEx extends DNDTree
      * @author Jie Bao
      * @since 2004-10-08
      */
-    static public TreePath getPath(TreeNode node)
+    public TreePath getPath(TreeNode node)
     {
-        List list = new ArrayList() ;
+        if (node == null) return null;
+
+        List<TreeNode> list = new ArrayList<TreeNode>();
+        TreeNode root = (TreeNode) getModel().getRoot();
 
         // Add all nodes to list
-        while(node != null)
+        while (node != null)
         {
-            list.add(node) ;
-            node = node.getParent() ;
+            list.add(node);
+
+            if (node == root) break;
+
+            node = node.getParent();
+
         }
-        Collections.reverse(list) ;
+        Collections.reverse(list);
 
         // Convert array of nodes to TreePath
-        return new TreePath(list.toArray()) ;
+        return new TreePath(list.toArray());
     }
 
     public TreeNode getSelectedNode()
     {
-        TreePath path = this.getSelectionPath() ;
-        if(path != null)
+        TreePath path = this.getSelectionPath();
+        if (path != null)
         {
-            TreeNode n = (TreeNode)path.getLastPathComponent() ;
-            return n ;
+            TreeNode n = (TreeNode) path.getLastPathComponent();
+            return n;
         }
         else
         {
-            return null ;
+            return null;
         }
     }
 
@@ -159,7 +161,7 @@ public class JTreeEx extends DNDTree
      */
     public JTreeEx(TreeNode node)
     {
-        super(node) ;
+        super(node);
     }
 
     /**
@@ -167,12 +169,12 @@ public class JTreeEx extends DNDTree
      */
     public JTreeEx()
     {
-        super() ;
+        super();
     }
 
     public JTreeEx(DefaultTreeModel model)
     {
-        super(model) ;
+        super(model);
     }
 
     /**
@@ -185,20 +187,20 @@ public class JTreeEx extends DNDTree
      */
     public static DefaultMutableTreeNode findFirst(JTree tree, Object value)
     {
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode)
-            tree.getModel().getRoot() ;
-        Enumeration e = root.breadthFirstEnumeration() ;
-        while(e.hasMoreElements())
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel()
+                .getRoot();
+        Enumeration e = root.breadthFirstEnumeration();
+        while (e.hasMoreElements())
         {
-            DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement() ;
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) e.nextElement();
             //Debug.trace(null, n+"\n"+name);
-            if(n.getUserObject().equals(value))
+            if (n.getUserObject().equals(value))
             {
                 //Debug.trace(null, n);
-                return n ;
+                return n;
             }
         }
-        return null ;
+        return null;
     }
 
     // Finds the path in tree as specified by the node array. The node array is a sequence
@@ -206,14 +208,14 @@ public class JTreeEx extends DNDTree
     // Comparison is done using Object.equals(). Returns null if not found
     public static TreePath find(JTree tree, Object[] nodes)
     {
-        TreeNode root = (TreeNode)tree.getModel().getRoot() ;
-        return find2(tree, new TreePath(root), nodes, 0, 0) ;
+        TreeNode root = (TreeNode) tree.getModel().getRoot();
+        return find2(tree, new TreePath(root), nodes, 0, 0);
     }
 
     public static TreePath findByUserObject(JTree tree, Object[] names)
     {
-        TreeNode root = (TreeNode)tree.getModel().getRoot() ;
-        return find2(tree, new TreePath(root), names, 0, 2) ;
+        TreeNode root = (TreeNode) tree.getModel().getRoot();
+        return find2(tree, new TreePath(root), names, 0, 2);
     }
 
     /**
@@ -224,15 +226,15 @@ public class JTreeEx extends DNDTree
      * @author Jie Bao
      * @since 2005-03-19
      */
-    public static Set findAncestor(TreeNode node)
+    public Set findAncestor(TreeNode node)
     {
-        Set ss = new HashSet() ;
+        Set ss = new HashSet();
 
-        TreePath path = getPath(node) ;
-        Object[] ancestor = path.getPath() ;
-        ss.addAll(Arrays.asList(ancestor)) ;
-        ss.remove(node) ;
-        return ss ;
+        TreePath path = getPath(node);
+        Object[] ancestor = path.getPath();
+        ss.addAll(Arrays.asList(ancestor));
+        ss.remove(node);
+        return ss;
     }
 
     /**
@@ -245,19 +247,19 @@ public class JTreeEx extends DNDTree
      */
     public static Set findAllOffspring(TreeNode node)
     {
-        Set ss = new HashSet() ;
+        Set ss = new HashSet();
         // Traverse children
-        if(node.getChildCount() > 0)
+        if (node.getChildCount() > 0)
         {
-            for(Enumeration e = node.children() ; e.hasMoreElements() ; )
+            for (Enumeration e = node.children(); e.hasMoreElements();)
             {
-                TreeNode n = (TreeNode)e.nextElement() ;
-                ss.add(n) ;
-                ss.addAll(findAllOffspring(n)) ;
+                TreeNode n = (TreeNode) e.nextElement();
+                ss.add(n);
+                ss.addAll(findAllOffspring(n));
             }
-            ss.remove(node) ;
+            ss.remove(node);
         }
-        return ss ;
+        return ss;
     }
 
     /**
@@ -267,18 +269,22 @@ public class JTreeEx extends DNDTree
      */
     public DefaultMutableTreeNode selectFirst(Object value)
     {
-        if(value != null)
+        if (value != null)
         {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                findFirst(this, value) ;
-            if(node != null)
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) findFirst(
+                    this, value);
+            //Debug.trace("find "+node);
+            if (node != null)
             {
-                TreePath path = getPath(node) ;
-                setSelectionPath(path) ;
-                return node ;
+                TreePath path = getPath(node);
+                //Debug.trace("select " + path);
+                setSelectionPath(path);
+                expandPath(node);
+
+                return node;
             }
         }
-        return null ;
+        return null;
     }
 
     /**
@@ -289,69 +295,67 @@ public class JTreeEx extends DNDTree
      */
     public void expandPath(TreeNode node)
     {
-        TreePath path = getPath(node) ;
-        expandPath(path) ;
-        this.scrollPathToVisible(path) ; // add 2005-04-24
+        TreePath path = getPath(node);
+        //System.out.println(path);
+        expandPath(path);
+        scrollPathToVisible(path); // add 2005-04-24
     }
 
     // @since 2004-10-13
     // make sure the node will be shown
     public void expandNode(TreeNode node)
     {
-        if(node == null)
-        {
-            return ;
-        }
+        if (node == null) { return; }
         /*// if it's not leaf
-           if (node.getChildCount() > 0)
-           {
-               expandPath(node);
-           }
-           else // leaf
-           {
-               // expand its parent, unless its the root itself
-               if (node.getParent() != null)
-               {
-          expandPath(node.getParent());
-               }
-           }*/
-       expandPath(node) ;
+         if (node.getChildCount() > 0)
+         {
+         expandPath(node);
+         }
+         else // leaf
+         {
+         // expand its parent, unless its the root itself
+         if (node.getParent() != null)
+         {
+         expandPath(node.getParent());
+         }
+         }*/
+        expandPath(node);
     }
 
     // @since 2004-10-13
     public void CollapsePath(TreeNode node)
     {
-        collapsePath(getPath(node)) ;
+        collapsePath(getPath(node));
     }
 
     public static DefaultMutableTreeNode findFirst(JTree tree, String name)
     {
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode)
-            tree.getModel().getRoot() ;
-        Enumeration e = root.breadthFirstEnumeration() ;
-        while(e.hasMoreElements())
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel()
+                .getRoot();
+        Enumeration e = root.breadthFirstEnumeration();
+        while (e.hasMoreElements())
         {
-            DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement() ;
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) e.nextElement();
             //Debug.trace(null, n+"\n"+name);
-            if(n.getUserObject().toString().compareTo(name) == 0)
+            if (n.getUserObject().toString().compareTo(name) == 0)
             {
-                //Debug.trace(null, n);
-                return n ;
+                //Debug.trace("select "+node);
+                return n;
             }
         }
-        return null ;
+        return null;
     }
 
     // @since 2004-10-13
     public void expandNode(String node)
     {
-        expandNode(findFirst(this, node)) ;
+        expandNode(findFirst(this, node));
     }
 
     // @since 2004-10-13
     public void expandPath(String node)
     {
-        expandPath(getPath(findFirst(this, node))) ;
+        expandPath(getPath(findFirst(this, node)));
     }
 
     /**
@@ -360,7 +364,7 @@ public class JTreeEx extends DNDTree
      */
     public DefaultTreeModel getModel()
     {
-        return(DefaultTreeModel)super.getModel() ;
+        return (DefaultTreeModel) super.getModel();
     }
 
     /**
@@ -372,17 +376,17 @@ public class JTreeEx extends DNDTree
      */
     public void moveNode(MutableTreeNode n1, MutableTreeNode n2)
     {
-        if(n1.getParent() != null)
+        if (n1.getParent() != null)
         {
-            getModel().removeNodeFromParent(n1) ;
+            getModel().removeNodeFromParent(n1);
         }
-        getModel().insertNodeInto(n1, n2, 0) ;
-        System.out.println("move " + n1 + " ->" + n2) ;
+        getModel().insertNodeInto(n1, n2, 0);
+        System.out.println("move " + n1 + " ->" + n2);
     }
 
     // 2005-08-17
     public void delete(MutableTreeNode n)
     {
-        getModel().removeNodeFromParent(n) ;
+        getModel().removeNodeFromParent(n);
     }
 }

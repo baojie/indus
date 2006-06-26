@@ -35,6 +35,7 @@ public class DataSourceNode
         this.datatype = datatype;
     }
 
+    // e.g. new DataSourceNode("newNode", AVH, "StudentStatus","a new node")
     public DataSourceNode(String name, short type, String datatype,
                           String comment)
     {

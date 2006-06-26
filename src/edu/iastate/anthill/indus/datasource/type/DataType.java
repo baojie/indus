@@ -143,5 +143,6 @@ public abstract class DataType
 
     abstract public String toText();
 
-    abstract public String getInformation();
+    abstract public String getInformation(); 
+
 }

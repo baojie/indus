@@ -1,6 +1,7 @@
 package edu.iastate.anthill.indus;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -11,23 +12,20 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
 import edu.iastate.anthill.indus.panel.DataPanel;
-import edu.iastate.anthill.indus.panel.TypePanel;
 import edu.iastate.anthill.indus.panel.IndusPane;
 import edu.iastate.anthill.indus.panel.MappingPanel;
 import edu.iastate.anthill.indus.panel.QueryPanel;
 import edu.iastate.anthill.indus.panel.SchemaPanel;
+import edu.iastate.anthill.indus.panel.TypePanel;
 import edu.iastate.anthill.indus.panel.ViewPanel;
-
 import edu.iastate.utils.gui.JStatusBar;
-import edu.iastate.utils.Debug;
 
 /**
  * GUI setting
  * @author Jie Bao
  * @since 1.0 2005-03-11
  */
-public class IndusGUI
-    extends IndusBasis
+public class IndusGUI extends IndusBasis
 {
     public IndusGUI()
     {
@@ -40,12 +38,11 @@ public class IndusGUI
             jbInit();
             try
             {
-                UIManager.setLookAndFeel(
-                    "com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+                UIManager
+                        .setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             }
             catch (Exception ex)
-            {
-            }
+            {}
         }
         catch (Exception ex)
         {
@@ -100,25 +97,25 @@ public class IndusGUI
         pane.showDefault(itemToShow);
     }
 
-    public JFrame mainFrame = new JFrame();
+    public JFrame       mainFrame     = new JFrame();
 
-    JMenuBar mainMenu = new JMenuBar();
-    JMenu menuFile = new JMenu();
-    JMenu menuHelp = new JMenu();
-    JMenuItem menuHelpAbout = new JMenuItem();
+    JMenuBar            mainMenu      = new JMenuBar();
+    JMenu               menuFile      = new JMenu();
+    JMenu               menuHelp      = new JMenu();
+    JMenuItem           menuHelpAbout = new JMenuItem();
 
-    JToolBar toolbar = new JToolBar();
-    BorderLayout borderLayout1 = new BorderLayout();
-    public JStatusBar statusBar = new JStatusBar("Ready");
-    JButton jButton1 = new JButton();
-    JTabbedPane tabPanel = new JTabbedPane();
+    JToolBar            toolbar       = new JToolBar();
+    BorderLayout        borderLayout1 = new BorderLayout();
+    public JStatusBar   statusBar     = new JStatusBar("Ready");
+    JButton             jButton1      = new JButton();
+    JTabbedPane         tabPanel      = new JTabbedPane();
 
-    public TypePanel paneOntology;
-    public SchemaPanel paneSchema;
+    public TypePanel    paneOntology;
+    public SchemaPanel  paneSchema;
     public MappingPanel paneMapping;
-    public DataPanel paneDataSource;
-    public ViewPanel paneView;
-    public QueryPanel paneQuery;
-    JMenuItem jMenuItem1 = new JMenuItem();
+    public DataPanel    paneDataSource;
+    public ViewPanel    paneView;
+    public QueryPanel   paneQuery;
+    JMenuItem           jMenuItem1    = new JMenuItem();
 
 }

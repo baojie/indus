@@ -62,7 +62,7 @@ public class SQLQueryRewriter
             // they are the node all the path from root to the given node (value)
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
                 value);
-            Set ancestorNode = TypedTree.findAncestor(valueNode);
+            Set ancestorNode = ontology.findAncestor(valueNode);
             for (Iterator it = ancestorNode.iterator(); it.hasNext(); )
             {
                 DefaultMutableTreeNode element = (DefaultMutableTreeNode) it.
@@ -74,7 +74,7 @@ public class SQLQueryRewriter
         {
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
                 value);
-            Set ancestorNode = TypedTree.findAncestor(valueNode);
+            Set ancestorNode = ontology.findAncestor(valueNode);
             for (Iterator it = ancestorNode.iterator(); it.hasNext(); )
             {
                 DefaultMutableTreeNode element = (DefaultMutableTreeNode) it.

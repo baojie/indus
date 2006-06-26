@@ -217,7 +217,7 @@ public class WhereTreePane
                 TypedNode newNode = newExpressionNode(exp);
                 model.insertNodeInto(newNode, theNode,
                                      theNode.getChildCount());
-                jTree1.setSelectionPath(TypedTree.getPath(newNode));
+                jTree1.setSelectionPath(jTree1.getPath(newNode));
                 jTree1.revalidate();
                 jTree1.repaint();
                 builder.sqlDlg.setSQL(builder.generateZQuery().toString());

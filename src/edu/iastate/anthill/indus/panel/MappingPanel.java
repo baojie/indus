@@ -28,7 +28,7 @@ import edu.iastate.utils.gui.GUIUtils;
  */
 
 public class MappingPanel
-    extends MappingPanelAction
+    extends MappingPanelWritingActions
 {
 
     public MappingPanel(IndusGUI parent)
@@ -290,30 +290,6 @@ public class MappingPanel
         return tree;
     }
 
-    class DeleteMappingRuleListener
-        implements ActionListener
-    {
-
-        public void actionPerformed(ActionEvent evt)
-        {
-            BridgeRule t = (BridgeRule) mappingRuleList.getSelectedValue();
-            // delete it from mapping
-            if (t.getComments().equals(SCHEMA_COMMENT))
-            {
-                myMapping.deleteSchemaMappingItem(t.fromTerm, t.connector,
-                                                  t.toTerm);
-                modified = true;
-            }
-            else if (t.getComments().equals(AVH_COMMENT))
-            {
-                myMapping.deleteAVHMappingItem(t.fromTerminology, t.fromTerm,
-                                               t.connector,
-                                               t.toTerminology, t.toTerm);
-                modified = true;
-            }
-            mappingRuleListModel.removeElement(t);
-        }
-    }
 
     /**
      * createList

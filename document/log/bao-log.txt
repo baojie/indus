@@ -124,4 +124,19 @@ End of test
 
 	Fix bug in deleting type 
 	Change spli panel in mapping panel to vertical splitting    
+	
+	Greatly improved AVH loading from database template: 
+	   for SCOP (83k terms), the loading time is reduced from > 12 hours
+	   to just 60+ seconds!
+	See DB2Tree
+	
+2006-06-25
+
+	Fix bug in JTreeEx.getPath: stop at root node
+	
+	Split MappingPanelAction (900+ lines) to 
+	      MappingPanelReadingActions and
+	      MappingPanelWritingActions	   
+	   
+	   
   
