@@ -138,5 +138,16 @@ End of test
 	      MappingPanelReadingActions and
 	      MappingPanelWritingActions	   
 	   
-	   
+2006-06-26
+
+    AVHTest.compareStroageSize()
+    
+    Compare storage size between zipped plain text and zipped binary
+            conclusion: zipped plain text is better
+       
+       Test sample: scop ontology (83k terms) 
+       Plain text        6,554,321
+       Zipped plain text 1,084,605 (smallest)
+       Binary            7,155,838
+       Zipped binary     1,313,176	   
   

@@ -163,7 +163,16 @@ public abstract class TypePanelAction extends TypePanelGUI implements
         int pb = parent.statusBar.addProgressBar(true, 0, 0);
         parent.statusBar.updateProgressBar(pb, "Loading type " + selected);
 
-        DataType dt = InfoReader.readDataType(selected, forceReload);
+        DataType dt=null;
+        try
+        {
+            dt = InfoReader.readDataType(selected, forceReload);
+        }
+        catch (Exception e)
+        {
+            Debug.trace("Error in loading " + selected + "\n\n" + e.getMessage());
+            e.printStackTrace();
+        }
         parent.statusBar.removeProgressBar(pb);
         loadType(dt);
 

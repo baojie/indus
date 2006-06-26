@@ -164,7 +164,7 @@ public class AVH extends DAG implements Configable {
                         return newNode;
                     }
                 };
-                treeAVT.fromString(datatypeinText);
+                treeAVT.fromText(datatypeinText);
             }
             
         } catch (IOException e) {

@@ -235,8 +235,13 @@ public class InfoReader implements IndusCommand
             {
                 System.out.print(" Plain Text Format ");
                 // encoded in InfoWriter.writeType()
+                
+                // clear unused memory 
+                System.gc();
                 sourceText = Zip.decode(sourceText);
+                System.gc();
                 newType = readDataTypeNativePlain(name, sourceText);
+                System.gc();
             }
 
             w.stop();
