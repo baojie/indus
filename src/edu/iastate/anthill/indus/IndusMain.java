@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
+import edu.iastate.anthill.indus.datasource.type.AVH;
 import edu.iastate.utils.Console;
 import edu.iastate.utils.gui.GUIUtils;
 
@@ -12,38 +13,37 @@ import edu.iastate.utils.gui.GUIUtils;
  * @author Jie Bao
  * @since 1.0 2005-03-11
  */
-public class IndusMain
-    extends IndusGUIAction
+public class IndusMain extends IndusGUIAction
 {
     private static final long serialVersionUID = 3970622403461846063L;
 
-    static public IndusMain theInstance ;
-    
+    static public IndusMain   theInstance;
+
     public IndusMain()
     {
         super();
-        theInstance = this ;
+        theInstance = this;
         //Debug.trace("IndusMain");
     }
 
     void start()
     {
-        mainFrame.setTitle(IndusConstants.NAME + " " +
-                           IndusConstants.VER + ", build " +
-                           IndusConstants.TIME);
+        mainFrame.setTitle(IndusConstants.NAME + " " + IndusConstants.VER
+                + ", build " + IndusConstants.TIME);
 
-        GUIUtils.maximize(mainFrame);        
-        
+        GUIUtils.maximize(mainFrame);
+
         mainFrame.setVisible(true);
-        
+
+        loadAllPanels();
+
         //to work aroun a bug of JSplitPane
         //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4182558   
         // Jie Bao 2006-06-24
-        mainFrame.validate();
-        paneMapping.resetPanel();
-        
+        mainFrame.validate();        
+
     }
- 
+
     static void showConsole()
     {
         try
@@ -52,9 +52,9 @@ public class IndusMain
             output.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
         catch (IOException e)
-        {
-        }
+        {}
     }
+
     public static void main(String[] args)
     {
         try

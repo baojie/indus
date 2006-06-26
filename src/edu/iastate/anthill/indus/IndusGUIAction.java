@@ -1,5 +1,6 @@
 package edu.iastate.anthill.indus;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -69,8 +70,9 @@ public class IndusGUIAction
         for (int i = 0; i < count; i++)
         {
             // Get component associated with tab
-            IndusPane comp = (IndusPane) tabPanel.getComponentAt(i);
-            comp.promptSave();
+            Component comp =  tabPanel.getComponentAt(i);
+            if (comp instanceof IndusPane)
+                ((IndusPane)comp).promptSave();
         }
         indusSystemDB.disconnect();
         indusCacheDB.disconnect();
@@ -114,7 +116,9 @@ public class IndusGUIAction
             lastSelectedPane.promptSave();
         }
         // Get current tab
-        lastSelectedPane = (IndusPane) pane.getSelectedComponent();
+        Component c= pane.getSelectedComponent();
+        if (c instanceof IndusPane)
+            lastSelectedPane = (IndusPane) c;
     }
 
 }

@@ -146,7 +146,6 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                     }
                 };
                 t.start();
-
             }
         }
     }
@@ -163,14 +162,15 @@ public abstract class TypePanelAction extends TypePanelGUI implements
         int pb = parent.statusBar.addProgressBar(true, 0, 0);
         parent.statusBar.updateProgressBar(pb, "Loading type " + selected);
 
-        DataType dt=null;
+        DataType dt = null;
         try
         {
             dt = InfoReader.readDataType(selected, forceReload);
         }
         catch (Exception e)
         {
-            Debug.trace("Error in loading " + selected + "\n\n" + e.getMessage());
+            Debug.trace("Error in loading " + selected + "\n\n"
+                    + e.getMessage());
             e.printStackTrace();
         }
         parent.statusBar.removeProgressBar(pb);
@@ -273,7 +273,7 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                             "Input", JOptionPane.INFORMATION_MESSAGE, null,
                             temp, temp[0]);
 
-            if (temp == null)
+            if (template == null)
             {
                 currentType = new AVH(name, treetype);
             }
@@ -426,10 +426,10 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                     JOptionPane.showMessageDialog(this, "Type '" + typeName
                             + "' is deleted successfully");
                     currentType.modified = false;
-                    
+
                     //{{ 2006-06-24 Jie Bao 
                     currentType = null;
-                    jScrollPaneTree.getViewport().removeAll();  
+                    jScrollPaneTree.getViewport().removeAll();
                     jScrollPaneTree.repaint();
                     labelSelectedType.setText(null);
                     model.removeElement(typeName);
@@ -471,23 +471,17 @@ public abstract class TypePanelAction extends TypePanelGUI implements
             //win.start();
 
             final Object types1[] = types;
-            for (int i = 0 ; i < types.length; i++)
+            for (int i = 0; i < types.length; i++)
             {
                 model.addElement(types[i]);
             }
             //listAllTypes.setListData(types);
 
-            Thread t = new Thread() {
-                public void run()
-                {
-                    setTypeIcon(types1);
-                }
-            };
-            t.start();
+            setTypeIcon(types1);
 
             //win.stop();
 
-            listAllTypes.repaint();
+            //listAllTypes.validate();
         }
     }
 

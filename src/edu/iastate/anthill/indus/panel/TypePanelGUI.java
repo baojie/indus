@@ -17,10 +17,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
+import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.utils.Debug;
 
-public abstract class TypePanelGUI
-    extends IndusPane
+public abstract class TypePanelGUI extends IndusPane
 {
 
     public TypePanelGUI()
@@ -39,27 +39,26 @@ public abstract class TypePanelGUI
 
     }
 
-    JSplitPane jSplitPane1 = new JSplitPane();
-    JPanel leftPanel = new JPanel();
-    JPanel rightPanel = new JPanel();
+    JSplitPane       jSplitPane1       = new JSplitPane();
+    JPanel           leftPanel         = new JPanel();
+    JPanel           rightPanel        = new JPanel();
 
-    DefaultListModel model = new DefaultListModel();
-    JList listAllTypes = new JList(model);
-    JButton btnNewType = new JButton();
-    JLabel labelSelectedType = new JLabel();
-    JPanel treePanel = new JPanel();
-    BorderLayout borderLayout1 = new BorderLayout();
-    JPanel buttonPanel = new JPanel();
-    JButton btnSave = new JButton();
-    JScrollPane jScrollPaneTree = new JScrollPane();
-    BorderLayout borderLayout2 = new BorderLayout();
-    FlowLayout flowLayout1 = new FlowLayout();
-    JButton btnExportXML = new JButton();
-    JButton btnImportText = new JButton("Import(Text)");
-    JButton btnExportText = new JButton();
-    JButton btnReload = new JButton("Reload");
-    
-    
+    DefaultListModel model             = new DefaultListModel();
+    public JList     listAllTypes      = new JList(model);
+    JButton          btnNewType        = new JButton();
+    JLabel           labelSelectedType = new JLabel();
+    JPanel           treePanel         = new JPanel();
+    BorderLayout     borderLayout1     = new BorderLayout();
+    JPanel           buttonPanel       = new JPanel();
+    JButton          btnSave           = new JButton();
+    JScrollPane      jScrollPaneTree   = new JScrollPane();
+    BorderLayout     borderLayout2     = new BorderLayout();
+    FlowLayout       flowLayout1       = new FlowLayout();
+    JButton          btnExportXML      = new JButton();
+    JButton          btnImportText     = new JButton("Import(Text)");
+    JButton          btnExportText     = new JButton();
+    JButton          btnReload         = new JButton("Reload");
+
     void jbInit() throws Exception
     {
         //Debug.trace(this, "DataTypePanelGUI:jbInit");
@@ -90,7 +89,7 @@ public abstract class TypePanelGUI
         btnNewType.setText("New Type");
         btnExportXML.setText("Export(XML)");
         btnExportText.setText("Export(Text)");
-        
+
         buttonPanel.add(btnReload);
         buttonPanel.add(btnSave);
         buttonPanel.add(btnNewType);
@@ -117,18 +116,19 @@ public abstract class TypePanelGUI
      * @author Jie Bao
      * @since 1.0 2004-10-15
      */
-    class TypeListCellRenderer
-        extends DefaultListCellRenderer
+    class TypeListCellRenderer extends DefaultListCellRenderer
     {
-        public Component getListCellRendererComponent(
-            JList list, Object value, int index,
-            boolean isSelected, boolean cellHasFocus)
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus)
         {
-            Component retValue = super.getListCellRendererComponent(
-                list, value, index, isSelected, cellHasFocus
-                );
+            Component retValue = super.getListCellRendererComponent(list,
+                    value, index, isSelected, cellHasFocus);
+            
+            ImageIcon icon = (ImageIcon) typeIcon.get(value); 
+            if(icon == null)
+                icon = IndusConstants.iconDatatype;
 
-            setIcon( (ImageIcon) typeIcon.get(value));
+            setIcon(icon);
 
             return retValue;
         }

@@ -44,8 +44,11 @@ public class AVHTest
      * @since 2006-06-20
      * @param avh
      */
-    private static void testToFromText(AVH avh)
+    private static void testToFromText()
     {
+        AVH avh = new AVH("Test", "ISA");
+        avh.treeAVT.buildSampleTree();
+        
         System.out.println("1. Test AVH.toText()");
 
         String text = avh.toText();
@@ -56,6 +59,7 @@ public class AVHTest
         avh2.fromText(text);
         String text2 = avh2.toText();
         System.out.println(text2);
+        System.out.println(" Same ? " + text.equals(text2));
 
         //System.out.println(xml);
         //FileUtils.writeFile("D:\\ont.xml", xml) ;
@@ -146,14 +150,11 @@ public class AVHTest
 
     public static void main(String[] args)
     {
-        //AVH avh = new AVH("Test", "ISA");
-        //avh.treeAVT.buildSampleTree();
-        //testToFromXML(avh);
-
         try
         {
+            testToFromText();
             //compareParsingSpeed();
-            compareStroageSize();
+            //compareStroageSize();
         }
         catch (Exception e)
         {

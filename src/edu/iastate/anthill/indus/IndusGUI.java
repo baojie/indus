@@ -7,10 +7,13 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
+import edu.iastate.anthill.indus.datasource.type.AVH;
 import edu.iastate.anthill.indus.panel.DataPanel;
 import edu.iastate.anthill.indus.panel.IndusPane;
 import edu.iastate.anthill.indus.panel.MappingPanel;
@@ -36,20 +39,36 @@ public class IndusGUI extends IndusBasis
         try
         {
             jbInit();
-            try
-            {
-                UIManager
-                        .setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            }
-            catch (Exception ex)
-            {}
+            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            ex.printStackTrace();
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
     }
+
+    public JFrame       mainFrame     = new JFrame();
+
+    JMenuBar            mainMenu      = new JMenuBar();
+    JMenu               menuFile      = new JMenu();
+    JMenu               menuHelp      = new JMenu();
+    JMenuItem           menuHelpAbout = new JMenuItem();
+
+    //JToolBar            toolbar       = new JToolBar();
+    BorderLayout        borderLayout1 = new BorderLayout();
+    public JStatusBar   statusBar     = new JStatusBar("Ready");
+    JButton             jButton1      = new JButton();
+    JTabbedPane         tabPanel      = new JTabbedPane();
+
+    public TypePanel    paneOntology;
+    public SchemaPanel  paneSchema;
+    public MappingPanel paneMapping;
+    public DataPanel    paneDataSource;
+    public ViewPanel    paneView;
+    public QueryPanel   paneQuery;
+    JMenuItem           jMenuItem1    = new JMenuItem();
 
     private void jbInit() throws Exception
     {
@@ -66,24 +85,10 @@ public class IndusGUI extends IndusBasis
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //toolbar.add(jButton1);
-        jButton1.setText("Some buttons will be put here");
-        this.add(toolbar, java.awt.BorderLayout.NORTH);
+        //jButton1.setText("About");
+        //this.add(toolbar, java.awt.BorderLayout.NORTH);
 
-        paneOntology = new TypePanel(this, null);
-        paneSchema = new SchemaPanel(this, null);
-        paneMapping = new MappingPanel(this);
-        paneDataSource = new DataPanel(this);
-        paneView = new ViewPanel(this);
-        paneQuery = new QueryPanel(this);
-
-        tabPanel.add(paneOntology, "Ontology Editor");
-        tabPanel.setSelectedComponent(paneOntology);
-        tabPanel.add(paneSchema, "Schema Editor");
-        tabPanel.add(paneMapping, "Mapping Editor");
-        tabPanel.add(paneDataSource, "Data Editor");
-        tabPanel.add(paneView, "View Editor");
-        tabPanel.add(paneQuery, "Query Editor");
-        this.add(tabPanel, java.awt.BorderLayout.CENTER);
+        //loadAllPanels();
 
         this.add(statusBar, java.awt.BorderLayout.SOUTH);
 
@@ -91,31 +96,88 @@ public class IndusGUI extends IndusBasis
         menuFile.add(jMenuItem1);
     }
 
+    protected void loadAllPanels()
+    {
+        this.add(tabPanel, BorderLayout.CENTER);
+        tabPanel.add(new JPanel(), "Ontology Editor");
+        tabPanel.add(new JPanel(), "Schema Editor");
+        tabPanel.add(new JPanel(), "Mapping Editor");
+        tabPanel.add(new JPanel(), "Data Editor");
+        tabPanel.add(new JPanel(), "View Editor");
+        tabPanel.add(new JPanel(), "Query Editor");
+
+        final IndusGUI p = this;
+        Thread t = new Thread() {
+            public void run()
+            {
+                paneOntology = new TypePanel(p, null);
+                tabPanel.remove(0);
+                tabPanel.add(paneOntology, "Ontology Editor", 0);
+                tabPanel.setSelectedComponent(paneOntology);
+
+                paneOntology.listAllTypes.invalidate();
+
+            }
+        };
+        t.start();
+
+        t = new Thread() {
+            public void run()
+            {
+                paneSchema = new SchemaPanel(p, null);
+                tabPanel.remove(1);
+                tabPanel.add(paneSchema, "Schema Editor", 1);
+            }
+        };
+        t.start();
+
+        t = new Thread() {
+            public void run()
+            {
+                paneMapping = new MappingPanel(p);
+                tabPanel.remove(2);
+                tabPanel.add(paneMapping, "Mapping Editor", 2);
+                paneMapping.resetPanel();
+            }
+        };
+        t.start();
+
+        t = new Thread() {
+            public void run()
+            {
+                paneDataSource = new DataPanel(p);
+                tabPanel.remove(3);
+                tabPanel.add(paneDataSource, "Data Editor", 3);
+            }
+        };
+        t.start();
+
+        t = new Thread() {
+            public void run()
+            {
+                paneView = new ViewPanel(p);
+                tabPanel.remove(4);
+                tabPanel.add(paneView, "View Editor", 4);
+            }
+        };
+        t.start();
+
+        t = new Thread() {
+            public void run()
+            {
+                paneQuery = new QueryPanel(p);
+                tabPanel.remove(5);
+                tabPanel.add(paneQuery, "Query Editor", 5);
+            }
+        };
+        t.start();
+
+    }
+
     public void switchToPane(IndusPane pane, String itemToShow)
     {
         tabPanel.setSelectedComponent(pane);
         pane.showDefault(itemToShow);
     }
-
-    public JFrame       mainFrame     = new JFrame();
-
-    JMenuBar            mainMenu      = new JMenuBar();
-    JMenu               menuFile      = new JMenu();
-    JMenu               menuHelp      = new JMenu();
-    JMenuItem           menuHelpAbout = new JMenuItem();
-
-    JToolBar            toolbar       = new JToolBar();
-    BorderLayout        borderLayout1 = new BorderLayout();
-    public JStatusBar   statusBar     = new JStatusBar("Ready");
-    JButton             jButton1      = new JButton();
-    JTabbedPane         tabPanel      = new JTabbedPane();
-
-    public TypePanel    paneOntology;
-    public SchemaPanel  paneSchema;
-    public MappingPanel paneMapping;
-    public DataPanel    paneDataSource;
-    public ViewPanel    paneView;
-    public QueryPanel   paneQuery;
-    JMenuItem           jMenuItem1    = new JMenuItem();
 
 }

@@ -220,6 +220,7 @@ public class InfoReader implements IndusCommand
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText  = JDBCUtils.getFirstValue(db,sql);
             
+            
             w.stop();
             System.out.print(" ,  read source text: " + w.print());
 
@@ -239,6 +240,7 @@ public class InfoReader implements IndusCommand
                 // clear unused memory 
                 System.gc();
                 sourceText = Zip.decode(sourceText);
+                //System.out.println(sourceText);
                 System.gc();
                 newType = readDataTypeNativePlain(name, sourceText);
                 System.gc();

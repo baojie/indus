@@ -284,10 +284,19 @@ public class TypedTree extends JTreeEx
         {
             str = in.readLine();
         }
-
         // the first non-comment line is the root
         TypedNode top = newNode(str, null);
-        m.put(str, top);
+        
+        int kk = str.indexOf(':');
+        if (kk != -1)
+        {
+            String fullName = str.substring(0, kk).trim();
+            String comments = str.substring(kk + 1).trim();
+            top.setUserObject(fullName);
+            top.setComment(comments);
+        }           
+        
+        m.put((String)top.getUserObject(), top);
 
         while ((str = in.readLine()) != null)
         {
@@ -304,15 +313,16 @@ public class TypedTree extends JTreeEx
 
             // create the node
             TypedNode node = newNode(fullName, comments);
-            m.put(fullName, node);
+            
 
             // find parent
             int i = fullName.lastIndexOf('\\');
             if (i != -1)
             {
-                String last = fullName.substring(i + 1);
-                node.setUserObject(last);
-                // System.out.println(last);
+                String nodeName = fullName.substring(i + 1);
+                node.setUserObject(nodeName);
+                m.put(nodeName, node);
+                //System.out.println(nodeName);
 
                 //                // split the uiuc data
                 //                // CHIN_411_Fourth-Year_Chinese ->
@@ -338,6 +348,10 @@ public class TypedTree extends JTreeEx
                 //                }
 
                 String parent = fullName.substring(0, i);
+                int j = parent.lastIndexOf('\\');
+                if (j != -1)
+                    parent = parent.substring(j + 1);
+                
                 TypedNode parentNode = m.get(parent);
                 if (parentNode != null)
                 {
@@ -345,6 +359,7 @@ public class TypedTree extends JTreeEx
                 }
             }
         }
+        //System.out.println(m);
         in.close();
         setTop(top);
     }
