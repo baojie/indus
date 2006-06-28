@@ -326,6 +326,29 @@ public class DataSourceMapping implements Configable
         }
         return inverse;
     }
+    
+    /**
+     * Get the number of bridge rules (both schema and ontology mappings) in this mapping 
+     * 
+     * @author baojie
+     * @since 2006-06-28
+     * @return
+     */
+    public int size()
+    {
+        int count = 0;
+        if (schemaMapping != null)
+        {
+            count += schemaMapping.mapList.size();
+            
+        }
+        for (InMemoryOntologyMapping a : avhMappingList)
+        {            
+            count += a.mapList.size();            
+        }        
+        //System.out.println(count);
+        return count;
+    }
 
     // for test purpose
     public static void main(String[] args)

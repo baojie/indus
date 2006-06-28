@@ -18,8 +18,11 @@ import edu.iastate.anthill.indus.datasource.mapping.Connector;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
 import edu.iastate.anthill.indus.datasource.type.AVH;
+import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.tree.TypedNode;
+import edu.iastate.utils.Debug;
 import edu.iastate.utils.Utility;
+import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
 
@@ -122,6 +125,7 @@ public abstract class MappingPanelWritingActions extends
 
                     // save it
                     save();
+                    this.setInfo("Mapping Rules ("+ myMapping.size()+")");
                     modified = false;
                 }
                 else
@@ -145,7 +149,7 @@ public abstract class MappingPanelWritingActions extends
     public void onAddMapping(ActionEvent e)
     {
         //System.out.println("MappingPanelWritingActions.onAddMapping");
-        
+
         TypedNode n1 = (TypedNode) tree1.getLastSelectedPathComponent();
         TypedNode n2 = (TypedNode) tree2.getLastSelectedPathComponent();
         Connector conn = (Connector) mappingConnectorsList.getSelectedValue();
@@ -183,10 +187,9 @@ public abstract class MappingPanelWritingActions extends
                     BridgeRule t = myMapping.addSchemaMappingItem(n1
                             .getUserObject().toString(), conn, n2
                             .getUserObject().toString());
-                    t.setComments(BridgeRule.SCHEMA_COMMENT);
-                    
-                    
-                    lstBridges.addElement(0,t);
+                    t.type = BridgeRule.SCHEMA_COMMENT;
+
+                    lstBridges.addElement(0, t);
                     //mappingRuleListModel.add(0, t);
                     modified = true;
                 }
@@ -202,14 +205,15 @@ public abstract class MappingPanelWritingActions extends
                         BridgeRule t = myMapping.addAVHMappingItem(AVH1, n1
                                 .getUserObject().toString(), conn, AVH2, n2
                                 .getUserObject().toString());
-                        t.setComments(BridgeRule.AVH_COMMENT);
-                        lstBridges.addElement(0,t);
+                        t.type = BridgeRule.AVH_COMMENT;
+                        lstBridges.addElement(0, t);
                         //mappingRuleListModel.add(0, t);
                         modified = true;
                     }
                 }
             }
         }
+        this.setInfo("Mapping Rules ("+ myMapping.size()+")");
         //btnSaveMapping.setEnabled(mappingRuleListModel.getSize() > 0);
     }
 
@@ -295,8 +299,27 @@ public abstract class MappingPanelWritingActions extends
             //String url = IndusConstants.mappingBasisURL + currentMapping
             //        + ".xml";
             // Debug.trace("This XML file is also available from " + url);
-            System.out.println(xml);
-            IndusBasis.showXML(xml);
+            //System.out.println(xml);
+            //IndusBasis.showXML(xml);
+            //          save as 
+            final String title = "Export to XML";
+            final String extension = "xml";
+            final String description = "XML Documents";
+
+            String fileName = getFileName(title, extension, description, true);
+            // get the ontology from the database
+            if (fileName != null)
+            {
+                try
+                {
+                    FileUtils.writeFile(fileName, xml);
+                }
+                catch (Exception e1)
+                {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
         }
         else
         {
@@ -331,7 +354,7 @@ public abstract class MappingPanelWritingActions extends
                         + "' is deleted successfully");
                 myMapping.clear();
                 this.lstBridges.setListData(new Vector());
-                
+
                 modified = false;
                 readRegisteredMapping(null);
             }
@@ -448,49 +471,103 @@ public abstract class MappingPanelWritingActions extends
     }
 
     public void messageMap()
-    {   
-        System.out.println("MappingPanelWritingActions.messageMap()");        
+    {
+        System.out.println("MappingPanelWritingActions.messageMap()");
         // button handler
         try
         {
             MessageMap.mapAction(this.btnSaveMapping, this, "onSaveMapping");
             MessageMap.mapAction(this.btnAddMapping, this, "onAddMapping");
             MessageMap.mapAction(this.btnNewMapping, this, "onNewMapping");
-            MessageMap.mapAction(this.btnDeleteMapping, this, "onDeleteMapping");
+            MessageMap
+                    .mapAction(this.btnDeleteMapping, this, "onDeleteMapping");
             MessageMap.mapAction(this.btnNewConnector, this, "onNewConnector");
             MessageMap.mapAction(this.itemEditConnector, this,
                     "onEditConnector");
             MessageMap.mapAction(this.itemAddInverse, this, "onAddInverse");
             MessageMap.mapAction(this.btnExportXML, this, "onExportMapping");
+            MessageMap.mapAction(this.btnImportXML, this, "onImportMapping");
         }
         catch (Exception ex)
         {}
     }
-    
-    class DeleteMappingRuleListener
-    implements ActionListener
-{
 
-    public void actionPerformed(ActionEvent evt)
+    /**
+     * @author baojie
+     * @since 2006-06-28
+     * @param e
+     */
+    public void onImportMapping(ActionEvent e)
     {
-        BridgeRule t = (BridgeRule) lstBridges.getSelectedValue();
-        // delete it from mapping
-        if (t.getComments().equals(BridgeRule.SCHEMA_COMMENT))
+        // save the current
+        promptSave();
+
+        // save as 
+        final String title = "Import from XML";
+        final String extension = "xml";
+        final String description = "XML Documents";
+
+        String fileName = getFileName(title, extension, description, false);
+        // get the ontology from the database
+        if (fileName != null)
         {
-            myMapping.deleteSchemaMappingItem(t.fromTerm, t.connector,
-                                              t.toTerm);
-            modified = true;
+            try
+            {
+                String xml = FileUtils.readFile(fileName);
+                
+                DataSourceMapping t = new DataSourceMapping();
+                t.fromXML(xml);
+
+                // add to list
+                myMapping = t;
+                // check if the name is used
+                Object used[] = InfoReader.getAllMapping();
+                Vector v = new Vector(Arrays.asList(used));
+                String newName = t.getName();
+                int count = 1;
+                while (v.contains(newName))
+                {
+                    newName = t.getName() + "_"+ (count++);
+                }
+                t.name = newName;
+                
+                InfoWriter.writeMapping(t);
+                readRegisteredMapping(null);
+                loadMapping(t);
+
+            }
+            catch (Exception e1)
+            {
+                e1.printStackTrace();
+                Debug.trace("Error in reading the file");
+            }
         }
-        else if (t.getComments().equals(BridgeRule.AVH_COMMENT))
-        {
-            myMapping.deleteAVHMappingItem(t.fromTerminology, t.fromTerm,
-                                           t.connector,
-                                           t.toTerminology, t.toTerm);
-            modified = true;
-        }
-        btnSaveMapping.setEnabled(true);
-        lstBridges.removeElement(t);
+
     }
-    
-}
+
+    class DeleteMappingRuleListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            BridgeRule t = (BridgeRule) lstBridges.getSelectedValue();
+            // delete it from mapping
+            //System.out.println(t.type);
+            
+            if (BridgeRule.SCHEMA_COMMENT.equals(t.type))
+            {
+                myMapping.deleteSchemaMappingItem(t.fromTerm, t.connector,
+                        t.toTerm);
+                modified = true;
+            }
+            else if (BridgeRule.AVH_COMMENT.equals(t.type))
+            {
+                myMapping.deleteAVHMappingItem(t.fromTerminology, t.fromTerm,
+                        t.connector, t.toTerminology, t.toTerm);
+                modified = true;
+            }
+            btnSaveMapping.setEnabled(true);
+            lstBridges.removeElement(t);
+            setInfo("Mapping Rules ("+ myMapping.size()+")");
+        }
+    }
 }

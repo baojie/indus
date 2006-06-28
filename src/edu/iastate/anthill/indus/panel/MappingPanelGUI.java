@@ -78,7 +78,8 @@ abstract public class MappingPanelGUI extends IndusPane
 
     JSplitPane        jSplitPane1               = new JSplitPane(
                                                         JSplitPane.VERTICAL_SPLIT);
-    JButton           btnExportXML              = new JButton();
+    JButton           btnExportXML              = new JButton("Export XML");
+    JButton           btnImportXML              = new JButton("Import XML");
     JLabel            schema1                   = new JLabel();
     JLabel            schema2                   = new JLabel();
     JButton           btnDeleteMapping          = new JButton();
@@ -154,12 +155,14 @@ abstract public class MappingPanelGUI extends IndusPane
         btnDeleteMapping.setText("Delete Mapping");
         btnUpdateMappingList.setText("Update List");
         btnNewMapping.setText("New Mapping");
-        btnExportXML.setText("Export XML");
+        
         commandPanel.add(btnNewMapping, null);
         commandPanel.add(btnSaveMapping);
         commandPanel.add(btnDeleteMapping);
         commandPanel.add(btnValidate);
         commandPanel.add(btnExportXML, null);
+        commandPanel.add(btnImportXML, null);
+        
         jSplitPane1.setOneTouchExpandable(true);
         jSplitPane1.add(mapping_botPanel, JSplitPane.BOTTOM);
         jSplitPane1.add(mapping_topPanel, JSplitPane.TOP);
@@ -178,6 +181,12 @@ abstract public class MappingPanelGUI extends IndusPane
         {
             mappingConnectorListModel.add(i, myMapping.defaultConnectors[i]);
         }
+    }
+    
+    // 2006-06-28 Jie Bao
+    void setInfo(String s )
+    {
+        jScrollPane3.setBorder(BorderFactory.createTitledBorder(s));
     }
 
     void clearMapping()

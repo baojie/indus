@@ -601,10 +601,14 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                 // check if the name is used
                 Object used[] = InfoReader.getAllType();
                 Vector v = new Vector(Arrays.asList(used));
-                if (v.contains(t.getName()))
+                
+                String newName = t.getName();
+                int count = 1;
+                while (v.contains(newName))
                 {
-                    t.setName(t.getName() + "_1");
+                    newName = t.getName() + "_"+ (count++);
                 }
+                t.setName(newName);
 
                 model.addElement(t.getName());
                 listAllTypes.setModel(model);

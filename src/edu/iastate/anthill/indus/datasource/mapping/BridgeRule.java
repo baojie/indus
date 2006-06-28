@@ -18,8 +18,7 @@ public class BridgeRule
     public String fromTerm, toTerm;
     public Connector connector;
     public String fromTerminology, toTerminology;
-    String comments = "";
-
+    
     BridgeRule(String fromTerminology, String toTerminology, String fromTerm,
                Connector c, String toTerm)
     {
@@ -42,7 +41,7 @@ public class BridgeRule
     {
         BridgeRule b = new BridgeRule(toTerminology, fromTerminology,
                                       toTerm, connector.getMirror(), fromTerm);
-        b.setComments(this.comments);
+        b.type = this.type;
         return b;
     }
 
@@ -104,15 +103,4 @@ public class BridgeRule
             toTerm +
             "]";
     }
-
-    public String getComments()
-    {
-        return comments;
-    }
-
-    public void setComments(String comments)
-    {
-        this.comments = comments;
-    }
-
 }

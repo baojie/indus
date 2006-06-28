@@ -264,7 +264,11 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         // read information from the server
         DataSourceMapping m = InfoReader.readMapping(item);
         // Debug.traceWin(this,textXML);
+        loadMapping(m);
+    }
 
+    protected void loadMapping(DataSourceMapping m)
+    {
         if (m != null)
         {
             //System.out.println("Showing mapping " + item);
@@ -301,12 +305,16 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
             // 2.3 load user connectors
             updateConnectorList(myMapping);
             //w.trace("update connector list", true);
+            
+            // 2.4 update Info
+            this.setInfo("Mapping Rules ("+ myMapping.size()+")");
+            
 
             modified = false;
         }
         else
         {
-            Debug.trace(this, "Mapping '" + item
+            Debug.trace(this, "Mapping '" + m.name
                     + "' information is not available");
         }
     }
