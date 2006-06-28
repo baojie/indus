@@ -11,10 +11,10 @@ import edu.iastate.anthill.indus.reasoner.*;
 public class SchemaMapping
     extends InMemoryOntologyMapping implements Configable
 {
-
     public SchemaMapping(String from, String to)
     {
         super(from, to);
+        type = BridgeRule.SCHEMA_COMMENT;
     }
 
     /**

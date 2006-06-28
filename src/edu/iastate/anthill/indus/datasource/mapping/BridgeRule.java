@@ -10,6 +10,11 @@ import edu.iastate.utils.string.SimpleXMLParser;
 public class BridgeRule
     implements Configable
 {
+    public static final String AVH_COMMENT       = "AVHNODE";
+    public static final String SCHEMA_COMMENT = "SCHEMANODE";
+    
+    public String type = "UNKNOWN";
+    
     public String fromTerm, toTerm;
     public Connector connector;
     public String fromTerminology, toTerminology;

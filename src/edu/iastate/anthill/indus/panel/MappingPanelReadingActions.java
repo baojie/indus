@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -34,6 +35,7 @@ import edu.iastate.utils.Debug;
 import edu.iastate.utils.gui.GUIUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
+import edu.iastate.utils.lang.StopWatch;
 
 /**
  * Actions in the mapping panel that involve only reading  
@@ -44,9 +46,12 @@ import edu.iastate.utils.lang.MessageMap;
 abstract public class MappingPanelReadingActions extends MappingPanelGUI
         implements MessageHandler
 {
+    static TypedNode    lastColored1, lastColored2;
+    protected JMenuItem itemEditConnector = new JMenuItem("Edit...");
+    protected JMenuItem itemAddInverse    = new JMenuItem(
+                                                  "Add Inverse Function...");
 
-    protected static final String SCHEMA_COMMENT = "SCHEMANODE";
-    protected boolean             modified       = false;
+    protected boolean   modified          = false;
 
     /**
      * Find the type of node, for exmaple schema node of Weather1, Weather2,
@@ -96,15 +101,10 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         return null;
     }
 
-    protected static final String AVH_COMMENT       = "AVHNODE";
-    static TypedNode              lastColored1, lastColored2;
-    protected JMenuItem           itemEditConnector = new JMenuItem("Edit...");
-    protected JMenuItem           itemAddInverse    = new JMenuItem(
-                                                            "Add Inverse Function...");
-
     public MappingPanelReadingActions(IndusGUI parent)
     {
         super(parent);
+        messageMap1(); // mapping reading actions        
     }
 
     protected void createTreeFromSchema(String schemaName, int whichTree)
@@ -165,7 +165,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
     {
         String oldSelected = (String) mappingFileList.getSelectedItem();
 
-        String data[] = InfoReader.getAllMapping();
+        Object data[] = InfoReader.getAllMapping();
         if (data == null) { return; }
 
         GUIUtils.updateComboBox(mappingFileList, data);
@@ -229,34 +229,27 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
     {
         // Debug.traceWin(this, map.toXML());
         // clear current
-        mappingRuleListModel.clear();
+        lstBridges.setListData(new Vector());
         // build new rule set
         InMemoryOntologyMapping schemaMap = map.schemaMapping;
+
+        Vector<BridgeRule> all = new Vector<BridgeRule>();
+
         if (schemaMap != null)
         {
-            // Debug.trace(this, "" + schemaMap.mapList.size());
-            for (int j = 0; j < schemaMap.mapList.size(); j++)
-            {
-                BridgeRule b = (BridgeRule) schemaMap.mapList.elementAt(j);
-                b.setComments(SCHEMA_COMMENT);
-                mappingRuleListModel.addElement(b);
-            }
+            all.addAll(schemaMap.mapList);
         }
         // Debug.trace(this, "" + map.avhMappingList.size());
-        for (int i = 0; i < map.avhMappingList.size(); i++)
+        for (InMemoryOntologyMapping avhMap : map.avhMappingList)
         {
-            InMemoryOntologyMapping avhMap = (InMemoryOntologyMapping) map.avhMappingList
-                    .elementAt(i);
-            for (int j = 0; j < avhMap.mapList.size(); j++)
-            {
-                BridgeRule b = (BridgeRule) avhMap.mapList.elementAt(j);
-                b.setComments(AVH_COMMENT);
-                mappingRuleListModel.addElement(b);
-            }
+            all.addAll(avhMap.mapList);
         }
 
+        lstBridges.setListData(all);
+        //System.out.println(lstBridges.getModel().getClass());
+
         // 2006-06-15 Jie Bao: sort the loaded mapping rules		
-        GUIUtils.sortJList(mappingRuleList);
+        //GUIUtils.sortJList(mappingRuleList);
     }
 
     /**
@@ -274,7 +267,14 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
 
         if (m != null)
         {
+            //System.out.println("Showing mapping " + item);
+
+            //StopWatch w = new StopWatch();
+            //w.start();
+
             clearMapping();
+            //w.trace("clear old mapping", true);
+
             // 1 parse it
             myMapping = m;
             // Debug.traceWin(this, myMapping.toXML());
@@ -292,12 +292,15 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
 
             refreshBtn1.setEnabled(true);
             refreshBtn2.setEnabled(true);
+            //w.trace("load schemas", true);
 
             // 2.2 update mapping rule list
             updateMappingRuleList(myMapping);
+            //w.trace("update mapping rule list", true);
 
             // 2.3 load user connectors
             updateConnectorList(myMapping);
+            //w.trace("update connector list", true);
 
             modified = false;
         }
@@ -482,7 +485,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         return null;
     }
 
-    public void messageMap()
+    public void messageMap1()
     {
         // button handler
         try
@@ -495,13 +498,12 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
             MessageMap.mapAction(this.btnValidate, this, "onValidate");
 
             // 2006-06-14 Jie Bao, change tree selections
-            mappingRuleList
-                    .addListSelectionListener(new ListSelectionListener() {
-                        public void valueChanged(ListSelectionEvent e)
-                        {
-                            onSelectedRuleChanged(e);
-                        }
-                    });
+            lstBridges.addListSelectionListener(new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent e)
+                {
+                    onSelectedRuleChanged(e);
+                }
+            });
         }
         catch (Exception ex)
         {}

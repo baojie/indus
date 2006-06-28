@@ -100,7 +100,7 @@ public class SQLQueryPlanner
             else
             {
                 Debug.trace("Data Source " + datasourceName
-                        + " returns no records (may be an error)");
+                        + " returns no records.");
             }
         }
         //return allResult;

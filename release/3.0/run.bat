@@ -1,1 +1,1 @@
-java -jar indus.jar
+java -Xmn200M -Xms500M -Xmx500M -jar indus.jar -classpath lib.jar

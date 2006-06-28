@@ -1,29 +1,35 @@
 package edu.iastate.anthill.indus.datasource.mapping;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Vector;
-
-import edu.iastate.anthill.indus.datasource.Configable;
 
 import edu.iastate.utils.string.SimpleXMLParser;
 
 public class InMemoryOntologyMapping extends OntologyMapping
+
+{
+    {
+        type = BridgeRule.AVH_COMMENT;
+    }
     
-{    
     public Vector<BridgeRule> mapList = new Vector<BridgeRule>(); // BridgeRule list
 
     public InMemoryOntologyMapping(String from, String to)
     {
-        super(from,to);        
+        super(from, to);
+        
     }
 
     /**
      * <bridge>
-         <term1>outlook_AVH</term1>
-         <connector>
-           <connectorname>Compatible</connectorname>
-         </connector>
-         <term2>Prec_AVH</term2>
-       </bridge>
+     <term1>outlook_AVH</term1>
+     <connector>
+     <connectorname>Compatible</connectorname>
+     </connector>
+     <term2>Prec_AVH</term2>
+     </bridge>
 
      * @param rs ResultSet
      * @param fromCol String
@@ -54,6 +60,7 @@ public class InMemoryOntologyMapping extends OntologyMapping
             {
                 String bridgeXML = (String) vec.elementAt(i);
                 BridgeRule b = new BridgeRule(from, to, bridgeXML);
+                b.type = this.type;
                 mapList.add(b);
             }
         }
@@ -64,18 +71,72 @@ public class InMemoryOntologyMapping extends OntologyMapping
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < mapList.size(); i++)
         {
-            buf.append( ( (BridgeRule) mapList.elementAt(i)).toXML());
+            buf.append(((BridgeRule) mapList.elementAt(i)).toXML());
         }
-        return "<from>" + from + "</from>" +
-            "<to>" + to + "</to>" + buf.toString();
+        return "<from>" + from + "</from>" + "<to>" + to + "</to>"
+                + buf.toString();
     }
 
-    public String toText() {
+    public String toText()
+    {
         return toXML();
     }
 
-    public void fromText(String text) {
-        fromXML(text);        
+    public void fromText(String text)
+    {
+        fromXML(text);
+    }
+
+    /**
+     * Read mapping from plain text e.g.
+     * 
+     * from=ont1
+     * to=ont2
+     * term1, Equal, term2
+     * term3, Into, term4
+     * ....
+     * 
+     * @author baojie
+     * @since 2006-06-27
+     * 
+     * @param input
+     */
+    public void fromPlainText(Reader input)
+    {
+
+        try
+        {
+            BufferedReader in = new BufferedReader(input);
+            String str = in.readLine();
+
+            while ((str = in.readLine()) != null)
+            {
+                if (str.startsWith(";"))
+                    continue;
+                else if(str.startsWith("from="))
+                    this.from = str.replace("from=", "");
+                else if (str.startsWith("to="))
+                    this.to = str.replace("to=", "");
+                else
+                // term1 , connector , term2
+                {
+                    String s[] = str.split(",");
+                    if (s.length == 3)
+                    {
+                        SimpleConnector c = new SimpleConnector(s[1].trim());
+                        BridgeRule b = new BridgeRule(from, to, s[0].trim(), c,
+                                s[2].trim());
+                        b.type = BridgeRule.AVH_COMMENT;
+                        mapList.add(b);
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -90,7 +151,7 @@ public class InMemoryOntologyMapping extends OntologyMapping
 
         for (int i = 0; i < mapList.size(); i++)
         {
-            buf.append( ( (BridgeRule) mapList.elementAt(i)).toString() + "\n");
+            buf.append(((BridgeRule) mapList.elementAt(i)).toString() + "\n");
         }
         return buf.toString();
     }
@@ -121,8 +182,8 @@ public class InMemoryOntologyMapping extends OntologyMapping
         for (int i = 0; i < mapList.size(); i++)
         {
             BridgeRule m = (BridgeRule) mapList.elementAt(i);
-            if (m.fromTerm.equals(term1) && m.toTerm.equals(term2) &&
-                m.connector.equals(c))
+            if (m.fromTerm.equals(term1) && m.toTerm.equals(term2)
+                    && m.connector.equals(c))
             {
                 mapList.remove(m);
                 return true;
@@ -173,10 +234,10 @@ public class InMemoryOntologyMapping extends OntologyMapping
     /**
      * Find the first term that this term mapped to
      * @param term1 String
-     * @return String
+     * @return BridgeRule
      * @since 2004-10-03
      */
-    public String findFirstMappedTo(String term1)
+    public BridgeRule findFirstMappedTo(String term1)
     {
         //Debug.trace(this, term1);
         for (int i = 0; i < mapList.size(); i++)
@@ -184,10 +245,7 @@ public class InMemoryOntologyMapping extends OntologyMapping
             BridgeRule m = (BridgeRule) mapList.elementAt(i);
             //Debug.trace(this, m.term1 + "->" + m.term2);
 
-            if (m.fromTerm.equals(term1))
-            {
-                return m.toTerm;
-            }
+            if (m.fromTerm.equals(term1)) { return m; }
         }
         return null;
     }
@@ -195,18 +253,15 @@ public class InMemoryOntologyMapping extends OntologyMapping
     /**
      * Find the first term that this term mapped from
      * @param term2 String
-     * @return String
+     * @return BridgeRule
      * @since 2004-10-03
      */
-    public String findFirstMappedFrom(String term2)
+    public BridgeRule findFirstMappedFrom(String term2)
     {
         for (int i = 0; i < mapList.size(); i++)
         {
             BridgeRule m = (BridgeRule) mapList.elementAt(i);
-            if (m.toTerm.equals(term2))
-            {
-                return m.fromTerm;
-            }
+            if (m.toTerm.equals(term2)) { return m; }
         }
         return null;
     }
@@ -222,7 +277,7 @@ public class InMemoryOntologyMapping extends OntologyMapping
         for (int i = 0; i < mapList.size(); i++)
         {
             BridgeRule m = (BridgeRule) mapList.elementAt(i);
-            if (! (m.connector instanceof SimpleConnector))
+            if (!(m.connector instanceof SimpleConnector))
             {
                 vec.add(m.connector);
             }
@@ -281,11 +336,8 @@ public class InMemoryOntologyMapping extends OntologyMapping
         for (int i = 0; i < mapList.size(); i++)
         {
             BridgeRule m = (BridgeRule) mapList.elementAt(i);
-            if (m.fromTerm.compareTo(fromTerm) == 0 &&
-                m.connector.equals(SimpleConnector.EQU))
-            {
-                return m;
-            }
+            if (m.fromTerm.compareTo(fromTerm) == 0
+                    && m.connector.equals(SimpleConnector.EQU)) { return m; }
         }
         return null;
     }
@@ -329,10 +381,12 @@ public class InMemoryOntologyMapping extends OntologyMapping
      */
     InMemoryOntologyMapping getMirror()
     {
-        InMemoryOntologyMapping inverse = new InMemoryOntologyMapping(this.to, this.from);
+        InMemoryOntologyMapping inverse = new InMemoryOntologyMapping(this.to,
+                this.from);
         for (int i = 0; i < mapList.size(); i++)
         {
-            inverse.mapList.add( ( (BridgeRule) mapList.elementAt(i)).getMirror());
+            inverse.mapList
+                    .add(((BridgeRule) mapList.elementAt(i)).getMirror());
         }
         return inverse;
     }

@@ -3,6 +3,8 @@ package edu.iastate.anthill.indus.panel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.util.Vector;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -21,14 +23,14 @@ import edu.iastate.anthill.indus.datasource.mapping.Connector;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.tree.TypedTree;
+import edu.iastate.utils.gui.JListEx;
 
 /**
  * GUI definitions of mapping panel
  * @author Jie Bao
  * @since 1.0 2004-10-03
  */
-abstract public class MappingPanelGUI
-    extends IndusPane
+abstract public class MappingPanelGUI extends IndusPane
 {
     public MappingPanelGUI(IndusGUI parent)
     {
@@ -43,35 +45,50 @@ abstract public class MappingPanelGUI
         }
     }
 
-    JPanel mappingPanel = new JPanel();
-    JPanel commandPanel = new JPanel();
-    JButton addBtn = new JButton();
-    JButton newBtn = new JButton();
+    JPanel            mappingPanel              = new JPanel();
+    JPanel            commandPanel              = new JPanel();
+    JButton           btnAddMapping             = new JButton();
+    JButton           btnNewMapping             = new JButton();
 
-    DefaultListModel mappingRuleListModel = new DefaultListModel();
-    JList mappingRuleList = new JList(mappingRuleListModel);
+    //AbstractListModel mappingRuleListModel      = new DefaultListModel();
+    JListEx           lstBridges                = new JListEx(new Vector());
 
-    JScrollPane jScrollPane1 = new JScrollPane();
-    JScrollPane jScrollPane2 = new JScrollPane();
-    JScrollPane jScrollPane3 = new JScrollPane();
-    JScrollPane jScrollPane4 = new JScrollPane();
+    JScrollPane       jScrollPane1              = new JScrollPane();
+    JScrollPane       jScrollPane2              = new JScrollPane();
+    JScrollPane       jScrollPane3              = new JScrollPane();
+    JScrollPane       jScrollPane4              = new JScrollPane();
 
-    JPanel mapping_LeftLeft = new JPanel();
-    JPanel mapping_LeftRight = new JPanel();
+    JPanel            mapping_LeftLeft          = new JPanel();
+    JPanel            mapping_LeftRight         = new JPanel();
 
-    TypedTree tree1 = new TypedTree();
-    TypedTree tree2 = new TypedTree();
-    JPanel mapping_botPanel = new JPanel();
-    JButton btnSaveMapping = new JButton();
-    JComboBox mappingFileList = new JComboBox();
-    JPanel mapping_topPanel = new JPanel();
+    TypedTree         tree1                     = new TypedTree();
+    TypedTree         tree2                     = new TypedTree();
+    JPanel            mapping_botPanel          = new JPanel();
+    JButton           btnSaveMapping            = new JButton();
+    JComboBox         mappingFileList           = new JComboBox();
+    JPanel            mapping_topPanel          = new JPanel();
 
-    DataSourceMapping myMapping = new DataSourceMapping("Unknown1", "Unknown2", null); // data structure for mapping
+    DataSourceMapping myMapping                 = new DataSourceMapping(
+                                                        "Unknown1", "Unknown2",
+                                                        null);                     // data structure for mapping
 
-    DefaultListModel mappingConnectorListModel = new DefaultListModel();
-    JList mappingConnectorsList = new JList(mappingConnectorListModel);
+    DefaultListModel  mappingConnectorListModel = new DefaultListModel();
+    JList             mappingConnectorsList     = new JList(
+                                                        mappingConnectorListModel);
 
-    JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    JSplitPane        jSplitPane1               = new JSplitPane(
+                                                        JSplitPane.VERTICAL_SPLIT);
+    JButton           btnExportXML              = new JButton();
+    JLabel            schema1                   = new JLabel();
+    JLabel            schema2                   = new JLabel();
+    JButton           btnDeleteMapping          = new JButton();
+    JButton           btnUpdateMappingList      = new JButton();
+    JButton           refreshBtn1               = new JButton();
+    JButton           refreshBtn2               = new JButton();
+    JPanel            mapping_LeftMid           = new JPanel();
+    JButton           btnNewConnector           = new JButton();
+    JPanel            mapping_rightUpper        = new JPanel();
+    JButton           btnValidate               = new JButton();
 
     void jbInit() throws Exception
     {
@@ -99,12 +116,12 @@ abstract public class MappingPanelGUI
 
         //1.1.2 the mapping choices
         mapping_LeftMid.setLayout(new BorderLayout());
-        newConnectorBtn.setText("New...");
+        btnNewConnector.setText("New...");
 
         mapping_LeftMid.add(jScrollPane4, java.awt.BorderLayout.CENTER);
         mapping_topPanel.setLayout(new GridLayout());
-        mappingConnectorsList.setSelectionMode(ListSelectionModel.
-                                               SINGLE_SELECTION);
+        mappingConnectorsList
+                .setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         mappingConnectorsList.setSelectedIndex(0);
         mappingConnectorsList.setCellRenderer(new ConnectorListCellRenderer());
 
@@ -126,23 +143,23 @@ abstract public class MappingPanelGUI
         // 1.2 right panel
         // 1.2.1 mapping list
         mapping_botPanel.setLayout(new BorderLayout());
-        jScrollPane3.getViewport().add(mappingRuleList, null);
-        jScrollPane3.setBorder(BorderFactory.createTitledBorder(
-            "Mapping Rules"));
+        jScrollPane3.getViewport().add(lstBridges, null);
+        jScrollPane3.setBorder(BorderFactory
+                .createTitledBorder("Mapping Rules"));
 
         //1.2.2 save button
         btnSaveMapping.setText("Save Mapping");
         mapping_botPanel.add(mapping_rightUpper, java.awt.BorderLayout.NORTH); // 2- the command panel - buttons
-        addBtn.setText("Add Mapping Rule");
-        deleteBtn.setText("Delete Mapping");
+        btnAddMapping.setText("Add Mapping Rule");
+        btnDeleteMapping.setText("Delete Mapping");
         btnUpdateMappingList.setText("Update List");
-        newBtn.setText("New Mapping");
-        exportBtn.setText("Export XML");
-        commandPanel.add(newBtn, null);
+        btnNewMapping.setText("New Mapping");
+        btnExportXML.setText("Export XML");
+        commandPanel.add(btnNewMapping, null);
         commandPanel.add(btnSaveMapping);
-        commandPanel.add(deleteBtn);
+        commandPanel.add(btnDeleteMapping);
         commandPanel.add(btnValidate);
-        commandPanel.add(exportBtn, null);
+        commandPanel.add(btnExportXML, null);
         jSplitPane1.setOneTouchExpandable(true);
         jSplitPane1.add(mapping_botPanel, JSplitPane.BOTTOM);
         jSplitPane1.add(mapping_topPanel, JSplitPane.TOP);
@@ -153,9 +170,10 @@ abstract public class MappingPanelGUI
         this.add(commandPanel, BorderLayout.SOUTH);
         mapping_botPanel.add(jScrollPane3, java.awt.BorderLayout.CENTER);
         mapping_rightUpper.add(mappingFileList, java.awt.BorderLayout.CENTER);
-        mapping_rightUpper.add(btnUpdateMappingList, java.awt.BorderLayout.EAST);
-        mapping_LeftMid.add(newConnectorBtn, java.awt.BorderLayout.NORTH);
-        mapping_LeftMid.add(addBtn, java.awt.BorderLayout.SOUTH);
+        mapping_rightUpper
+                .add(btnUpdateMappingList, java.awt.BorderLayout.EAST);
+        mapping_LeftMid.add(btnNewConnector, java.awt.BorderLayout.NORTH);
+        mapping_LeftMid.add(btnAddMapping, java.awt.BorderLayout.SOUTH);
         for (int i = 0; i < myMapping.defaultConnectors.length; i++)
         {
             mappingConnectorListModel.add(i, myMapping.defaultConnectors[i]);
@@ -164,33 +182,18 @@ abstract public class MappingPanelGUI
 
     void clearMapping()
     {
-        mappingRuleListModel.removeAllElements();
+        lstBridges.setListData(new Vector());
         myMapping.clear();
-        addBtn.setEnabled(false);
+        btnAddMapping.setEnabled(false);
     }
 
-    JButton exportBtn = new JButton();
-    JLabel schema1 = new JLabel();
-    JLabel schema2 = new JLabel();
-    JButton deleteBtn = new JButton();
-    JButton btnUpdateMappingList = new JButton();
-    JButton refreshBtn1 = new JButton();
-    JButton refreshBtn2 = new JButton();
-    JPanel mapping_LeftMid = new JPanel();
-    JButton newConnectorBtn = new JButton();
-    JPanel mapping_rightUpper = new JPanel();
-    JButton btnValidate = new JButton();
-
-    class ConnectorListCellRenderer
-        extends DefaultListCellRenderer
+    class ConnectorListCellRenderer extends DefaultListCellRenderer
     {
-        public Component getListCellRendererComponent(
-            JList list, Object value, int index,
-            boolean isSelected, boolean cellHasFocus)
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus)
         {
-            Component retValue = super.getListCellRendererComponent(
-                list, value, index, isSelected, cellHasFocus
-                );
+            Component retValue = super.getListCellRendererComponent(list,
+                    value, index, isSelected, cellHasFocus);
             Connector c = (Connector) value;
             if (c.equals(SimpleConnector.EQU))
             {
@@ -224,7 +227,7 @@ abstract public class MappingPanelGUI
             return retValue;
         }
     }
-    
+
     // 2006-06-24 Jie Bao
     public void resetPanel()
     {

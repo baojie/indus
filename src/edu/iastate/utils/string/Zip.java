@@ -11,9 +11,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
+import java.util.Enumeration;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import edu.iastate.utils.io.FileUtils;
 
@@ -24,7 +27,7 @@ import edu.iastate.utils.io.FileUtils;
  * @since 2006-06-21
  *
  */
-public class Zip 
+public class Zip
 {
 
     static final int BUFFER = 2048;
@@ -34,11 +37,11 @@ public class Zip
     {
         return StringUtils.encodeHex(encodeByte(str));
     }
-    
+
     public static byte[] encodeByte(InputStream fi)
     {
         try
-        {            
+        {
             BufferedInputStream origin = null;
             ByteArrayOutputStream dest = new ByteArrayOutputStream();
 
@@ -66,9 +69,9 @@ public class Zip
         {
             e.printStackTrace();
         }
-        return null;        
+        return null;
     }
-    
+
     public static byte[] encodeByte(String str)
     {
         StringBufferInputStream fi = new StringBufferInputStream(str);
@@ -81,21 +84,21 @@ public class Zip
         ByteArrayInputStream fi = new ByteArrayInputStream(data);
         return encodeByte(fi);
     }
-    
+
     public static String decode(String encoded)
     {
         byte[] result = decodeByte(encoded);
         String outputString = new String(result, 0, result.length);
-        return outputString;        
+        return outputString;
     }
-    
+
     // 2006-06-22
     public static byte[] decodeByte(String encoded)
     {
         byte[] source = StringUtils.decodeHex(encoded);
         return decodeByte(source);
     }
-    
+
     public static byte[] decodeByte(byte[] source)
     {
         try
@@ -117,7 +120,7 @@ public class Zip
             }
             dest.flush();
             dest.close();
-            
+
             byte[] result = fos.toByteArray();
             return result;
 
@@ -129,8 +132,23 @@ public class Zip
         return null;
     }
 
-    public static void main(String[] args) throws FileNotFoundException,
-            SecurityException, IOException
+    // 2006-06-26 Jie Bao
+    public static ZipEntry  getEntry(String zipFile, String entryName)
+    {
+        try
+        {
+            // Open the ZIP file
+            ZipFile zf = new ZipFile(zipFile);
+            return zf.getEntry(entryName);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static void  testEncodeDecode() throws FileNotFoundException, SecurityException, IOException
     {
         String source = FileUtils.readFile("D:\\test.txt");
 
@@ -142,6 +160,11 @@ public class Zip
         System.out.println(encoded.length());
 
         String restored = decode(encoded);
-        System.out.println(restored.length());
+        System.out.println(restored.length());   
+    }
+
+    public static void main(String[] args)
+    {
+        //d("D:/lib.jar");
     }
 }

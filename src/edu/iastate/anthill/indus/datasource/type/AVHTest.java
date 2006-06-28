@@ -48,7 +48,7 @@ public class AVHTest
     {
         AVH avh = new AVH("Test", "ISA");
         avh.treeAVT.buildSampleTree();
-        
+
         System.out.println("1. Test AVH.toText()");
 
         String text = avh.toText();
@@ -69,7 +69,7 @@ public class AVHTest
 
     /**
      * Compare parsing speed in two storage format: plain text and XML 
-       Plain text is much much faster than XML!!!
+     Plain text is much much faster than XML!!!
      */
     private static void compareParsingSpeed() throws FileNotFoundException,
             SecurityException, IOException
@@ -109,42 +109,66 @@ public class AVHTest
         System.out.println("Tree Size " + avh.getSize());
         System.out.println("End of test");
     }
-    
+
     /**
      * Compare storage size between zipped plain text and zipped binary
-     *       conclusion: zipped plain text is better
+     *       conclusion: zipped plain text is better (smaller and faster in decoding)
      *  
      * Test sample: scop ontology (83k terms) 
-     * Plain text        6,554,321 / 3,682,797 [shorthand mode]
-       Zipped plain text 1,084,605 / 1,008,740 [shorthand mode] (smallest)
-       Binary            7,155,838
-       Zipped binary     1,313,176
-       
-       @author Jie Bao
-       @since 2006-06-26
-     */    
-    public static void compareStroageSize() throws FileNotFoundException, SecurityException, IOException
+
+        Plain text 3682797
+        Zipped plain text 1008470
+            Decoding time :0.515 second(s), (unzipping 0.109 second(s))
+            
+        Binary 7155838
+        Zipped binary 1313175
+            Decoding time :1.344 second(s), (unzipping 0.157 second(s))
+        End of test
+     
+     @author Jie Bao
+     * @throws ClassNotFoundException 
+     @since 2006-06-26
+     */
+    public static void compareStroageSize() throws FileNotFoundException,
+            SecurityException, IOException, ClassNotFoundException
     {
-        String file = "D:\\test.txt";
+        String file = "D:\\scop.txt";
         String text = FileUtils.readFile(file);
-        
+
         AVH avh = new AVH();
         avh.fromText(text);
-        
-//        text = avh.toText();
-//        FileUtils.writeFile(file, text);
-//        text = FileUtils.readFile(file);
-        
-        
-        System.out.println("Plain text "+ text.length());
+
+        //        text = avh.toText();
+        //        FileUtils.writeFile(file, text);
+        //        text = FileUtils.readFile(file);
+
+        System.out.println("Plain text " + text.length());
         byte[] zippedPlainText = Zip.encodeByte(text);
-        System.out.println("Zipped plain text "+ zippedPlainText.length);
-        
+        System.out.println("Zipped plain text " + zippedPlainText.length);
+
+        StopWatch w = new StopWatch();
+        w.start();
+        byte[] t = Zip.decodeByte(zippedPlainText);
+        w.peek(); String mid = w.print();
+        String outputString = new String(t, 0, t.length);
+        avh.fromText(outputString);
+        w.stop();
+        System.out.println("    Decoding time :" + w.print() + ", (unzipping "+mid +")");
+
         byte[] binary = Serialization.saveToByteArray(avh);
-        System.out.println("Binary "+ binary.length);
-        
+        System.out.println("Binary " + binary.length);
+
         byte[] zippedBinary = Zip.encodeByte(binary);
-        System.out.println("Zipped binary "+ zippedBinary.length);
+        System.out.println("Zipped binary " + zippedBinary.length);
+
+        w = new StopWatch();
+        w.start();
+        binary = Zip.decodeByte(zippedBinary);
+        w.peek(); mid = w.print();
+        avh = (AVH) Serialization.loadFromByteArray(binary);
+        w.stop();
+        System.out.println("    Decoding time :" + w.print() + ", (unzipping "+mid +")");
+
         System.out.println("End of test");
     }
 
@@ -152,9 +176,9 @@ public class AVHTest
     {
         try
         {
-            testToFromText();
+            //testToFromText();
             //compareParsingSpeed();
-            //compareStroageSize();
+            compareStroageSize();
         }
         catch (Exception e)
         {

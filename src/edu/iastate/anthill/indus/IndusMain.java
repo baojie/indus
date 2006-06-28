@@ -54,7 +54,7 @@ public class IndusMain extends IndusGUIAction
         catch (IOException e)
         {}
     }
-
+    
     public static void main(String[] args)
     {
         try

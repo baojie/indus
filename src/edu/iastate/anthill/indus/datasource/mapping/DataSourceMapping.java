@@ -13,14 +13,12 @@ import edu.iastate.utils.string.TaggedText;
  * @since 1.0 2004-10-02
  */
 
-public class DataSourceMapping
-    implements Configable
+public class DataSourceMapping implements Configable
 {
 
-    public final Connector[] defaultConnectors =
-        {
-        SimpleConnector.EQU, SimpleConnector.UNEQU, SimpleConnector.INTO,
-        SimpleConnector.ONTO, SimpleConnector.INCOMP, SimpleConnector.COMP};
+    public final Connector[] defaultConnectors = { SimpleConnector.EQU,
+            SimpleConnector.UNEQU, SimpleConnector.INTO, SimpleConnector.ONTO,
+            SimpleConnector.INCOMP, SimpleConnector.COMP };
 
     public DataSourceMapping()
     {}
@@ -60,7 +58,8 @@ public class DataSourceMapping
             //xmlText = xmlText.replaceAll("\\n","");
 
             clear();
-            Vector vec = SimpleXMLParser.getNestedBlock("mapping", xmlText, false);
+            Vector vec = SimpleXMLParser.getNestedBlock("mapping", xmlText,
+                    false);
 
             if (vec.size() > 0)
             {
@@ -75,7 +74,8 @@ public class DataSourceMapping
                     setSchemaMapping(m);
                 }
                 // name
-                vec = SimpleXMLParser.getNestedBlock("mappingname", mapping, false);
+                vec = SimpleXMLParser.getNestedBlock("mappingname", mapping,
+                        false);
                 if (vec.size() > 0)
                 {
                     name = (String) vec.elementAt(0);
@@ -92,7 +92,8 @@ public class DataSourceMapping
                     for (int i = 0; i < vec.size(); i++)
                     {
                         String avh = (String) vec.elementAt(i);
-                        InMemoryOntologyMapping m = new InMemoryOntologyMapping(null, null);
+                        InMemoryOntologyMapping m = new InMemoryOntologyMapping(
+                                null, null);
                         m.fromXML(avh);
                         avhMappingList.add(m);
                     }
@@ -104,12 +105,15 @@ public class DataSourceMapping
             ex.printStackTrace();
         }
     }
-    public String toText() {
+
+    public String toText()
+    {
         return toXML();
     }
 
-    public void fromText(String text) {
-        fromXML(text);        
+    public void fromText(String text)
+    {
+        fromXML(text);
     }
 
     public String toXML()
@@ -126,18 +130,18 @@ public class DataSourceMapping
         }
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            buf.append("<avh>" +
-                       ( (InMemoryOntologyMapping) avhMappingList.elementAt(i)).
-                       toXML() +
-                       "</avh>");
+            buf.append("<avh>"
+                    + ((InMemoryOntologyMapping) avhMappingList.elementAt(i))
+                            .toXML() + "</avh>");
         }
         buf.append("</mapping>");
         return buf.toString();
     }
 
-    public SchemaMapping schemaMapping = new SchemaMapping("", "");
-    public Vector avhMappingList = new Vector(); // vector of InMemoryOntologyMapping
-    public String name = null;
+    public SchemaMapping                   schemaMapping  = new SchemaMapping(
+                                                                  "", "");
+    public Vector<InMemoryOntologyMapping> avhMappingList = new Vector(); // vector of InMemoryOntologyMapping
+    public String                          name           = null;
 
     public void setSchemaMapping(SchemaMapping schemaMapping)
     {
@@ -150,28 +154,27 @@ public class DataSourceMapping
     }
 
     public BridgeRule addSchemaMappingItem(String term1, Connector c,
-                                           String term2)
+            String term2)
     {
         return schemaMapping.addMapping(term1, c, term2);
     }
 
     public boolean deleteSchemaMappingItem(String term1, Connector c,
-                                           String term2)
+            String term2)
     {
         return schemaMapping.deleteMapping(term1, c, term2);
     }
 
     public BridgeRule addAVHMappingItem(String AVH1, String term1, Connector c,
-                                        String AVH2, String term2)
+            String AVH2, String term2)
     {
         // find the AVH mapping
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
-            if (m.from.equals(AVH1) && m.to.equals(AVH2))
-            {
-                return m.addMapping(term1, c, term2);
-            }
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList
+                    .elementAt(i);
+            if (m.from.equals(AVH1) && m.to.equals(AVH2)) { return m
+                    .addMapping(term1, c, term2); }
         }
         // not find
         InMemoryOntologyMapping m = new InMemoryOntologyMapping(AVH1, AVH2);
@@ -190,12 +193,13 @@ public class DataSourceMapping
      * @return boolean true- an item is delete, otherwise false
      */
     public boolean deleteAVHMappingItem(String AVH1, String term1, Connector c,
-                                        String AVH2, String term2)
+            String AVH2, String term2)
     {
         // find the AVH mapping
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList
+                    .elementAt(i);
             if (m.from.equals(AVH1) && m.to.equals(AVH2))
             {
                 m.deleteMapping(term1, c, term2);
@@ -223,68 +227,45 @@ public class DataSourceMapping
      * @return String
      * @since 2004-10-13
      */
-    public String findSchemaFirstMappedTo(String schema_term1)
+    public BridgeRule findSchemaFirstMappedTo(String schema_term1)
     {
         return schemaMapping.findFirstMappedTo(schema_term1);
     }
 
-    public String findSchemaFirstMappedFrom(String schema_term1)
+    public BridgeRule findSchemaFirstMappedFrom(String schema_term1)
     {
         return schemaMapping.findFirstMappedFrom(schema_term1);
     }
 
     // return result in AVH:term or term
     // 2004-10-13
-    public String findAVHFirstMappedTo(String AVH1, String term1,
-                                       boolean isShort)
+    public BridgeRule findAVHFirstMappedTo(String AVH1, String term1)
     {
         // find the AVH1
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping avhMapping = (InMemoryOntologyMapping) avhMappingList.
-                elementAt(i);
+            InMemoryOntologyMapping avhMapping = (InMemoryOntologyMapping) avhMappingList
+                    .elementAt(i);
             if (avhMapping.from.equals(AVH1))
             {
-                String term2 = avhMapping.findFirstMappedTo(term1);
-                if (term2 != null)
-                {
-                    if (isShort)
-                    {
-                        return term2;
-                    }
-                    else
-                    {
-                        return avhMapping.to + ":" + term2;
-                    }
-                }
+                BridgeRule b = avhMapping.findFirstMappedTo(term1);
+                if (b != null) { return b; }
             }
         }
         return null;
     }
 
     // 2004-10-15
-    public String findAVHFirstMappedFrom(String AVH2, String term2,
-                                         boolean isShort)
+    public BridgeRule findAVHFirstMappedFrom(String AVH2, String term2)
     {
         // find the AVH1
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping avhMapping = (InMemoryOntologyMapping) avhMappingList.
-                elementAt(i);
+            InMemoryOntologyMapping avhMapping = avhMappingList.elementAt(i);
             if (avhMapping.to.equals(AVH2))
             {
-                String term1 = avhMapping.findFirstMappedFrom(term2);
-                if (term1 != null)
-                {
-                    if (isShort)
-                    {
-                        return term1;
-                    }
-                    else
-                    {
-                        return avhMapping.from + ":" + term1;
-                    }
-                }
+                BridgeRule b = avhMapping.findFirstMappedFrom(term2);
+                if (b != null) { return b; }
             }
         }
         return null;
@@ -304,7 +285,7 @@ public class DataSourceMapping
         }
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping o = ( (InMemoryOntologyMapping) avhMappingList.elementAt(i));
+            InMemoryOntologyMapping o = avhMappingList.elementAt(i);
             vec.addAll(o.getUserConnectors());
         }
         return vec;
@@ -322,11 +303,9 @@ public class DataSourceMapping
     {
         for (int i = 0; i < avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping o = ( (InMemoryOntologyMapping) avhMappingList.elementAt(i));
-            if (o.from.equals(avhFrom) && o.to.equals(avhTo))
-            {
-                return o;
-            }
+            InMemoryOntologyMapping o = ((InMemoryOntologyMapping) avhMappingList
+                    .elementAt(i));
+            if (o.from.equals(avhFrom) && o.to.equals(avhTo)) { return o; }
         }
         return null;
     }
@@ -336,12 +315,13 @@ public class DataSourceMapping
     {
         DataSourceMapping inverse = new DataSourceMapping();
         inverse.name = "Inverse-" + this.name;
-        inverse.schemaMapping = (SchemaMapping)this.schemaMapping.
-            getSchemaMirror();
+        inverse.schemaMapping = (SchemaMapping) this.schemaMapping
+                .getSchemaMirror();
 
         for (int i = 0; i < this.avhMappingList.size(); i++)
         {
-            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList.elementAt(i);
+            InMemoryOntologyMapping m = (InMemoryOntologyMapping) avhMappingList
+                    .elementAt(i);
             inverse.avhMappingList.add(m.getMirror());
         }
         return inverse;
@@ -356,9 +336,9 @@ public class DataSourceMapping
         mapping1.addSchemaMappingItem("t1", SimpleConnector.ONTO, "t2");
         mapping1.addSchemaMappingItem("t4", SimpleConnector.EQU, "t5");
         mapping1.addAVHMappingItem("h1", "ht1", SimpleConnector.COMP, "h2",
-                                   "ht2");
+                "ht2");
         mapping1.addAVHMappingItem("h3", "ht3", SimpleConnector.INCOMP, "h2",
-                                   "ht2");
+                "ht2");
 
         String xml = mapping1.toXML();
         TaggedText tt = new TaggedText();

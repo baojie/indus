@@ -12,6 +12,7 @@ import edu.iastate.anthill.indus.datasource.Configable;
 abstract public class OntologyMapping implements Configable
 {
     public String from, to;
+    public String type = "UNKNOWN";
     
     public OntologyMapping(String from, String to)
     {

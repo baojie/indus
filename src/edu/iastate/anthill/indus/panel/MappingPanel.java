@@ -1,12 +1,11 @@
 package edu.iastate.anthill.indus.panel;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -16,10 +15,10 @@ import javax.swing.event.TreeSelectionListener;
 import edu.iastate.anthill.indus.IndusGUI;
 import edu.iastate.anthill.indus.datasource.DataSourceNode;
 import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
-import edu.iastate.anthill.indus.tree.TypedTreeRender;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
-import edu.iastate.utils.gui.GUIUtils;
+import edu.iastate.anthill.indus.tree.TypedTreeRender;
+import edu.iastate.utils.Debug;
 
 /**
  * Mapping Definition Panel, actions
@@ -57,7 +56,7 @@ public class MappingPanel
         mappingFileList.addItemListener(new MyMappingListListener());        
 
         // menu handler
-        btnSaveMapping.setEnabled(false);
+        //btnSaveMapping.setEnabled(false);
         if (mappingFileList.getItemCount() > 0)
         {
             mappingFileList.setSelectedIndex(0);
@@ -88,8 +87,8 @@ public class MappingPanel
                     loadMapping(mappingName);
                     btnSaveMapping.setEnabled(true);
                 }
-            }
-        }
+            }            
+        }       
     }
 
 
@@ -107,36 +106,41 @@ public class MappingPanel
          * handleTree1
          */
         private void handleTree1(TypedNode n1)
-        {
-
-            //Debug.systrace(this, "Tree1 selects " + n1.getLocalName());
+        {            
             if (n1 != null)
             {
+                //Debug.systrace(this, "Tree 1 selects " + n1.getLocalName());
                 lastColored1 = n1;
-                n1.setColor(Color.black);
+                lastColored1.setColor(Color.black);
+                lastColored2.setColor(Color.black);
+                lstBridges.setSelectedValue(null,false);
+                
                 // find mapping rule for selected node
-                String mappedTo = null;
                 String dataType = null;
+                String mappedTo = null;
+                BridgeRule b = null;
                 if (n1.getType() == DataSourceNode.ATTRIBUTE)
                 {
                     // find one mapped node
-                    mappedTo = myMapping.findSchemaFirstMappedTo(n1.
-                        getLocalName());
+                    b = myMapping.findSchemaFirstMappedTo(n1.getLocalName());
                     dataType = n1.getLocalName();
                 }
                 else if (n1.getType() == DataSourceNode.AVH)
                 {
                     String AVH1 = findNodeType(n1);
-                    String res = myMapping.findAVHFirstMappedTo(AVH1, n1.
-                        getLocalName(), false);
-                    if (res != null)
+                    b = myMapping.findAVHFirstMappedTo(AVH1, n1.getLocalName());
+                    if (b != null)
                     {
-                        String t[] = res.split(":");
-                        dataType = t[0];
-                        mappedTo = t[1];
+                        dataType = b.toTerminology;
+                        mappedTo = b.toTerm;
                     }
                 }
-
+                
+                if (b != null)
+                {
+                    lstBridges.setSelectedValue(b,true);
+                }
+                
                 //Debug.trace(this, mappedTo);
                 if (mappedTo != null && dataType != null)
                 {
@@ -144,8 +148,8 @@ public class MappingPanel
                     //Debug.systrace(this, "Tree2 marks " + mappedTo);
                     if (marked2 != null)
                     {
-                        lastColored2 = marked2;
-                    }
+                        lastColored2 = marked2;                        
+                    }                    
                 }
             }
         }
@@ -154,36 +158,42 @@ public class MappingPanel
          * handleTree2
          */
         private void handleTree2(TypedNode n2)
-        {
-
+        {            
+            
             if (n2 != null)
             {
+                //Debug.systrace(this, "Tree 2 selects " + n2.getLocalName());
                 lastColored2 = n2;
-                n2.setColor(Color.black);
+                lastColored1.setColor(Color.black);
+                lastColored2.setColor(Color.black);
+                lstBridges.setSelectedValue(null,false);
+                
                 // find mapping rule for selected node
                 String mappedFrom = null;
                 String dataType = null;
+                BridgeRule b = null;
                 if (n2.getType() == DataSourceNode.ATTRIBUTE)
                 {
                     // find one mapped node
-                    mappedFrom = myMapping.findSchemaFirstMappedFrom(
-                        n2.getLocalName());
+                    b = myMapping.findSchemaFirstMappedFrom(n2.getLocalName());
                     dataType = n2.getLocalName();
                 }
                 else if (n2.getType() == DataSourceNode.AVH)
                 {
                     String AVH2 = findNodeType(n2);
-                    String res = myMapping.findAVHFirstMappedFrom(AVH2, n2.
-                        getLocalName(),false);
-                    if (res != null)
+                    b = myMapping.findAVHFirstMappedFrom(AVH2, n2.getLocalName());
+                    if (b != null)
                     {
-                        String t[] = res.split(":");
-                        dataType = t[0];
-                        mappedFrom = t[1];
+                        dataType = b.fromTerminology;
+                        mappedFrom = b.fromTerm;
                     }
 
                 }
 
+                if (b != null)
+                {
+                    lstBridges.setSelectedValue(b,true);
+                }
                 //Debug.trace(this, mappedTo);
                 if (mappedFrom != null && dataType != null)
                 {
@@ -256,7 +266,7 @@ public class MappingPanel
                 enableMapping = (n1.getType() != TypedNode.DB);
             }
 
-            addBtn.setEnabled(enableMapping);
+            btnAddMapping.setEnabled(enableMapping);
 
         }
     }
@@ -303,12 +313,12 @@ public class MappingPanel
         menu.add(itemDelete);
 
         // Set the component to show the popup menu
-        mappingRuleList.addMouseListener(new MouseAdapter()
+        lstBridges.addMouseListener(new MouseAdapter()
         {
             public void mousePressed(MouseEvent evt)
             {
-                int row = mappingRuleList.locationToIndex(evt.getPoint());
-                mappingRuleList.setSelectedIndex(row);
+                int row = lstBridges.locationToIndex(evt.getPoint());
+                lstBridges.setSelectedIndex(row);
 
                 if (evt.isPopupTrigger())
                 {

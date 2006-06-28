@@ -542,7 +542,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
         // find applicable bridge rules
         Vector<BridgeRule> applicableRules = mapping.findMapped(localValueName);
         ZExpression modifiedWhere = new ZExpression("AND");
-        ZExpression equClause = new ZExpression("AND");
+        ZExpression equClause = new ZExpression("OR");
         ZExpression ontoClause = new ZExpression("OR");
         ZExpression intoClause = new ZExpression("AND");
 

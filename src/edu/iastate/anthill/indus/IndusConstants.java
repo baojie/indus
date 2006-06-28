@@ -1,14 +1,17 @@
 package edu.iastate.anthill.indus ;
 
-import java.io.File ;
-import java.net.URI ;
-import java.net.URL ;
-import java.text.SimpleDateFormat ;
-import java.util.Date ;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.zip.ZipEntry;
 
-import javax.swing.ImageIcon ;
+import javax.swing.ImageIcon;
 
-import edu.iastate.utils.gui.GUIUtils ;
+import edu.iastate.utils.Debug;
+import edu.iastate.utils.gui.GUIUtils;
+import edu.iastate.utils.string.Zip;
 
 public class IndusConstants
 {
@@ -29,23 +32,43 @@ public class IndusConstants
 
     static String getModifiedTime()
     {
+        URL fileURL = null;
         try
         {
-            URL fileURL = ClassLoader.getSystemClassLoader().getResource(
-                PROJECT_FILE) ;
+            fileURL = ClassLoader.getSystemClassLoader().getResource(
+                PROJECT_FILE) ;            
             //Debug.trace(fileURL);
             File file = new File(new URI(fileURL.toString())) ;
-            //Debug.trace(file);
+            System.out.println(file);
             long modifiedTime = file.lastModified() ;
             return format(modifiedTime) ;
         }
         catch(Exception ex)
         {
+            // try zip
+            try
+            {
+                String file = fileURL.toString();
+                file = file.replace("!/"+PROJECT_FILE, "");
+                file = file.replace("jar:file:/", "");
+                file = file.replace("%20", " ");
+                System.out.println(file);
+                
+                ZipEntry e= Zip.getEntry(file, PROJECT_FILE);
+                long modifiedTime = e.getTime() ;
+                return format(modifiedTime) ;
+            }
+            catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            //ex.printStackTrace();
             return "" ;
         }
     }
 
-    public static String TIME = "2006-06-21" ; //getModifiedTime();
+    public static String TIME = getModifiedTime();//"2006-06-26" ;//
 
     public static String VER = "3.0.2" ;
     public static String NAME = "Indus Environment" ;

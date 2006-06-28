@@ -193,7 +193,7 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
                 // the usable inverse mapping
                 String oldValue = (String) table.getValueAt(i, columnIndex);
                 String newValue = mapping.findAVHFirstMappedTo(avhName,
-                        oldValue, true);
+                        oldValue).toTerm;
                 System.out.println(newValue);
                 table.setValueAt(newValue, i, columnIndex);
             }

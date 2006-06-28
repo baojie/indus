@@ -39,7 +39,7 @@ public class InfoReader implements IndusCommand
         w.start();
 
         String xml = IndusHttpClient.getDetails(command, name);
-        //System.out.println(xml);
+        System.out.println(" " +xml.length() + " bytes");
         w.stop();
         System.out.print("   ,  read XML: " + w.print());
 
@@ -55,11 +55,48 @@ public class InfoReader implements IndusCommand
         return false;
     }
 
-    public static DataSourceMapping readMapping(String name)
+    /**
+     * @deprecated
+     * @param name
+     * @return
+     */
+    public static DataSourceMapping readMappingOld(String name)
     {
         DataSourceMapping newObj = new DataSourceMapping();
         read(CMD_GET_MAPPING_DETAILS, name, newObj);
         return newObj;
+    }
+
+    public static DataSourceMapping readMapping(String name)
+    {
+        try
+        {
+            StopWatch w = new StopWatch();
+            w.start();
+            String sql = "    SELECT value FROM mappings WHERE name = '" + name
+                    + "'";
+            Connection db = IndusBasis.indusSystemDB.db;
+            String sourceText = JDBCUtils.getFirstValue(db, sql);
+
+            w.stop();
+            System.out.print(" ,  read source text: " + w.print());
+
+            w.start();
+            
+            sourceText = Zip.decode(sourceText);
+            //System.out.println(sourceText);
+            DataSourceMapping m = new  DataSourceMapping();
+            m.fromXML(sourceText);
+            
+            w.stop();
+            System.out.println(",  parse source: " + w.print());
+
+            return m;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 
     public static View readView(String name)
@@ -90,6 +127,7 @@ public class InfoReader implements IndusCommand
         DataType d = dataTypeCache.get(name);
         if (d == null || forceReload)
         {
+            System.out.println("readDataType - " + name);
             d = readDataTypeNative(name);
             dataTypeCache.put(name, d);
         }
@@ -114,7 +152,7 @@ public class InfoReader implements IndusCommand
         DataType newType = new SimpleDataType(name, "");
         if (!DataType.isPredefinedType(name))
         {
-            newType.fromText(text);            
+            newType.fromText(text);
         }
         if (newType.getName() == null)
         {
@@ -124,7 +162,6 @@ public class InfoReader implements IndusCommand
         {
             name = newType.getName();
         }
-        
 
         if ("AVH".equals(newType.getSupertype()))
         {
@@ -211,16 +248,15 @@ public class InfoReader implements IndusCommand
             if (DataType.isPredefinedType(name)) { return new SimpleDataType(
                     name, null); }
 
-            System.out.println("readDataType - " + name);
             StopWatch w = new StopWatch();
             w.start();
             //String sourceText = IndusHttpClient.getDetails(
             //        CMD_GET_TYPE_DETAILS, name);
-            String sql = "    SELECT value FROM types WHERE name = '" + name + "'";
+            String sql = "    SELECT value FROM types WHERE name = '" + name
+                    + "'";
             Connection db = IndusBasis.indusSystemDB.db;
-            String sourceText  = JDBCUtils.getFirstValue(db,sql);
-            
-            
+            String sourceText = JDBCUtils.getFirstValue(db, sql);
+
             w.stop();
             System.out.print(" ,  read source text: " + w.print());
 
@@ -236,7 +272,7 @@ public class InfoReader implements IndusCommand
             {
                 System.out.print(" Plain Text Format ");
                 // encoded in InfoWriter.writeType()
-                
+
                 // clear unused memory 
                 System.gc();
                 sourceText = Zip.decode(sourceText);
@@ -373,9 +409,13 @@ public class InfoReader implements IndusCommand
         return getList(CMD_GET_ALL_VIEW);
     }
 
-    public static String[] getAllMapping()
+    public static Object[] getAllMapping()
     {
-        return getList(CMD_GET_ALL_MAPPING);
+        //return getList(CMD_GET_ALL_MAPPING);
+        String sql = "    SELECT name From mappings ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);       
+        return all.toArray();
     }
 
     public static String[] getAllSchema()

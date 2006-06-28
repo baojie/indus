@@ -47,7 +47,7 @@ public class ViewPanel
         }
     }
 
-    Vector datasource = new Vector();
+    Vector<ViewAtomDateSource> datasource = new Vector<ViewAtomDateSource>();
     View currentView;
 
     public void promptSave()
@@ -145,7 +145,7 @@ public class ViewPanel
 
             Object allDS[] = InfoReader.getAllDataSource(parent.indusSystemDB.
                 db);
-            String allMapping[] = InfoReader.getAllMapping();
+            Object allMapping[] = InfoReader.getAllMapping();
 
             ViewAtomDateSource p = new ViewAtomDateSource(this,allDS, allMapping);
             p.setDS(ds);
@@ -471,9 +471,9 @@ public class ViewPanel
         try
         {
             //Debug.trace("onAddDataSource");
-            Object allDS[] = InfoReader.getAllDataSource(parent.indusSystemDB.
-                db);
-            String allMapping[] = InfoReader.getAllMapping();
+            Object allDS[] = InfoReader.getAllDataSource(
+                    IndusBasis.indusSystemDB.db);
+            Object allMapping[] = InfoReader.getAllMapping();
 
             ViewAtomDateSource p = new ViewAtomDateSource(this,allDS, allMapping);
             datasource.add(p);

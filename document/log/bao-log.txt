@@ -150,4 +150,6 @@ End of test
        Zipped plain text 1,084,605 (smallest)
        Binary            7,155,838
        Zipped binary     1,313,176	   
+       
+    IndusConstants.getModifiedTime() - read file time from a zip file
   
