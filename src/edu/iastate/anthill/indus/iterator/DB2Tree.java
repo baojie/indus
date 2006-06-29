@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,14 +13,14 @@ import java.util.Vector;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.tree.TreeNodeInsertEditing;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
-
+import edu.iastate.utils.lang.SortedVector;
 import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.undo.BulkEditingAction;
 import edu.iastate.utils.undo.EditingAction;
-import edu.iastate.utils.lang.SortedVector;
 
 /**
  * @author Jie Bao
@@ -316,13 +314,6 @@ abstract public class DB2Tree
         }
     }
 
-    public String makeTimeStampName()
-    {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyyMMddHHmmssS");
-        return "cache" + dateFormat.format(new Date());
-    }
-
     /**
      * Build tree from the database
      *      10 times faster on MIPS than the old implementation!
@@ -346,7 +337,7 @@ abstract public class DB2Tree
 
         int level = cutoff;
 
-        String cacheTable = makeTimeStampName();
+        String cacheTable = "cache"+IndusBasis.getTimeStamp();
         String sql = "CREATE TABLE " + cacheTable + " (id text, mark integer);";
         sql += " INSERT INTO " + cacheTable + " (id) VALUES ('" + from_id
                 + "');";

@@ -14,9 +14,7 @@ import edu.iastate.utils.gui.GUIUtils;
  * @since 1.0 2005-03-11
  */
 public class IndusMain extends IndusGUIAction
-{
-    private static final long serialVersionUID = 3970622403461846063L;
-
+{    
     static public IndusMain   theInstance;
 
     public IndusMain()

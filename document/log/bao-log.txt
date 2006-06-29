@@ -152,4 +152,23 @@ End of test
        Zipped binary     1,313,176	   
        
     IndusConstants.getModifiedTime() - read file time from a zip file
+    
+2006-06-27
+	optimize saving/loading for large mappings
+	     change the mapping storage to database based
+		
+	test sample: scop2ec: 13k axioms
+	     loading time is reduced from 5+ minutes to < 20 seconds
+	
+	Allow load 6 panels in 6 threads	
+	
+	Automatically update build time in title bar and About dialog.
+	      IndusConstants.getModifiedTime()  
+	
+2006-06-28
+    Mappin Panel: Import mapping from XML format
+                  Show the number of axioms in GUI 
+    
+    reorganize: put some SQL optimization methods together into SQLQueryOptimizer
+       
   

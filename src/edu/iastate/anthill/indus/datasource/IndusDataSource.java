@@ -10,128 +10,19 @@ import java.util.Vector;
 
 import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.IndusConstants;
-import edu.iastate.anthill.indus.query.SQLQueryBuilder;
-import edu.iastate.anthill.indus.query.SQLQueryPlanner;
-
 import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.sql.LocalDBConnection;
 
-import Zql.ZExp;
-import Zql.ZExpression;
-import Zql.ZQuery;
-import java.util.*;
-
 /**
  * The class for data source
- * <p>
  * 
  * @author Jie Bao , baojie@cs.iastate.edu
- *         </p>
- *         <p>
  * @since 2005-03-24
- *        </p>
  */
 public class IndusDataSource extends LocalDBConnection implements Configable {
 	String schemaName;
 
 	String name; // the table name of this data source
-
-	/**
-	 * Execute the query
-	 * 
-	 * @param db
-	 *            Connection
-	 * @param qeury
-	 *            ZQuery
-	 * @return ResultSet
-	 * @author Jie Bao
-	 * @since 2005-03-21
-	 */
-	public ResultSet executeNativeQuery(ZQuery query) {
-		try {
-			connect();
-			Statement stmt = db.createStatement();
-
-			// {{ 2005-10-19 Jie Bao
-            ZExp z = SQLQueryBuilder.optimize((ZExpression)query.getWhere());
-            query.addWhere(z);
-            
-            //String s = SQLQueryBuilder.printZExpression((ZExpression) query.getWhere());
-			//System.out.println(s);
-			
-			String strQuery = query.toString();
-			strQuery = optimzeQuery(strQuery.toCharArray());
-			System.out.println("Native query : " + strQuery);
-			// }} 2005-10-19
-
-			ResultSet rs = stmt.executeQuery(strQuery);
-			disconnect();
-			return rs;
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-
-	/**
-	 * optimzeQuery
-	 * 
-	 * remove duplicated brackets, like ((a >1 )) will be (a>1)
-	 * 
-	 * @param strQuery
-	 *            String
-	 * @return String
-	 * @author Jie Bao
-	 * @since 2005-10-19
-	 */
-	private static String optimzeQuery(char[] strQuery) {
-		// use a stack
-		Stack<Integer> s = new Stack();
-		Map<Integer, Integer> closing2opening = new HashMap();
-
-		// detect all pairs of '(' and ')'
-		for (int i = 0; i < strQuery.length; i++) {
-			char c = strQuery[i];
-			if (c == '(') {
-				s.push(i); // find a opening, push the position into the stack
-			}
-			if (c == ')') {
-				Integer open = s.pop();
-				closing2opening.put(i, open);
-			}
-		}
-		// remove redundant ones
-		for (int i = 0; i < strQuery.length; i++) {
-			char c = strQuery[i];
-			if (c == ')') // for a char ')'
-			{
-				if (i > 0) {
-					char last = strQuery[i - 1];
-					if (last == ')') // if the last char is also ')'
-					{
-						int c_open = closing2opening.get(i);
-						int last_open = closing2opening.get(i - 1);
-						if (last_open - c_open == 1) // their opening '(' are
-														// adjacent
-						{
-							// delete current ')' and its '('
-							strQuery[i] = ' ';
-							strQuery[c_open] = ' ';
-						}
-					}
-				}
-			}
-		}
-
-		return new String(strQuery);
-	}
-
-	public static void test1() {
-		String str = "((((a=2)) OR (b=2)))";
-		System.out.println(str);
-		str = optimzeQuery(str.toCharArray());
-		System.out.println(str);
-	}
 
 	public String getSchemaName() {
 		return schemaName;
@@ -313,7 +204,7 @@ public class IndusDataSource extends LocalDBConnection implements Configable {
 	}
 
 	public static void main(String[] args) {
-		test1();
+		//
 	}
 
 	public void setName(String name) {

@@ -15,7 +15,6 @@ import edu.iastate.utils.string.Zip;
 
 public class IndusConstants
 {
-
     private static String PROJECT_FILE =
         "edu/iastate/anthill/indus/IndusMain.class" ;
     /**
@@ -35,6 +34,7 @@ public class IndusConstants
         URL fileURL = null;
         try
         {
+            // try a seprated .class file
             fileURL = ClassLoader.getSystemClassLoader().getResource(
                 PROJECT_FILE) ;            
             //Debug.trace(fileURL);
@@ -89,8 +89,7 @@ public class IndusConstants
     // icon used in the toolbar
 
     // icon used in the menu
-
-    //
+    
     public static String SUBCLASS = "rdfs:subclassOf" ;
 
     public static ImageIcon loadImageIcon(String name)
@@ -150,7 +149,7 @@ public class IndusConstants
     public static String infoAbout = "<html>" +
         "<font color=\"#FF0099\"><b>" +
         "INDUS Data Integration Environment</b></font><br>Version " + VER +
-        "<br>" + "<br><b>Jie Bao</b><br>June 2006<br>" +
+        "<br>" + "<br><b>Jie Bao</b><br>"+getModifiedTime()+"<br>" +
         "Iowa State University<br><a href=\"mailto:baojie@iastate.edu\">" +
         "baojie@iastate.edu</a><br><a href=\"http://www.cs.iastate.edu/~baojie\">" +
         "http://www.cs.iastate.edu/~baojie</a><br>" +

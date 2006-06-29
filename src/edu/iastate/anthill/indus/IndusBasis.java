@@ -1,6 +1,8 @@
 package edu.iastate.anthill.indus;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -32,10 +34,10 @@ public class IndusBasis
     Logging logger = new Logging(System.getProperty("user.dir") + "\\",
                                  "indus-log");
     public static IndusDB indusSystemDB = new IndusDB(); // to store system ontology and information
-    public IndusDB indusCacheDB = new IndusDB(); // to store view cache
+    public static IndusDB indusCacheDB = new IndusDB(); // to store view cache
 
     //2005-03-27
-    public IndusDB indusLocalDB = new IndusDB(); //to store local data sources
+    public static IndusDB indusLocalDB = new IndusDB(); //to store local data sources
 
     public IndusBasis()
     {
@@ -106,4 +108,12 @@ public class IndusBasis
                                            xml, true);
         Browser.openInWindowsDefaultBrowser(f.getPath());
     }
+    
+    public static String getTimeStamp()
+    {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyyMMddHHmmssS");
+        return dateFormat.format(new Date());
+    }
+
 }

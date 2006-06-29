@@ -1,16 +1,16 @@
 package edu.iastate.utils ;
 
-import java.text.NumberFormat ;
-import java.util.Arrays ;
-import java.util.StringTokenizer ;
-import java.util.Vector ;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  *
- * <p>Title: Utility</p>
- * <p>Description: General Utility tools</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: Iowa State University</p>
+ * Title: Utility
+ * Description: General Utility tools
+ * Copyright: Copyright (c) 2003
+ * Company: Iowa State University
  * @author Jie Bao
  * @version 1.0
  */
@@ -200,6 +200,8 @@ public class Utility
      * return a vector for the array
      * @param obj Object[]
      * @return Vector
+     * 
+     * @author Jie Bao
      */
     public static Vector Array2Vector(Object data[])
     {

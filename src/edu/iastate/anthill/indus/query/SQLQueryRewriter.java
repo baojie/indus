@@ -24,8 +24,7 @@ import Zql.ZQuery;
 public class SQLQueryRewriter
 {
     public SQLQueryRewriter()
-    {
-    }
+    {}
 
     /**
      *
@@ -38,8 +37,7 @@ public class SQLQueryRewriter
      * @since 2005-03-19
      */
     public ZExpression rewriteAtomWhere(String attribute, String op,
-                                        String value,
-                                        TypedTree ontology)
+            String value, TypedTree ontology)
     {
         // find the right set of nodes on the AVH tree
         //Debug.trace(attribute + " " + op + " " + value);
@@ -61,24 +59,24 @@ public class SQLQueryRewriter
             // find all nodes that higher than given value on the AVH
             // they are the node all the path from root to the given node (value)
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
-                value);
+                    value);
             Set ancestorNode = ontology.findAncestor(valueNode);
-            for (Iterator it = ancestorNode.iterator(); it.hasNext(); )
+            for (Iterator it = ancestorNode.iterator(); it.hasNext();)
             {
-                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it.
-                    next();
+                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it
+                        .next();
                 values.add(element.getUserObject());
             }
         }
         else if (op.compareTo(">=") == 0)
         {
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
-                value);
+                    value);
             Set ancestorNode = ontology.findAncestor(valueNode);
-            for (Iterator it = ancestorNode.iterator(); it.hasNext(); )
+            for (Iterator it = ancestorNode.iterator(); it.hasNext();)
             {
-                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it.
-                    next();
+                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it
+                        .next();
                 values.add(element.getUserObject());
             }
             values.add(value);
@@ -87,9 +85,9 @@ public class SQLQueryRewriter
         {
             // find all nodes that lower than given value on the AVH
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
-                value);
+                    value);
             Set offspringNode = TypedTree.findAllOffspring(valueNode);
-            for (Iterator it = offspringNode.iterator(); it.hasNext(); )
+            for (Iterator it = offspringNode.iterator(); it.hasNext();)
             {
                 Object oo = it.next();
                 //Debug.systrace(this,oo.getClass().getName());
@@ -100,13 +98,13 @@ public class SQLQueryRewriter
         else if (op.compareTo("<=") == 0)
         {
             DefaultMutableTreeNode valueNode = TypedTree.findFirst(ontology,
-                value);
+                    value);
             //Debug.trace(valueNode);
             Set offspringNode = TypedTree.findAllOffspring(valueNode);
-            for (Iterator it = offspringNode.iterator(); it.hasNext(); )
+            for (Iterator it = offspringNode.iterator(); it.hasNext();)
             {
-                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it.
-                    next();
+                DefaultMutableTreeNode element = (DefaultMutableTreeNode) it
+                        .next();
                 values.add(element.getUserObject());
             }
             values.add(value);
@@ -125,9 +123,9 @@ public class SQLQueryRewriter
         else
         {
             ZExp valueSet = SQLQueryBuilder.buildValueSet(values,
-                ZConstantEx.AVH);
+                    ZConstantEx.AVH);
             ZConstantEx field = new ZConstantEx(attribute,
-                                                ZConstantEx.COLUMNNAME);
+                    ZConstantEx.COLUMNNAME);
             ZExpression e = new ZExpression(connector, field, valueSet);
             return e;
         }
@@ -137,17 +135,11 @@ public class SQLQueryRewriter
     {
         if (clause.getOperands() != null)
         {
-            if (clause.getOperands().size() != 2)
-            {
-                return false;
-            }
+            if (clause.getOperands().size() != 2) { return false; }
 
             String op = clause.getOperator();
-            if (op.compareToIgnoreCase("IN") != 0 &&
-                op.compareToIgnoreCase("NOT IN") != 0)
-            {
-                return false;
-            }
+            if (op.compareToIgnoreCase("IN") != 0
+                    && op.compareToIgnoreCase("NOT IN") != 0) { return false; }
         }
         return true;
     }
@@ -163,10 +155,7 @@ public class SQLQueryRewriter
     public ZExpression rewriteIN(ZExpression inClause)
     {
         //System.out.println(inClause);
-        if (!isINClause(inClause))
-        {
-            return inClause;
-        }
+        if (!isINClause(inClause)) { return inClause; }
 
         String op = inClause.getOperator();
         String newOp, newAtomOp;
@@ -191,34 +180,25 @@ public class SQLQueryRewriter
 
         ZExp values = inClause.getOperand(1);
 
-        if (values instanceof ZConstantEx)
-        {
-            return new ZExpression(newAtomOp, field, values);
-        }
-        else
-        {
-            ZExpression zzz = (ZExpression) values;
-            if (zzz.getOperands().size() == 1)
-            {
-                return new ZExpression(newAtomOp, field, zzz.getOperand(0));
-            }
-            else
-            {
-                assert zzz.getOperator().equals(",");
-                Vector allValues = zzz.getOperands();
+        if (values instanceof ZConstantEx) { return new ZExpression(newAtomOp,
+                field, values); }
 
-                for (Iterator it = allValues.iterator(); it.hasNext(); )
-                {
-                    ZConstantEx v = (ZConstantEx) it.next();
-                    //System.out.println( v + " is AVH " + (v.getType()==ZConstantEx.AVH));
-                    ZExpression ze = SQLQueryBuilder.buildAttributeValuePair(
-                        field.
-                        getValue(), newAtomOp, v.getValue(), v.getType());
-                    newClause.addOperand(ze);
-                }
-                return newClause;
-            }
+        ZExpression zzz = (ZExpression) values;
+        if (zzz.getOperands().size() == 1) { return new ZExpression(newAtomOp,
+                field, zzz.getOperand(0)); }
+
+        assert zzz.getOperator().equals(",");
+        Vector allValues = zzz.getOperands();
+
+        for (Iterator it = allValues.iterator(); it.hasNext();)
+        {
+            ZConstantEx v = (ZConstantEx) it.next();
+            //System.out.println( v + " is AVH " + (v.getType()==ZConstantEx.AVH));
+            ZExpression ze = SQLQueryBuilder.buildAttributeValuePair(field
+                    .getValue(), newAtomOp, v.getValue(), v.getType());
+            newClause.addOperand(ze);
         }
+        return newClause;
     }
 
     /**
@@ -233,7 +213,7 @@ public class SQLQueryRewriter
      * @since 2005-03-22
      */
     public boolean isAtomRootLimitation(String op, String value,
-                                        TypedTree ontology)
+            TypedTree ontology)
     {
         String root = ontology.getTop().getUserObject().toString();
         return (op.equals("<=") && value.equals(root));
@@ -256,16 +236,10 @@ public class SQLQueryRewriter
     {
         // condition 1,5
         //System.out.println("getOperands().size(): " + where.getOperands().size());
-        if (where.getOperands() == null)
-        {
-            return false;
-        }
+        if (where.getOperands() == null) { return false; }
 
-        if (where.getOperands().size() != 2 ||
-            !SQLQueryBuilder.isAvhOp(where.getOperator()))
-        {
-            return false;
-        }
+        if (where.getOperands().size() != 2
+                || !SQLQueryBuilder.isAvhOp(where.getOperator())) { return false; }
 
         // condition 2,3 part 1
         ZExp oprand1 = where.getOperand(0);
@@ -273,11 +247,8 @@ public class SQLQueryRewriter
 
         //System.out.println("oprand1 :" + oprand1 + " of " + oprand1.getClass());
         //System.out.println("oprand2 :" + oprand2 + " of " + oprand2.getClass());
-        if (! (oprand1 instanceof ZConstantEx) &&
-            ! (oprand2 instanceof ZConstantEx))
-        {
-            return false;
-        }
+        if (!(oprand1 instanceof ZConstantEx)
+                && !(oprand2 instanceof ZConstantEx)) { return false; }
 
         // condition 2,3 part 2
         ZConstantEx op1 = (ZConstantEx) oprand1;
@@ -287,11 +258,8 @@ public class SQLQueryRewriter
         //System.out.println("op2 type : " + op2.getType());
         //System.out.println("    "+ZConstant.COLUMNNAME + " is column name, " +
         //                   ZConstant.STRING + " is string");
-        if (op1.getType() != ZConstantEx.COLUMNNAME ||
-            op2.getType() != ZConstantEx.AVH)
-        {
-            return false;
-        }
+        if (op1.getType() != ZConstantEx.COLUMNNAME
+                || op2.getType() != ZConstantEx.AVH) { return false; }
 
         // condition 4
         String columnName = op1.toString();
@@ -317,74 +285,56 @@ public class SQLQueryRewriter
      * @since 2005-03-20
      */
     public ZExpression reWriteWhere(ZExpression where, Map attributeToAVH,
-                                    boolean keepOrginal,
-                                    boolean rewriteRootLimitation)
+            boolean keepOrginal, boolean rewriteRootLimitation)
     {
-        if (where == null)
-        {
-            return where;
-        }
+        if (where == null) { return where; }
         //System.out.print(where);
         if (isAtomAVHExpression(where, attributeToAVH))
         {
             //System.out.println("  is AVH Expression ");
-            String attribute = ( (ZConstantEx) where.getOperand(0)).getValue();
+            String attribute = ((ZConstantEx) where.getOperand(0)).getValue();
             String op = where.getOperator();
-            String value = ( (ZConstantEx) where.getOperand(1)).getValue();
+            String value = ((ZConstantEx) where.getOperand(1)).getValue();
             AVH avhTree = (AVH) attributeToAVH.get(attribute);
             TypedTree ontology = avhTree.getTreeAVH();
 
-            if (isAtomRootLimitation(op, value, ontology) &&
-                !rewriteRootLimitation)
-            {
-                return null;
-            }
+            if (isAtomRootLimitation(op, value, ontology)
+                    && !rewriteRootLimitation) { return null; }
 
             ZExpression rewritten = rewriteAtomWhere(attribute, op, value,
-                ontology);
-            if (keepOrginal)
+                    ontology);
+            if (keepOrginal) { return new ZExpression("OR", rewritten, where); }
+
+            return rewritten;
+        }
+        //System.out.println("  not AVHExpression ");
+        // rewrite its component clauses
+        ZExpression newExp = new ZExpression(where.getOperator());
+        //System.out.println("      Expression: " + where);
+        Vector ops = where.getOperands();
+        if (ops == null) { return where; }
+
+        for (Iterator it = ops.iterator(); it.hasNext();)
+        {
+            ZExp element = (ZExp) it.next();
+            //System.out.println("   sub expression: " + element +
+            //                   " of " + element.getClass());
+
+            if (element instanceof ZExpression)
             {
-                return new ZExpression("OR", rewritten, where);
+                ZExpression zzz = reWriteWhere((ZExpression) element,
+                        attributeToAVH, keepOrginal, rewriteRootLimitation);
+                if (zzz != null)
+                {
+                    newExp.addOperand(zzz);
+                }
             }
             else
             {
-                return rewritten;
+                newExp.addOperand(element);
             }
         }
-        else
-        {
-            //System.out.println("  not AVHExpression ");
-            // rewrite its component clauses
-            ZExpression newExp = new ZExpression(where.getOperator());
-            //System.out.println("      Expression: " + where);
-            Vector ops = where.getOperands();
-            if (ops == null)
-            {
-                return where;
-            }
-
-            for (Iterator it = ops.iterator(); it.hasNext(); )
-            {
-                ZExp element = (ZExp) it.next();
-                //System.out.println("   sub expression: " + element +
-                //                   " of " + element.getClass());
-
-                if (element instanceof ZExpression)
-                {
-                    ZExpression zzz = reWriteWhere( (ZExpression) element,
-                        attributeToAVH, keepOrginal, rewriteRootLimitation);
-                    if (zzz != null)
-                    {
-                        newExp.addOperand(zzz);
-                    }
-                }
-                else
-                {
-                    newExp.addOperand(element);
-                }
-            }
-            return (ZExpression) SQLQueryBuilder.removeOrphanAndOr(newExp);
-        }
+        return (ZExpression) SQLQueryOptimizer.removeOrphanAndOr(newExp);
     }
 
     /**
@@ -398,8 +348,7 @@ public class SQLQueryRewriter
      */
 
     public ZQuery rewriteWithAVH(ZQuery oldQuery, Map attributeToAVH,
-                                 boolean keepOriginal,
-                                 boolean rewriteRoorLimitation)
+            boolean keepOriginal, boolean rewriteRoorLimitation)
     {
         ZQuery newQuery = new ZQuery();
 
@@ -418,8 +367,8 @@ public class SQLQueryRewriter
         ZExp where = oldQuery.getWhere();
         if (where instanceof ZExpression)
         {
-            newQuery.addWhere(reWriteWhere( (ZExpression) where, attributeToAVH,
-                                           keepOriginal, rewriteRoorLimitation));
+            newQuery.addWhere(reWriteWhere((ZExpression) where, attributeToAVH,
+                    keepOriginal, rewriteRoorLimitation));
         }
         else
         {
@@ -439,7 +388,7 @@ public class SQLQueryRewriter
     {
         ZExpression newExp = new ZExpression(where.getOperator());
         Vector ops = where.getOperands();
-        for (Iterator it = ops.iterator(); it.hasNext(); )
+        for (Iterator it = ops.iterator(); it.hasNext();)
         {
             ZExp element = (ZExp) it.next();
 

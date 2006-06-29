@@ -22,23 +22,23 @@ import edu.iastate.utils.gui.JTreeEx;
  * <p>@since 2005-03-27</p>
  *
  */
-public class AVHDialog
-    extends JDialog
+public class AVHDialog extends JDialog
 {
-    JPanel panel1 = new JPanel();
 
-    AVH myAVH;
+    AVH            myAVH;
+    public boolean isOK          = false;
+    public Object  selectedValue = null;
 
-    BorderLayout borderLayout2 = new BorderLayout();
-    JButton btnCancel = new JButton();
-    JButton btnOK = new JButton();
+    JPanel         panel1        = new JPanel();
+    JButton        btnCancel     = new JButton();
+    JButton        btnOK         = new JButton();
 
     public AVHDialog(AVH avh, String defaultValue, JFrame frame)
     {
         super(frame, "AVH Dialog", true);
 
         this.myAVH = avh;
-        this.selectedValue = defaultValue.trim();
+        if (defaultValue != null) this.selectedValue = defaultValue.trim();
         //Debug.trace("'"+this.selectedValue+"'");
 
         try
@@ -55,17 +55,15 @@ public class AVHDialog
 
     private void jbInit() throws Exception
     {
-        this.getContentPane().setLayout(borderLayout2);
+        this.getContentPane().setLayout(new BorderLayout());
         btnCancel.setToolTipText("");
-        btnCancel.addActionListener(new ActionListener()
-        {
+        btnCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 onCancel(e);
             }
         });
-        btnOK.addActionListener(new ActionListener()
-        {
+        btnOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 onOK(e);
@@ -82,25 +80,22 @@ public class AVHDialog
         //Debug.trace(n);
 
         JPanel treeEditor = myAVH.getEditorPane();
-//      this.getContentPane().add(new JScrollPane(treeEditor),
+        //      this.getContentPane().add(new JScrollPane(treeEditor),
         //                          BorderLayout.CENTER);
-      this.getContentPane().add(new JScrollPane(tree),
-                                  BorderLayout.CENTER);
+        this.getContentPane().add(new JScrollPane(tree), BorderLayout.CENTER);
         btnCancel.setText("Cancel");
-        this.getContentPane().add(panel1,BorderLayout.SOUTH);
+        this.getContentPane().add(panel1, BorderLayout.SOUTH);
         btnOK.setText("OK");
         panel1.add(btnOK, null);
         panel1.add(btnCancel, null);
-        
-        if(n != null){
-        	tree.scrollPathToVisible(tree.getPath(n)); // 2006-06-13, baojie
+
+        if (n != null)
+        {
+            tree.scrollPathToVisible(tree.getPath(n)); // 2006-06-13, baojie
         }
 
         this.pack();
     }
-
-    public boolean isOK = false;
-    public Object selectedValue;
 
     public void onCancel(ActionEvent e)
     {
@@ -114,8 +109,8 @@ public class AVHDialog
         TreePath path = myAVH.getTreeAVH().getSelectionPath();
         if (path != null)
         {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.
-                getLastPathComponent();
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+                    .getLastPathComponent();
             selectedValue = node.getUserObject();
         }
         dispose();
@@ -131,8 +126,8 @@ public class AVHDialog
 
         //Debug.trace(avh.getTreeAVH().toString());
 
-        AVHDialog dlg = new AVHDialog(
-            avh, "http://semanticWWW.com/indus.owl#Iowa", null);
+        AVHDialog dlg = new AVHDialog(avh,
+                "http://semanticWWW.com/indus.owl#Iowa", null);
         dlg.setSize(800, 600);
         dlg.show();
 

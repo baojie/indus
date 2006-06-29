@@ -1,9 +1,9 @@
 package edu.iastate.anthill.indus.panel.query;
 
-import java.util.Enumeration;
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.util.Enumeration;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -15,18 +15,16 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import Zql.ZExpression;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.view.View;
-import edu.iastate.anthill.indus.query.SQLQueryBuilder;
+import edu.iastate.anthill.indus.query.SQLQueryOptimizer;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
-
 import edu.iastate.utils.gui.GUIUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
-
-import Zql.ZExpression;
 
 /**
  * @since 2005-03-24
@@ -279,13 +277,13 @@ public class WhereTreePane
                     ZExpression subExp = toZExpression(n);
                     if (subExp != null)
                     {
-                        subExp = (ZExpression) SQLQueryBuilder.removeOrphanAndOr(
+                        subExp = (ZExpression) SQLQueryOptimizer.removeOrphanAndOr(
                             subExp);
                         exp.addOperand(subExp);
                     }
                 }
             }
-            exp = (ZExpression) SQLQueryBuilder.removeOrphanAndOr(exp);
+            exp = (ZExpression) SQLQueryOptimizer.removeOrphanAndOr(exp);
             return exp;
         }
         else if (node.getType() == EXPRESSION)

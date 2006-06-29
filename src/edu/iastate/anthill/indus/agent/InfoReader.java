@@ -39,12 +39,13 @@ public class InfoReader implements IndusCommand
         w.start();
 
         String xml = IndusHttpClient.getDetails(command, name);
-        System.out.println(" " +xml.length() + " bytes");
         w.stop();
         System.out.print("   ,  read XML: " + w.print());
 
         if (xml != null)
         {
+            System.out.println(" " +xml.length() + " bytes");
+            
             w.start();
             newObj.fromXML(xml);
             //Debug.trace(newObj.toXML());
