@@ -128,7 +128,6 @@ public class Scop2Tree
 
     public static void main(String[] args)
     {
-
         IndusDB conn = new IndusDB();                
         conn.connect(IndusConstants.dbURL);
 

@@ -71,44 +71,58 @@ public class SQLQueryPlanner
         //Vector allResult = new Vector();
         for (Iterator it = datasourceMapping.keySet().iterator(); it.hasNext();)
         {
-            String datasourceName = (String) it.next();
-            String mapping = (String) datasourceMapping.get(datasourceName);
-
-            IndusDataSource dataSource = InfoReader.readDataSource(systemDB,
-                    datasourceName);
-            //System.out.println("[dataSource] " + dataSource);
-            DataSourceMapping dsMapping = InfoReader.readMapping(mapping);
-            //System.out.println("[dsMapping] " + dsMapping);
-
-            String schemaName = dataSource.getSchemaName();
-            Schema remoteSchema = InfoReader.readSchema(schemaName);
-            //System.out.println("[remoteSchema] " + remoteSchema);
-
-            Map remoteAttributeToAVH = InfoReader
-                    .findAttributeToAVHMapping(remoteSchema);
-            //System.out.println("[remoteAttributeToAVH] " + remoteAttributeToAVH);
-
-            StopWatch w = new StopWatch();
-            w.start();
-            ResultSet r = doSingleQuery(localQuery, dsMapping,
-                    localAttributeToAVH, remoteAttributeToAVH, dataSource,
-                    localSchema, remoteSchema, inLocalTerm);
-            w.stop();
-            System.out.println("Translation time used for " + datasourceName
-                    + " : " + w.print());
-
-            if (r != null)
+            try
             {
+                String datasourceName = (String) it.next();
+                String mapping = (String) datasourceMapping.get(datasourceName);
+
+                IndusDataSource dataSource = InfoReader.readDataSource(
+                        systemDB, datasourceName);
+                //System.out.println("[dataSource] " + dataSource);
+                DataSourceMapping dsMapping = InfoReader.readMapping(mapping);
+                //System.out.println("[dsMapping] " + dsMapping);
+
+                String schemaName = dataSource.getSchemaName();
+                Schema remoteSchema = InfoReader.readSchema(schemaName);
+                //System.out.println("[remoteSchema] " + remoteSchema);
+
+                Map remoteAttributeToAVH = InfoReader
+                        .findAttributeToAVHMapping(remoteSchema);
+                //System.out.println("[remoteAttributeToAVH] " + remoteAttributeToAVH);
+
+                dataSource.connect();
+                SQLQueryOptimizer opt = new SQLQueryOptimizer(dataSource.db);
+
+                StopWatch w = new StopWatch();
                 w.start();
-                appendResult(view.getName(), select, r, datasourceName);
+                ResultSet r = doSingleQuery(localQuery, dsMapping,
+                        localAttributeToAVH, remoteAttributeToAVH, dataSource,
+                        localSchema, remoteSchema, inLocalTerm, opt);
                 w.stop();
-                System.out.println("Retrieval time used for " + datasourceName
-                        + " : " + w.print());
+                System.out.println("Translation time used for "
+                        + datasourceName + " : " + w.print());
+
+                if (r != null)
+                {
+                    w.start();
+                    appendResult(view.getName(), select, r, datasourceName);
+                    w.stop();
+                    System.out.println("Retrieval time used for "
+                            + datasourceName + " : " + w.print());
+                }
+                else
+                {
+                    Debug.trace("Data Source " + datasourceName
+                            + " returns no records.");
+                }
+                opt.close();
+
+                dataSource.disconnect();
             }
-            else
+            catch (Exception e)
             {
-                Debug.trace("Data Source " + datasourceName
-                        + " returns no records.");
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
         //return allResult;
@@ -189,13 +203,13 @@ public class SQLQueryPlanner
     public ResultSet doSingleQuery(ZQuery localQuery,
             DataSourceMapping dsMapping, Map localAttributeToAVH,
             Map remoteAttributeToAVH, IndusDataSource dataSource,
-            Schema localSchema, Schema remoteSchema, boolean inLocalTerm)
+            Schema localSchema, Schema remoteSchema, boolean inLocalTerm,
+            SQLQueryOptimizer opt)
     {
         SQLQueryTranslator translator = new SQLQueryTranslator();
         ZQuery query = translator.doTranslate(localQuery, dataSource.getName(),
                 dsMapping, localAttributeToAVH, remoteAttributeToAVH,
                 localSchema, remoteSchema, inLocalTerm);
-        SQLQueryOptimizer opt = new SQLQueryOptimizer(IndusBasis.indusSystemDB.db);
 
         // {{ 2005-10-19 Jie Bao
         ZExp z = opt.optimize((ZExpression) query.getWhere());
@@ -205,25 +219,21 @@ public class SQLQueryPlanner
         //System.out.println(s);
 
         String strQuery = query.toString();
-        strQuery = SQLQueryOptimizer.removeDupBrackets(strQuery.toCharArray());
+        strQuery = opt.removeDupBrackets(strQuery.toCharArray());
         System.out.println("Native query : " + strQuery);
         // }} 2005-10-19        
 
         try
         {
-            dataSource.connect();
-
             ResultSet result = SQLQueryExecutor.executeNativeQuery(
                     dataSource.db, strQuery);
-            dataSource.disconnect();
-            opt.close();
             return result;
         }
         catch (Exception ex)
         {
             return null;
         }
-        
+
     }
 
     public static void main(String[] args)
