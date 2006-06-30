@@ -1,16 +1,20 @@
 package edu.iastate.anthill.indus.gui.panel;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+
+import Zql.ZFromItem;
+import Zql.ZQuery;
 
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
@@ -22,16 +26,12 @@ import edu.iastate.anthill.indus.datasource.view.View;
 import edu.iastate.anthill.indus.gui.IndusGUI;
 import edu.iastate.anthill.indus.gui.query.ISQLBuilder;
 import edu.iastate.anthill.indus.gui.query.SQLBuilderPane;
-import edu.iastate.anthill.indus.query.ZqlUtils;
 import edu.iastate.anthill.indus.query.SQLQueryPlanner;
-
+import edu.iastate.anthill.indus.query.ZqlUtils;
 import edu.iastate.utils.gui.GUIUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
-import edu.iastate.utils.lang.StopWatch;
-
-import Zql.ZFromItem;
-import Zql.ZQuery;
+import edu.iastate.utils.lang.Serialization;
 
 /**
  * @author Jie Bao
@@ -40,7 +40,13 @@ import Zql.ZQuery;
 public class QueryPanel extends QueryPanelGUI implements MessageHandler,
         ISQLBuilder
 {
+    static int dsOriginColIndex = -1;
+
     BorderLayout borderLayout1 = new BorderLayout();
+
+    JFrame frame = new JFrame("Query Builder");
+
+    ZQuery myZQuery;
 
     public QueryPanel(IndusGUI parent)
     {
@@ -54,6 +60,26 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
         {
             exception.printStackTrace();
         }
+    }
+
+    public void cancel()
+    {
+        frame.setVisible(false);
+        frame.dispose();
+    }
+
+    public void created(boolean init)
+    {}
+
+    public void finish(Object returnValue)
+    {
+        frame.setVisible(false);
+        frame.dispose();
+        //System.out.println(sql);
+        //Debug.trace(sql);
+        myZQuery = (ZQuery) returnValue;
+        sqlInputArea.setSqlInput(myZQuery.toString() + ";");
+        btnTranslate.setEnabled(false);
     }
 
     /**
@@ -72,10 +98,149 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
             MessageMap.mapAction(btnRun, this, "onRun");
             MessageMap.mapAction(btnCreateSQL, this, "onCreateSQL");
             MessageMap.mapAction(this.btnTranslate, this, "onTranslate");
+            
+            // 2006-06-30
+            MessageMap.mapAction(btnLoad, this, "onLoad");
+            MessageMap.mapAction(btnSave, this, "onSave");
+            
         }
         catch (Exception ex)
         {
             ex.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param e ActionEvent
+     * @since 2005-03-23
+     */
+    public void onCreateSQL(ActionEvent e)
+    {
+        try
+        {
+            final SQLBuilderPane sqlBuilder = new SQLBuilderPane(this,
+                    parent.indusCacheDB.db);
+            frame = new JFrame("Query Builder");
+            frame.getContentPane().add(sqlBuilder);
+            frame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent evt)
+                {
+                    sqlBuilder.cancel();
+                }
+            });
+            frame.setSize(600, 400);
+            GUIUtils.centerWithinScreen(frame);
+            frame.setVisible(true);
+        }
+        catch (Exception sqle)
+        {
+            sqle.printStackTrace();
+        }
+    }
+
+    // 2006-06-30 Jie Bao
+    public void onLoad(ActionEvent e)
+    {
+//      save as 
+        final String title = "Load query";
+        final String extension = "zql";
+        final String description = "INDUS query";
+
+        String fileName = getFileName(title, extension, description, false);
+        // get the ontology from the database
+        if (fileName != null)
+        {
+            try
+            {
+                myZQuery = (ZQuery) Serialization.loadFromFile(fileName);
+                sqlInputArea.setSqlInput(myZQuery.toString() + ";");
+            }
+            catch (Exception e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    public void onRun(ActionEvent e)
+    {
+        if (myZQuery != null)
+        {
+            // get the view name [from clause in ZQuery]
+            // the query must be from only one table
+            ZFromItem from = (ZFromItem) myZQuery.getFrom().elementAt(0);
+            String viewName = from.getTable();
+
+            // ask if the user want the result in local terms
+            int answer = JOptionPane.showConfirmDialog(this,
+                    "Do you want the result shown in local terms?");
+            boolean inLocalTerm = false;
+            if (answer == JOptionPane.YES_OPTION)
+            {
+                inLocalTerm = true;
+                ;
+            }
+
+            // run it
+            SQLQueryPlanner planner = new SQLQueryPlanner(
+                    parent.indusCacheDB.db, parent.indusSystemDB.db);
+
+            planner.doQuery(myZQuery, viewName, inLocalTerm);
+
+            // show it on the GUI
+            String select[] = ZqlUtils.selectList(myZQuery);
+            String col = "";
+            for (int i = 0; i < select.length; i++)
+            {
+                col += select[i] + ",";
+            }
+            col += View.FROM_DATA_SOURCE;
+
+            String strSQL = "SELECT " + col + " FROM " + viewName;
+            dbPanel.setSQL(strSQL);
+
+            // find the column index for FROM_DATA_SOURCE
+            JTable table = this.dbPanel.getTable();
+            int cols = table.getColumnCount();
+            for (int i = 0; i < cols; i++)
+            {
+                if (table.getColumnName(i).equals(View.FROM_DATA_SOURCE))
+                {
+                    dsOriginColIndex = i;
+                    break;
+                }
+            }
+
+            btnTranslate.setEnabled(true);
+        }
+    }
+
+    // 2006-06-30 Jie Bao
+    public void onSave(ActionEvent e)
+    {
+        if (myZQuery != null)
+        {
+//          save as 
+            final String title = "Save query";
+            final String extension = "zql";
+            final String description = "INDUS Query";
+
+            String fileName = getFileName(title, extension, description, true);
+            
+            if (fileName != null)
+            {
+                try
+                {
+                    Serialization.saveToFile(myZQuery, fileName) ;
+                }
+                catch (IOException e1)
+                {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
         }
     }
 
@@ -170,7 +335,7 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
             // the mapping
         }
     }
-
+    
     /**
      * translateAVHColumn
      */
@@ -200,7 +365,7 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
         }
 
     }
-
+    
     /**
      * translateNumberColumn
      */
@@ -257,113 +422,6 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
         }
 
     }
-
-    /**
-     *
-     * @param e ActionEvent
-     * @since 2005-03-23
-     */
-    public void onCreateSQL(ActionEvent e)
-    {
-        try
-        {
-            final SQLBuilderPane sqlBuilder = new SQLBuilderPane(this,
-                    parent.indusCacheDB.db);
-            frame = new JFrame("Query Builder");
-            frame.getContentPane().add(sqlBuilder);
-            frame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent evt)
-                {
-                    sqlBuilder.cancel();
-                }
-            });
-            frame.setSize(600, 400);
-            GUIUtils.centerWithinScreen(frame);
-            frame.setVisible(true);
-        }
-        catch (Exception sqle)
-        {
-            sqle.printStackTrace();
-        }
-    }
-
-    JFrame frame = new JFrame("Query Builder");
-
-    public void onRun(ActionEvent e)
-    {
-        if (myZQuery != null)
-        {
-            // get the view name [from clause in ZQuery]
-            // the query must be from only one table
-            ZFromItem from = (ZFromItem) myZQuery.getFrom().elementAt(0);
-            String viewName = from.getTable();
-
-            // ask if the user want the result in local terms
-            int answer = JOptionPane.showConfirmDialog(this,
-                    "Do you want the result shown in local terms?");
-            boolean inLocalTerm = false;
-            if (answer == JOptionPane.YES_OPTION)
-            {
-                inLocalTerm = true;
-                ;
-            }
-
-            // run it
-            SQLQueryPlanner planner = new SQLQueryPlanner(
-                    parent.indusCacheDB.db, parent.indusSystemDB.db);
-
-            planner.doQuery(myZQuery, viewName, inLocalTerm);
-
-            // show it on the GUI
-            String select[] = ZqlUtils.selectList(myZQuery);
-            String col = "";
-            for (int i = 0; i < select.length; i++)
-            {
-                col += select[i] + ",";
-            }
-            col += View.FROM_DATA_SOURCE;
-
-            String strSQL = "SELECT " + col + " FROM " + viewName;
-            dbPanel.setSQL(strSQL);
-
-            // find the column index for FROM_DATA_SOURCE
-            JTable table = this.dbPanel.getTable();
-            int cols = table.getColumnCount();
-            for (int i = 0; i < cols; i++)
-            {
-                if (table.getColumnName(i).equals(View.FROM_DATA_SOURCE))
-                {
-                    dsOriginColIndex = i;
-                    break;
-                }
-            }
-
-            btnTranslate.setEnabled(true);
-        }
-    }
-
-    static int dsOriginColIndex = -1;
-
-    public void created(boolean init)
-    {}
-
-    public void cancel()
-    {
-        frame.setVisible(false);
-        frame.dispose();
-    }
-
-    public void finish(Object returnValue)
-    {
-        frame.setVisible(false);
-        frame.dispose();
-        //System.out.println(sql);
-        //Debug.trace(sql);
-        myZQuery = (ZQuery) returnValue;
-        sqlInputArea.setSqlInput(myZQuery.toString() + ";");
-        btnTranslate.setEnabled(false);
-    }
-
-    ZQuery myZQuery;
+    
 
 }

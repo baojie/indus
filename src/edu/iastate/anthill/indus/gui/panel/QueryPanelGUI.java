@@ -19,6 +19,8 @@ public class QueryPanelGUI
     extends IndusPane
 {
     JButton btnRun = new JButton("Run");
+    JButton btnLoad = new JButton("Load");
+    JButton btnSave = new JButton("Save");
 
     JSplitPane jSplitPane1;
     DBPanel dbPanel = new DBPanel(
@@ -65,6 +67,8 @@ public class QueryPanelGUI
 
         // 1.2 left-bottom
         sqlInputArea.buttonPanel.add(btnRun, null);
+        sqlInputArea.buttonPanel.add(btnLoad, null);
+        sqlInputArea.buttonPanel.add(btnSave, null);
         sqlInputArea.sqlInput.setEditable(true);
         sqlInputArea.jButtonCopy.setVisible(false);
         sqlInputArea.jButtonPaste.setVisible(false);

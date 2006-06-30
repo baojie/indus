@@ -13,6 +13,7 @@ import Zql.ZExpression;
 import Zql.ZFromItem;
 import Zql.ZQuery;
 import Zql.ZSelectItem;
+
 import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.utils.sql.JDBCUtils;
 
@@ -33,6 +34,7 @@ public class SQLQueryOptimizer
         // create the temp tbale
         String sql = "CREATE TABLE " + tempTable + " (id text, mark integer);";
         writeable = JDBCUtils.updateDatabase(db, sql);
+        //Debug.trace(writeable);
     }
 
     public void close()

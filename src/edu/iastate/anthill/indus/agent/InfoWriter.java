@@ -131,7 +131,7 @@ public class InfoWriter implements IndusCommand
         IndusHttpClient client = new IndusHttpClient();
         String res = client
                 .sendCmd(command + ";name=" + name + ";value=" + xml);
-        return res.equals(RES_OK);
+        return RES_OK.equals(res);
     }
 
     /**
