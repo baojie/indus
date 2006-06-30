@@ -122,7 +122,7 @@ public class SQLQueryRewriter
         }
         else
         {
-            ZExp valueSet = SQLQueryBuilder.buildValueSet(values,
+            ZExp valueSet = ZqlUtils.buildValueSet(values,
                     ZConstantEx.AVH);
             ZConstantEx field = new ZConstantEx(attribute,
                     ZConstantEx.COLUMNNAME);
@@ -194,7 +194,7 @@ public class SQLQueryRewriter
         {
             ZConstantEx v = (ZConstantEx) it.next();
             //System.out.println( v + " is AVH " + (v.getType()==ZConstantEx.AVH));
-            ZExpression ze = SQLQueryBuilder.buildAttributeValuePair(field
+            ZExpression ze = ZqlUtils.buildAttributeValuePair(field
                     .getValue(), newAtomOp, v.getValue(), v.getType());
             newClause.addOperand(ze);
         }
@@ -232,14 +232,14 @@ public class SQLQueryRewriter
      * @author Jie Bao
      * @since 2005-03-20
      */
-    protected boolean isAtomAVHExpression(ZExpression where, Map attributeToAVH)
+    public boolean isAtomAVHExpression(ZExpression where, Map attributeToAVH)
     {
         // condition 1,5
         //System.out.println("getOperands().size(): " + where.getOperands().size());
         if (where.getOperands() == null) { return false; }
 
         if (where.getOperands().size() != 2
-                || !SQLQueryBuilder.isAvhOp(where.getOperator())) { return false; }
+                || !ZqlUtils.isAvhOp(where.getOperator())) { return false; }
 
         // condition 2,3 part 1
         ZExp oprand1 = where.getOperand(0);

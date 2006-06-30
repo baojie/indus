@@ -7,12 +7,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import edu.iastate.utils.gui.GUIUtils;
+import edu.iastate.utils.tray.AdvancedTrayIcon;
+import edu.iastate.utils.tray.NativeIcon;
+import edu.iastate.utils.tray.TrayEventAdapter;
+import edu.iastate.utils.tray.TrayIconManager;
+import edu.iastate.utils.tray.Win32Toolkit;
 
-import other.rath.tools.Win32Toolkit;
-import other.rath.tools.tray.AdvancedTrayIcon;
-import other.rath.tools.tray.NativeIcon;
-import other.rath.tools.tray.TrayEventAdapter;
-import other.rath.tools.tray.TrayIconManager;
 
 // need rath_awt.dll
 // 2005-03-17 Jie Bao

@@ -42,7 +42,7 @@ public class SQLQueryPlanner
     // result is Vector of Vector of String [2-dimensional table]
     public void doQuery(ZQuery localQuery, String viewName, boolean inLocalTerm)
     {
-        String s[] = SQLQueryBuilder.selectList(localQuery);
+        String s[] = ZqlUtils.selectList(localQuery);
         String select[] = new String[s.length + 1]; // one more column to store data origin
         for (int i = 0; i < s.length; i++)
         {
@@ -201,7 +201,7 @@ public class SQLQueryPlanner
         ZExp z = opt.optimize((ZExpression) query.getWhere());
         query.addWhere(z);// replace the old WHERE
 
-        //String s = SQLQueryBuilder.printZExpression((ZExpression) query.getWhere());
+        //String s = ZqlUtils.printZExpression((ZExpression) query.getWhere());
         //System.out.println(s);
 
         String strQuery = query.toString();

@@ -14,6 +14,7 @@ import edu.iastate.anthill.indus.datasource.mapping.SchemaMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.AVH;
+import edu.iastate.anthill.indus.query.test.SQLQueryTranslatorTest;
 import edu.iastate.anthill.indus.tree.TypedTree;
 
 import Zql.ZExp;
@@ -302,7 +303,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
             }
         }
 
-        return SQLQueryOptimizer.removeOrphanAndOr(newExp);//SQLQueryBuilder.optimize(newExp);
+        return SQLQueryOptimizer.removeOrphanAndOr(newExp);//ZqlUtils.optimize(newExp);
     }
 
     /**
@@ -366,7 +367,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
         if (operand2Type.getType() == ZConstantEx.STRING)
         {
             // If it is a string, simply do nothing.
-            return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
+            return ZqlUtils.buildAttributeValuePair(remoteAttributeName,
                     operator, localValue, ZConstantEx.STRING);
         }
         else if (operand2Type.getType() == ZConstantEx.NUMBER)
@@ -380,7 +381,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
                 newValue = ((NumericConnector) r.connector).eval(localValue);
             }
 
-            return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
+            return ZqlUtils.buildAttributeValuePair(remoteAttributeName,
                     operator, newValue, ZConstantEx.NUMBER);
         }
         else if (operand2Type.getType() == ZConstantEx.COLUMNNAME)
@@ -390,7 +391,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
             r = s_mapping.findEqual(localValue);
             String remoteOperandName2 = r.toTerm;
 
-            return SQLQueryBuilder.buildAttributeValuePair(remoteAttributeName,
+            return ZqlUtils.buildAttributeValuePair(remoteAttributeName,
                     operator, remoteOperandName2, ZConstantEx.COLUMNNAME);
         }
         else if (operand2Type.getType() == ZConstantEx.AVH) // This is for
@@ -447,7 +448,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
         {
             // System.out.println(" Find EQU rule " + rule);
             String remoteValueName = rule.toTerm;
-            ZExpression translated = SQLQueryBuilder.buildAttributeValuePair(
+            ZExpression translated = ZqlUtils.buildAttributeValuePair(
                     remoteColName, localOperator, remoteValueName,
                     ZConstantEx.AVH);
             // System.out.println("translated = " + translated);
@@ -468,7 +469,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
                 if (localOperator.equals("<=") || localOperator.equals("<"))
                 {
                     String remoteValueName = aRule.toTerm;
-                    ZExpression clause = SQLQueryBuilder
+                    ZExpression clause = ZqlUtils
                             .buildAttributeValuePair(remoteColName,
                                     localOperator, remoteValueName,
                                     ZConstantEx.AVH);
@@ -480,7 +481,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
                 if (localOperator.equals(">=") || localOperator.equals(">"))
                 {
                     String remoteValueName = aRule.toTerm;
-                    ZExpression clause = SQLQueryBuilder
+                    ZExpression clause = ZqlUtils
                             .buildAttributeValuePair(remoteColName,
                                     localOperator, remoteValueName,
                                     ZConstantEx.AVH);
@@ -493,7 +494,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
                         || localOperator.equals("<="))
                 {
                     String remoteValueName = aRule.toTerm;
-                    ZExpression clause = SQLQueryBuilder
+                    ZExpression clause = ZqlUtils
                             .buildAttributeValuePair(remoteColName, "!=",
                                     remoteValueName, ZConstantEx.AVH);
                     modifiedWhere.addOperand(clause);
@@ -545,7 +546,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
         {
             // System.out.println("Find a rule " + aRule);
             String remoteValueName = aRule.toTerm;
-            ZExpression clause = SQLQueryBuilder.buildAttributeValuePair(
+            ZExpression clause = ZqlUtils.buildAttributeValuePair(
                     remoteColName, localOperator, remoteValueName,
                     ZConstantEx.AVH);
 
@@ -602,7 +603,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
     {
         // condition 1, 4
         if (where.getOperands().size() != 2
-                || !SQLQueryBuilder.isAvhOp(where.getOperator())) { return false; }
+                || !ZqlUtils.isAvhOp(where.getOperator())) { return false; }
 
         // condition 2,3 part 1
         ZExp oprand1 = where.getOperand(0);
@@ -680,7 +681,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
         q = rewriteWithAVH(q, remoteAttributeToAVH, false, true);
         System.out.println("Final: " + q);
 
-        //SQLQueryBuilder.optimize((ZExpression)q.getWhere());
+        //ZqlUtils.optimize((ZExpression)q.getWhere());
 
         return q;
     }
@@ -712,7 +713,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
             AVH avhTree = (AVH) attributeToAVH.get(attribute);
             TypedTree ontology = avhTree.getTreeAVH();
             String rootConcept = ontology.getTop().getUserObject().toString();
-            ZExpression limitation = SQLQueryBuilder.buildAttributeValuePair(
+            ZExpression limitation = ZqlUtils.buildAttributeValuePair(
                     attribute, "<=", rootConcept, ZConstantEx.AVH);
             ze.addOperand(limitation);
         }

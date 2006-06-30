@@ -15,7 +15,7 @@ import edu.iastate.anthill.indus.datasource.mapping.SchemaMapping;
 import edu.iastate.anthill.indus.datasource.mapping.SimpleConnector;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.AVH;
-import edu.iastate.anthill.indus.query.SQLQueryBuilder;
+import edu.iastate.anthill.indus.query.ZqlUtils;
 import edu.iastate.anthill.indus.query.SQLQueryTranslator;
 import edu.iastate.anthill.indus.query.ZConstantEx;
 import edu.iastate.anthill.indus.tree.TypedNode;
@@ -70,7 +70,7 @@ public class SampleBuilder
 
         SQLQueryTranslator qe = new SQLQueryTranslator();
 
-        String[] ops = SQLQueryBuilder.AVH_OP;
+        String[] ops = ZqlUtils.AVH_OP;
 
         System.out.println("Test node with parent and children");
         String value = "Iowa";
@@ -262,13 +262,13 @@ public class SampleBuilder
     public static ZQuery buildSampleLocalQuery()
     {
         ZExpression[] test = new ZExpression[4];
-        test[0] = SQLQueryBuilder.buildAttributeValuePair("produced_at", "=",
+        test[0] = ZqlUtils.buildAttributeValuePair("produced_at", "=",
                 "produced_at", ZConstantEx.COLUMNNAME);
-        test[1] = SQLQueryBuilder.buildAttributeValuePair("temp", ">=", "50",
+        test[1] = ZqlUtils.buildAttributeValuePair("temp", ">=", "50",
                 ZConstantEx.NUMBER);
-        test[2] = SQLQueryBuilder.buildAttributeValuePair("item", "=", "iPod",
+        test[2] = ZqlUtils.buildAttributeValuePair("item", "=", "iPod",
                 ZConstantEx.STRING);
-        test[3] = SQLQueryBuilder.buildAttributeValuePair("produced_at", ">",
+        test[3] = ZqlUtils.buildAttributeValuePair("produced_at", ">",
                 "Iowa", ZConstantEx.AVH);
         ZExpression t1 = new ZExpression("AND", test[0], test[1]);
         ZExpression t2 = new ZExpression("AND", test[2], test[3]);

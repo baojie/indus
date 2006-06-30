@@ -32,7 +32,7 @@ public class AVH extends DAG implements Configable {
     private static final long serialVersionUID = -205004159734123062L;
 
     TypedTree treeAVT = null;
-    String nameOfOrder = null;
+    String nameOfOrder = null; // e.g. is-a, part-of
     public String template = null; // 2005-03-30
 
     public AVH() {

@@ -97,15 +97,15 @@ End of test
 	          OntologyMapping - as super class of the above two
 	          
 	In memory search : (worst) time used 
- 	     size of mapping v.s.  tiem (seconds)
+ 	     size of mapping v.s.  time (seconds)
 	            1				0
 	            10				0
 				100				0
 				1000			0
 				10000			0.015
 				100000			0.047
-				1000000			0.078
-				10000000		0.203  
+				1,000,000		0.078
+				10,000,000		0.203  
 
     Improved EC iterator: the whole EC database  (4546 ontology terms, 4931 database items)
         ECIterator

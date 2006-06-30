@@ -18,9 +18,9 @@ import edu.iastate.utils.sql.JDBCUtils;
  */
 public class SQLQueryOptimizer
 {
-    String tempTable = "opt" + IndusBasis.getTimeStamp();
-    Connection db; 
-    
+    String     tempTable = "opt" + IndusBasis.getTimeStamp();
+    Connection db;
+
     // 2006-06-29 Jie Bao
     public SQLQueryOptimizer(Connection db)
     {
@@ -29,18 +29,18 @@ public class SQLQueryOptimizer
         String sql = "CREATE TABLE " + tempTable + " (id text, mark integer);";
         JDBCUtils.updateDatabase(db, sql);
     }
-    
+
     public void close()
     {
         String sql = "DROP TABLE " + tempTable;
         JDBCUtils.updateDatabase(db, sql);
     }
-    
+
     public ZExp optimize(ZExpression exp)
     {
-        //String s = SQLQueryBuilder.printZExpression(exp);
+        //String s = ZqlUtils.printZExpression(exp);
         //System.out.println(s);
-        
+
         rewriteLargeIN(exp);
 
         while (removeNullClause(exp))
@@ -55,14 +55,14 @@ public class SQLQueryOptimizer
             else exp = (ZExpression) zz;
         }
 
-        //s = SQLQueryBuilder.printZExpression(exp);
+        //s = ZqlUtils.printZExpression(exp);
         //System.out.println(s);
 
         return exp;
 
         // other oprimizations...
     }
-    
+
     /**
      * @param z
      * @return
@@ -70,12 +70,26 @@ public class SQLQueryOptimizer
      * @author baojie
      * @since 2006-06-28
      */
-    private void rewriteLargeIN(ZExp z)
+    private void rewriteLargeIN(ZExpression exp)
     {
+        Vector<ZExp> opr = exp.getOperands();
+        for (Iterator it = opr.iterator(); it.hasNext();)
+        {
+            ZExp e = (ZExp) it.next();
+            if (e instanceof ZExpression)
+            {
+                // check it is a long list
+                ZExpression ee= (ZExpression) e;
+                
+                String op = ee.getOperator();
+                
+                rewriteLargeIN(exp);
+            }
+            
+        }
+
         return;
     }
-    
-
 
     // Jie Bao 2006-06-18
     public static boolean hasOperand(ZExpression e)
@@ -157,6 +171,9 @@ public class SQLQueryOptimizer
      * optimzeQuery
      * 
      * remove duplicated brackets, like ((a >1 )) will be (a>1)
+     *         ((((a=2)) OR (b=2)))
+     *   -->    ( (a=2)  OR (b=2)) 
+     * 
      * 
      * @param strQuery
      *            String
@@ -210,14 +227,6 @@ public class SQLQueryOptimizer
         }
 
         return new String(strQuery);
-    }
-    
-    public static void test1()
-    {
-        String str = "((((a=2)) OR (b=2)))";
-        System.out.println(str);
-        str = SQLQueryOptimizer.removeDupBrackets(str.toCharArray());
-        System.out.println(str);
     }
 
 }

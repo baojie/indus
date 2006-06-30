@@ -29,7 +29,7 @@ import edu.iastate.utils.string.SimpleXMLParser;
 public class IndusBasis
     extends JPanel
 {
-    IndusConfig config = new IndusConfig("indus.xml");
+    public IndusConfig config = new IndusConfig("indus.xml");
 
     Logging logger = new Logging(System.getProperty("user.dir") + "\\",
                                  "indus-log");
