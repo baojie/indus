@@ -16,9 +16,9 @@ public class IndusDB
     /**
      * 2005-02-17
      */
-    public void connect(String url)
+    public boolean connect(String url)
     {
-        super.connect(IndusConstants.dbDriver, url,
+        return super.connect(IndusConstants.dbDriver, url,
                       IndusConstants.dbUsr,
                       IndusConstants.dbPwd);
     }

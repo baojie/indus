@@ -124,9 +124,13 @@ public class InfoReader implements IndusCommand
         return all.toArray();
     }
 
-    public static String[] getAllSchema()
+    public static Object[] getAllSchema()
     {
-        return getList(CMD_GET_ALL_SCHEMA);
+        //return getList(CMD_GET_ALL_SCHEMA);
+        String sql = "    SELECT name From schemas ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);
+        return all.toArray();
     }
 
     /**
@@ -157,9 +161,13 @@ public class InfoReader implements IndusCommand
         return getList(CMD_GET_ALL_TYPE);
     }
 
-    public static String[] getAllView()
+    public static Object[] getAllView()
     {
-        return getList(CMD_GET_ALL_VIEW);
+        //return getList(CMD_GET_ALL_VIEW);
+        String sql = "    SELECT name From views ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);
+        return all.toArray();
     }
 
     /**
@@ -463,7 +471,45 @@ public class InfoReader implements IndusCommand
         return d;
     }
 
+
     private static Schema readSchemaNative(String name)
+    {
+        try
+        {
+            StopWatch w = new StopWatch();
+            w.start();
+            String sql = "    SELECT value FROM schemas WHERE name = '" + name
+                    + "'";
+            Connection db = IndusBasis.indusSystemDB.db;
+            String sourceText = JDBCUtils.getFirstValue(db, sql);
+
+            w.stop();
+            System.out.print(" ,  read source text: " + w.print());
+
+            w.start();
+
+            sourceText = Zip.decode(sourceText);
+            //System.out.println(sourceText);
+            Schema m = new Schema();
+            m.fromXML(sourceText);
+
+            w.stop();
+            System.out.println(",  parse source: " + w.print());
+
+            return m;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+    
+    /**
+     * @deprecated
+     * @param name
+     * @return
+     */
+    private static Schema readSchemaOld(String name)
     {
         Schema newObj = new Schema(name);
         read(CMD_GET_SCHEMA_DETAILS, name, newObj);
@@ -484,6 +530,43 @@ public class InfoReader implements IndusCommand
     }
 
     private static View readViewNative(String name)
+    {
+        try
+        {
+            StopWatch w = new StopWatch();
+            w.start();
+            String sql = "    SELECT value FROM views WHERE name = '" + name
+                    + "'";
+            Connection db = IndusBasis.indusSystemDB.db;
+            String sourceText = JDBCUtils.getFirstValue(db, sql);
+
+            w.stop();
+            System.out.print(" ,  read source text: " + w.print());
+
+            w.start();
+
+            sourceText = Zip.decode(sourceText);
+            //System.out.println(sourceText);
+            View m = new View();
+            m.fromXML(sourceText);
+
+            w.stop();
+            System.out.println(",  parse source: " + w.print());
+
+            return m;
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * @deprecated
+     * @param name
+     * @return
+     */
+    private static View readViewOld(String name)
     {
         View newObj = new View();
         read(CMD_GET_VIEW_DETAILS, name, newObj);

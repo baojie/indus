@@ -51,7 +51,7 @@ public class LocalDBConnection
         return false;
     }
 
-    public void connect(String driver, String dburl, String user, String passwd)
+    public boolean connect(String driver, String dburl, String user, String passwd)
     {
         this.url = dburl;
         this.driver = driver;
@@ -59,7 +59,7 @@ public class LocalDBConnection
         this.user = user;
         this.password = passwd;
 
-        this.connect();
+        return this.connect();
     }
 
     public Connection db;

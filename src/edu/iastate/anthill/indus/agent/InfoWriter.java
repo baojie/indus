@@ -23,13 +23,40 @@ public class InfoWriter implements IndusCommand
 {
     /**
      * Send schema to the server
+     * 
+     * @deprecated
      * @param schema Schema
      * @return boolean
      * @since 2005-03-27
      */
-    public static boolean writeSchema(Schema schema)
+    public static boolean writeSchemaOld(Schema schema)
     {
         return write(CMD_UPDATE_SCHEMA, schema.getName(), schema);
+    }
+
+    /**
+     * 
+     * @param schema
+     * @return
+     * 
+     * @author Jie Bao
+     * @since 2006-07-01
+     */
+    public static boolean writeSchema(Schema schema)
+    {
+        // save to database
+        String value = Zip.encode(schema.toText());
+        String name = schema.getName();
+        String space = "public";
+
+        Map<String, String> values = new HashMap<String, String>();
+
+        values.put("name", name);
+        values.put("value", value);
+        values.put("space", space);
+
+        Connection db = IndusBasis.indusSystemDB.db;
+        return JDBCUtils.insertOrUpdateDatabase(db, "schemas", values, "name");
     }
 
     public static boolean writeType(DataType type)
@@ -41,7 +68,7 @@ public class InfoWriter implements IndusCommand
         String name = type.getName();
         String space = "public";
 
-        Map<String,String> values = new HashMap<String,String>();
+        Map<String, String> values = new HashMap<String, String>();
 
         values.put("name", name);
         values.put("value", value);
@@ -65,7 +92,7 @@ public class InfoWriter implements IndusCommand
         // send to server
         IndusHttpClient client = new IndusHttpClient();
         String res = client.sendCmd(CMD_UPDATE_TYPE + ";name=" + type.getName()
-                + ";value=" + text);
+            + ";value=" + text);
         return res.equals(RES_OK);
     }
 
@@ -87,28 +114,57 @@ public class InfoWriter implements IndusCommand
         String value = Zip.encode(mapping.toText());
         String name = mapping.getName();
         String space = "public";
-        String format = "XML1.0";        
+        String format = "XML1.0";
 
-        Map<String,String> values = new HashMap<String,String>();
+        Map<String, String> values = new HashMap<String, String>();
 
         values.put("name", name);
         values.put("value", value);
         values.put("space", space);
-        values.put("ont1",mapping.schemaMapping.from);
-        values.put("ont2",mapping.schemaMapping.to);
+        values.put("ont1", mapping.schemaMapping.from);
+        values.put("ont2", mapping.schemaMapping.to);
         values.put("format", format);
-        
+
         Connection db = IndusBasis.indusSystemDB.db;
         return JDBCUtils.insertOrUpdateDatabase(db, "mappings", values, "name");
     }
 
-    public static boolean writeView(View view)
+    /**
+     * @deprecated
+     * @param view
+     * @return
+     */
+    public static boolean writeViewOld(View view)
     {
         return write(CMD_UPDATE_VIEW, view.getName(), view);
     }
 
+    /**
+     * 
+     * @param view
+     * @return
+     * @author Jie Bao
+     * @since 2006-07-01
+     */
+    public static boolean writeView(View view)
+    {
+        // save to database
+        String value = Zip.encode(view.toText());
+        String name = view.getName();
+        String space = "public";
+
+        Map<String, String> values = new HashMap<String, String>();
+
+        values.put("name", name);
+        values.put("value", value);
+        values.put("space", space);
+
+        Connection db = IndusBasis.indusSystemDB.db;
+        return JDBCUtils.insertOrUpdateDatabase(db, "views", values, "name");
+    }
+
     public static boolean writeDataSource(Connection systemDB,
-            IndusDataSource ds)
+        IndusDataSource ds)
     {
         return ds.toDB(systemDB);
     }
@@ -161,11 +217,19 @@ public class InfoWriter implements IndusCommand
         return JDBCUtils.updateDatabase(db, sql);
     }
 
-    public static boolean deleteSchema(String name)
+    public static boolean deleteSchemaOld(String name)
     {
         return delete(CMD_DELETE_SCHEMA, name);
     }
 
+    public static boolean deleteSchema(String name)
+    {
+        String sql = "DELETE FROM schemas WHERE name = '" + name + "'";
+        Connection db = IndusBasis.indusSystemDB.db;
+        return JDBCUtils.updateDatabase(db, sql);
+    }
+
+    
     public static boolean deleteMappingOld(String name)
     {
         return delete(CMD_DELETE_MAPPING, name);
@@ -179,9 +243,16 @@ public class InfoWriter implements IndusCommand
         return JDBCUtils.updateDatabase(db, sql);
     }
 
-    public static boolean deleteView(String name)
+    public static boolean deleteViewOld(String name)
     {
         return delete(CMD_DELETE_VIEW, name);
     }
 
+    public static boolean deleteView(String name)
+    {
+        String sql = "DELETE FROM views WHERE name = '" + name + "'";
+        Connection db = IndusBasis.indusSystemDB.db;
+        return JDBCUtils.updateDatabase(db, sql);
+    }
+    
 }

@@ -608,7 +608,7 @@ public class SQLQueryTranslator extends SQLQueryRewriter
     private ZExp translateLowerThan(ZExpression exp, String remoteColName,
             InMemoryOntologyMapping mapping)
     {
-        System.out.println("translateLowerThan");
+        //System.out.println("translateLowerThan");
 
         String localValueName = ((ZConstantEx) (exp.getOperand(1))).getValue(); // e.g. 'USA'
 

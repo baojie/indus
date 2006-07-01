@@ -54,7 +54,7 @@ public class DataRDBMSPanel
         myContentPane.addItem("Table Name", DBName);
         DBName.setEditable(false);
 
-        String data[] = InfoReader.getAllSchema();
+        Object data[] = InfoReader.getAllSchema();
         schemaList = new JComboBox(data);
         schemaList.insertItemAt(NULL_SCHEMA, 0);
         schemaList.setSelectedItem(NULL_SCHEMA);

@@ -12,6 +12,7 @@ import edu.iastate.anthill.indus.datasource.type.AVH;
 
 /**
  * TCP client
+ * @deprecated
  * @author Jie Bao
  * @since 1.0 - 2004-09-23
  */
@@ -128,5 +129,5 @@ public class IndusHttpClient implements IndusCommand
         }
         return true;
     }
-
+    
 }

@@ -121,7 +121,7 @@ public class ViewPanel extends ViewPanelGUI implements MessageHandler
         viewEditPane.add(new JLabel("My Local Schema: "));
         viewEditPane.add(cbLocalSchema);
 
-        String data[] = InfoReader.getAllSchema();
+        Object data[] = InfoReader.getAllSchema();
         // get the list of all registered type
         if (data != null)
         {
@@ -355,13 +355,14 @@ public class ViewPanel extends ViewPanelGUI implements MessageHandler
     {
         String oldSelected = (String) viewList.getSelectedItem();
 
-        String data[] = InfoReader.getAllView();
+        Object data[] = InfoReader.getAllView();
         // get the list of all registered view
         if (data != null)
         {
             GUIUtils.updateComboBox(viewList, data);
             //System.out.println(res);
-            enableButtons(data.length != 0 && data[0].length() > 0);
+            enableButtons(data.length != 0 && 
+                ((String)data[0]).length() > 0);
 
             if (defaultSelected != null)
             {
@@ -422,7 +423,7 @@ public class ViewPanel extends ViewPanelGUI implements MessageHandler
     {
         View newView = new View();
 
-        String used[] = InfoReader.getAllView();
+        Object used[] = InfoReader.getAllView();
         String name = askForName(used);
 
         if (name == null) { return; }

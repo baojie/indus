@@ -26,20 +26,22 @@ import edu.iastate.utils.log.Logging;
 
 /**
  *  Agent to communicate with data source editor, as TCP server
+ * 
+ *  @deprecated
  * @author Jie Bao
  * @since 1.0
  */
 
-public class IndusHttpServer
-    extends Thread implements IndusCommand
+public class IndusHttpServer extends Thread implements IndusCommand
 {
-    String m_rootPath;
-    String port = "" + IndusConstants.DSPORT;
+    String         m_rootPath;
+    String         port    = "" + IndusConstants.DSPORT;
     static boolean running = true;
 
     final static public int DATATYPE = 0, SCHEMA = 1, MAPPING = 2, VIEW = 3;
 
-    static final Console output = null;
+    static final Console    output   = null;
+
     static void showConsole()
     {
         try
@@ -48,8 +50,7 @@ public class IndusHttpServer
             output.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
         catch (IOException e)
-        {
-        }
+        {}
     }
 
     public IndusHttpServer(String m_rootPath, String port)
@@ -107,27 +108,23 @@ public class IndusHttpServer
         {
             String clientSentence;
 
-            ServerSocket welcomeSocket = new ServerSocket(Integer.parseInt(port));
+            ServerSocket welcomeSocket = new ServerSocket(Integer
+                    .parseInt(port));
 
             String icon = "images/db.gif";
-            String hint = "INDUS Server launched at port " + port +
-                "\nRoot path " + m_rootPath +
-                "\nDouble click to shut down";
+            String hint = "INDUS Server launched at port " + port
+                + "\nRoot path " + m_rootPath + "\nDouble click to shut down";
             String title = "INDUS Server launched";
-            String details = "Port " + port + "\nRoot path " +
-                m_rootPath;
+            String details = "Port " + port + "\nRoot path " + m_rootPath;
 
             MyTrayNotifier t = new MyTrayNotifier(icon, hint, title, details);
 
-            String logInfo =
-                "\n==============\n" +
-                new Date().toString() + " " +
-                "INDUS Server started at port " +
-                port + "\n";
+            String logInfo = "\n==============\n" + new Date().toString() + " "
+                + "INDUS Server started at port " + port + "\n";
             logger.saveLogbyDate(logInfo);
 
-            System.out.println("\nINDUS Server launched at " +
-                               new Date().toString());
+            System.out.println("\nINDUS Server launched at "
+                + new Date().toString());
             System.out.println("Basis path: " + m_rootPath);
             System.out.println("Port: " + port);
             System.out.println("Host: " + welcomeSocket.getInetAddress());
@@ -136,20 +133,16 @@ public class IndusHttpServer
             {
                 Socket connectionSocket = welcomeSocket.accept();
 
-                BufferedReader inFromClient =
-                    new BufferedReader(new InputStreamReader(
-                        connectionSocket.
-                        getInputStream()));
+                BufferedReader inFromClient = new BufferedReader(
+                    new InputStreamReader(connectionSocket.getInputStream()));
 
                 DataOutputStream outToClient = new DataOutputStream(
                     connectionSocket.getOutputStream());
 
                 clientSentence = inFromClient.readLine();
-                logger.saveLogbyDate(new Date().toString() +
-                                     " from client " +
-                                     connectionSocket.getInetAddress() + " : "
-                                     + clientSentence + "\n"
-                    );
+                logger.saveLogbyDate(new Date().toString() + " from client "
+                    + connectionSocket.getInetAddress() + " : "
+                    + clientSentence + "\n");
 
                 if (clientSentence.startsWith(CMD_HELLO))
                 {
@@ -225,27 +218,24 @@ public class IndusHttpServer
                 }
                 else
                 {
-                    outToClient.writeBytes(RES_UNKNOWN_CMD +
-                                           '\n');
+                    outToClient.writeBytes(RES_UNKNOWN_CMD + '\n');
                 }
                 if (!running)
                 {
                     break;
                 }
             }
-            logInfo = "INDUS Server closed: " +
-                new Date().toString() + "\n";
+            logInfo = "INDUS Server closed: " + new Date().toString() + "\n";
             logger.saveLogbyDate(logInfo);
         }
         catch (IOException ex)
         {
-            String feed = "INDUS Server Error: " +
-                new Date().toString() + " " + ex.getMessage() + "\n" +
-                "Root path = " + this.m_rootPath +
-                " , port = " + this.port + "\n";
+            String feed = "INDUS Server Error: " + new Date().toString() + " "
+                + ex.getMessage() + "\n" + "Root path = " + this.m_rootPath
+                + " , port = " + this.port + "\n";
             logger.saveLogbyDate(feed);
-            Debug.trace(feed + "\n You can edit the configuration file " +
-                        this.configFileName + " to change the rootpath or name");
+            Debug.trace(feed + "\n You can edit the configuration file "
+                + this.configFileName + " to change the rootpath or name");
         }
 
     }
@@ -258,7 +248,7 @@ public class IndusHttpServer
      * @since 2005-03-23
      */
     private void handleDelete(DataOutputStream outToClient,
-                              String clientSentence, int type)
+        String clientSentence, int type)
     {
         try
         {
@@ -281,8 +271,7 @@ public class IndusHttpServer
             outToClient.writeBytes(RES_GENERAL_ERROR + "\n");
         }
         catch (IOException ex)
-        {
-        }
+        {}
     }
 
     /**
@@ -293,7 +282,7 @@ public class IndusHttpServer
      * @since 2004-10-03
      */
     private void handleGetDetails(DataOutputStream outToClient,
-                                  String clientSentence, int type)
+        String clientSentence, int type)
     {
         try
         {
@@ -320,8 +309,7 @@ public class IndusHttpServer
             }
         }
         catch (IOException ex)
-        {
-        }
+        {}
     }
 
     /**
@@ -332,7 +320,7 @@ public class IndusHttpServer
      * @since 2004-10-03
      */
     private void handleUpdate(DataOutputStream outToClient,
-                              String clientSentence, int type)
+        String clientSentence, int type)
     {
         try
         {
@@ -347,8 +335,7 @@ public class IndusHttpServer
                 {
                     parts = data[2].split("=", 2);
                     String MappingText = parts[1];
-                    FileUtils.writeFile(filePath,
-                                        MappingText); // don't use any "\n"!!!
+                    FileUtils.writeFile(filePath, MappingText); // don't use any "\n"!!!
 
                 }
                 outToClient.writeBytes(RES_OK + "\n");
@@ -359,8 +346,7 @@ public class IndusHttpServer
             }
         }
         catch (IOException ex)
-        {
-        }
+        {}
 
     }
 
@@ -377,8 +363,7 @@ public class IndusHttpServer
             outToClient.writeBytes(RES_OK + "\n");
         }
         catch (IOException ex)
-        {
-        }
+        {}
     }
 
     /**
@@ -396,8 +381,7 @@ public class IndusHttpServer
 
             // It is also possible to filter the list of returned files.
             // This example does not return any files that start with `.'.
-            FilenameFilter filter = new FilenameFilter()
-            {
+            FilenameFilter filter = new FilenameFilter() {
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(".xml");
@@ -423,8 +407,7 @@ public class IndusHttpServer
             outToClient.writeBytes(res + "\n");
         }
         catch (IOException e)
-        {
-        }
+        {}
     }
 
     /**
@@ -434,7 +417,7 @@ public class IndusHttpServer
      * @param outToClient DataOutputStream
      */
     private void handleNewType(DataOutputStream outToClient,
-                               String clientSentence)
+        String clientSentence)
     {
         try
         {
@@ -449,10 +432,12 @@ public class IndusHttpServer
                     parts = data[2].split("=", 2);
                     String type = parts[1];
                     StringBuffer buf = new StringBuffer();
-                    buf.append(
-                        "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" +
-                        "<type>" +
-                        "<subTypeOf>" + type + "</subTypeOf>");
+                    buf
+                            .append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
+                                + "<type>"
+                                + "<subTypeOf>"
+                                + type
+                                + "</subTypeOf>");
                     if (type.equals("AVH"))
                     {
                         buf.append("<root>" + name + "_AVH" + "</root>");
@@ -470,8 +455,7 @@ public class IndusHttpServer
             }
         }
         catch (IOException ex)
-        {
-        }
+        {}
     }
 
     private void handleGetAllType(String path, DataOutputStream outToClient)
@@ -482,8 +466,7 @@ public class IndusHttpServer
 
             // It is also possible to filter the list of returned files.
             // This example does not return any files that start with `.'.
-            FilenameFilter filter = new FilenameFilter()
-            {
+            FilenameFilter filter = new FilenameFilter() {
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(".xml");
@@ -501,8 +484,7 @@ public class IndusHttpServer
             outToClient.writeBytes(res + "\n");
         }
         catch (IOException e)
-        {
-        }
+        {}
     }
 
     /**
@@ -523,12 +505,10 @@ public class IndusHttpServer
         }
     }
 
-    static class MyTrayNotifier
-        extends TrayNotifier
+    static class MyTrayNotifier extends TrayNotifier
     {
         public MyTrayNotifier(String imagePath, String iconText,
-                              String baloonTitle,
-                              String baloonText)
+                String baloonTitle, String baloonText)
         {
             super(imagePath, iconText, baloonTitle, baloonText);
         }
@@ -545,8 +525,7 @@ public class IndusHttpServer
         }
 
         public void onRightClick()
-        {
-        }
+        {}
     }
 
     static String configFileName = "indus-server.config.txt";
@@ -585,8 +564,7 @@ public class IndusHttpServer
             out.close();
         }
         catch (IOException e)
-        {
-        }
+        {}
 
     }
 
@@ -633,8 +611,8 @@ public class IndusHttpServer
         {
             if (args.length > 2)
             {
-                System.out.println(
-                    "USAGE: IndusHttpServer localDataFolder [port]");
+                System.out
+                        .println("USAGE: IndusHttpServer localDataFolder [port]");
                 return;
             }
 
@@ -652,24 +630,18 @@ public class IndusHttpServer
 
             else if (args.length == 0)
             {
-                rootPane = JOptionPane.showInputDialog(
-                    "Please give the root path");
-                if (rootPane == null)
-                {
-                    return;
-                }
-                port = JOptionPane.showInputDialog(
-                    "Please give the port", port);
-                if (port == null)
-                {
-                    return;
-                }
+                rootPane = JOptionPane
+                        .showInputDialog("Please give the root path");
+                if (rootPane == null) { return; }
+                port = JOptionPane
+                        .showInputDialog("Please give the port", port);
+                if (port == null) { return; }
             }
 
             if (!IndusHttpServer.pathValid(rootPane))
             {
-                System.out.println(rootPane +
-                                   " is not a valid path, please try again");
+                System.out.println(rootPane
+                    + " is not a valid path, please try again");
                 return;
             }
 

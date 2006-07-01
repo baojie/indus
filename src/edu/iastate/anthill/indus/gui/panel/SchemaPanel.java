@@ -96,7 +96,7 @@ public class SchemaPanel extends SchemaPanelGUI implements MessageHandler
         String oldSelected = (String) schemaList.getSelectedItem();
 
         // get the list of all registered type
-        String data[] = InfoReader.getAllSchema();
+        Object data[] = InfoReader.getAllSchema();
 
         if (data != null)
         {
@@ -335,7 +335,7 @@ public class SchemaPanel extends SchemaPanelGUI implements MessageHandler
 
     public void onNew(ActionEvent e)
     {
-        String used[] = InfoReader.getAllSchema();
+        Object used[] = InfoReader.getAllSchema();
         String name = askForName(used);
 
         if (name == null) { return; }

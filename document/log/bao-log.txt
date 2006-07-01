@@ -192,5 +192,10 @@ End of test
          
     IndusGUIAction: onFileExit
     
+    Switch all storage to database, INDUS (TCP) server is no use any more
+       * for schema and view
+    
+    
+    
              
     

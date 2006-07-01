@@ -208,7 +208,7 @@ public class DataPanel
     private void createFromSchema(Connection storedTo, String dsName)
     {
         // =========== 1. ask for schema =================
-        String data[] = InfoReader.getAllSchema();
+        Object data[] = InfoReader.getAllSchema();
         if (data == null && data.length == 0)
         {
             JOptionPane.showMessageDialog(this, "No available schema");

@@ -174,6 +174,6 @@ public class IndusConstants
     public static final String  dbUsr             = "indus", dbPwd = "indus";
     public static final String  dbDriver          = "org.postgresql.Driver";
 
-    public static final boolean DEBUG             = true;
+    public static final boolean DEBUG             = false;
 
 }

@@ -67,6 +67,7 @@ public class SQLQueryOptimizer
     {
         //String s = ZqlUtils.printZExpression(exp);
         //System.out.println(s);
+        if (exp == null) return exp;
 
         if (writeable && rewriteLongIN)
             rewriteLargeIN(exp);

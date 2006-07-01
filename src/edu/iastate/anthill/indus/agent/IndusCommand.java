@@ -1,5 +1,10 @@
 package edu.iastate.anthill.indus.agent;
 
+/**
+ * @deprecated
+ * @author baojie
+ *
+ */
 public interface IndusCommand
 {
     // 2004-10 commands for C/S communication

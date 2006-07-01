@@ -58,7 +58,7 @@ public abstract class MappingPanelWritingActions extends
     {
         // ask for the first schema
         // get the list of all registered schema
-        String[] data = InfoReader.getAllSchema();
+        Object[] data = InfoReader.getAllSchema();
 
         String s1 = (String) JOptionPane.showInputDialog(null,
             "Choose schema 1", "Input", JOptionPane.INFORMATION_MESSAGE, null,

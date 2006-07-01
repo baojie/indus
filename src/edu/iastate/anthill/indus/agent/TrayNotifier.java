@@ -14,8 +14,13 @@ import edu.iastate.utils.tray.TrayIconManager;
 import edu.iastate.utils.tray.Win32Toolkit;
 
 
-// need rath_awt.dll
-// 2005-03-17 Jie Bao
+
+
+/**
+ need rath_awt.dll
+ 2005-03-17 Jie Bao
+ * @deprecated
+ */
 public abstract class TrayNotifier
     extends Component
 {

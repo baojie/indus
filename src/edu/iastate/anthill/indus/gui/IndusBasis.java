@@ -1,6 +1,5 @@
 package edu.iastate.anthill.indus.gui;
 
-import java.awt.HeadlessException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,7 +12,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import edu.iastate.anthill.indus.IndusConfig;
 import edu.iastate.anthill.indus.IndusConstants;
@@ -54,16 +52,22 @@ public class IndusBasis extends JPanel
             //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             //Debug.trace("IndusBasis");
 
-            if (!IndusHttpClient.testServer())
+            
+            boolean suc = indusSystemDB.connect(IndusConstants.dbURL);
+            suc = suc && indusCacheDB.connect(IndusConstants.dbCacheURL);
+            suc = suc && indusLocalDB.connect(IndusConstants.dbLocalURL);
+            
+            // check connection to the server
+            if (!suc)
             {
                 JOptionPane
                         .showMessageDialog(this,
                                 "Cannot connect to the indus server, program terminate");
                 System.exit(0);
             }
-            indusSystemDB.connect(IndusConstants.dbURL);
-            indusCacheDB.connect(IndusConstants.dbCacheURL);
-            indusLocalDB.connect(IndusConstants.dbLocalURL);
+            
+            
+
 
             //Debug.trace("IndusBasis() finished");
         }
@@ -73,6 +77,7 @@ public class IndusBasis extends JPanel
         }
 
     }
+   
 
     /**
      * Show a xml string and its orgin (like a url)
