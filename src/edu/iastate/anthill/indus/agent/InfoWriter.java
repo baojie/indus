@@ -47,8 +47,8 @@ public class InfoWriter implements IndusCommand
         // save to database
         String value = Zip.encode(schema.toText());
         String name = schema.getName();
-        String space = "public";
-
+        String space = IndusBasis.user.name;
+        
         Map<String, String> values = new HashMap<String, String>();
 
         values.put("name", name);
@@ -66,8 +66,8 @@ public class InfoWriter implements IndusCommand
         // save to database
         String value = Zip.encode(type.toText());
         String name = type.getName();
-        String space = "public";
-
+        String space = IndusBasis.user.name;
+        
         Map<String, String> values = new HashMap<String, String>();
 
         values.put("name", name);
@@ -113,7 +113,7 @@ public class InfoWriter implements IndusCommand
         // save to database
         String value = Zip.encode(mapping.toText());
         String name = mapping.getName();
-        String space = "public";
+        String space = IndusBasis.user.name;
         String format = "XML1.0";
 
         Map<String, String> values = new HashMap<String, String>();
@@ -124,7 +124,7 @@ public class InfoWriter implements IndusCommand
         values.put("ont1", mapping.schemaMapping.from);
         values.put("ont2", mapping.schemaMapping.to);
         values.put("format", format);
-
+        
         Connection db = IndusBasis.indusSystemDB.db;
         return JDBCUtils.insertOrUpdateDatabase(db, "mappings", values, "name");
     }
@@ -151,8 +151,8 @@ public class InfoWriter implements IndusCommand
         // save to database
         String value = Zip.encode(view.toText());
         String name = view.getName();
-        String space = "public";
-
+        String space = IndusBasis.user.name;
+        
         Map<String, String> values = new HashMap<String, String>();
 
         values.put("name", name);

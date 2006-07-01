@@ -16,7 +16,6 @@ import javax.swing.UIManager;
 import edu.iastate.anthill.indus.IndusConfig;
 import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.IndusDB;
-import edu.iastate.anthill.indus.agent.IndusHttpClient;
 import edu.iastate.utils.gui.LabelledItemPanel;
 import edu.iastate.utils.gui.StandardDialog;
 import edu.iastate.utils.io.FileUtils;
@@ -31,6 +30,8 @@ import edu.iastate.utils.string.SimpleXMLParser;
  */
 public class IndusBasis extends JPanel
 {
+    public static User user ;
+    
     public IndusConfig    config        = new IndusConfig("indus.xml");
 
     Logging               logger        = new Logging(System

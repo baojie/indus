@@ -118,7 +118,8 @@ public class InfoReader implements IndusCommand
     public static Object[] getAllMapping()
     {
         //return getList(CMD_GET_ALL_MAPPING);
-        String sql = "    SELECT name From mappings ORDER BY name";
+        String sql = "    SELECT name From mappings WHERE space = '"
+            + IndusBasis.user.name + "'" + " ORDER BY name";
         Connection db = IndusBasis.indusSystemDB.db;
         Vector all = JDBCUtils.getValues(db, sql);
         return all.toArray();
@@ -127,7 +128,8 @@ public class InfoReader implements IndusCommand
     public static Object[] getAllSchema()
     {
         //return getList(CMD_GET_ALL_SCHEMA);
-        String sql = "    SELECT name From schemas ORDER BY name";
+        String sql = "    SELECT name From schemas WHERE space = '"
+            + IndusBasis.user.name + "'" + " ORDER BY name";
         Connection db = IndusBasis.indusSystemDB.db;
         Vector all = JDBCUtils.getValues(db, sql);
         return all.toArray();
@@ -139,7 +141,8 @@ public class InfoReader implements IndusCommand
      */
     public static Object[] getAllType()
     {
-        String sql = "    SELECT name From types ORDER BY name";
+        String sql = "    SELECT name From types WHERE space = '"
+            + IndusBasis.user.name + "'" + " ORDER BY name";
         Connection db = IndusBasis.indusSystemDB.db;
         Vector all = JDBCUtils.getValues(db, sql);
 
@@ -164,7 +167,8 @@ public class InfoReader implements IndusCommand
     public static Object[] getAllView()
     {
         //return getList(CMD_GET_ALL_VIEW);
-        String sql = "    SELECT name From views ORDER BY name";
+        String sql = "    SELECT name From views WHERE space = '"
+            + IndusBasis.user.name + "'" + " ORDER BY name";
         Connection db = IndusBasis.indusSystemDB.db;
         Vector all = JDBCUtils.getValues(db, sql);
         return all.toArray();
@@ -186,7 +190,7 @@ public class InfoReader implements IndusCommand
             {
                 String items[] = res.split(";");
                 if (items != null && items.length == 1
-                        && items[0].trim().length() == 0)
+                    && items[0].trim().length() == 0)
                 {
                     return null;
                 }
@@ -255,14 +259,14 @@ public class InfoReader implements IndusCommand
         try
         {
             if (DataType.isPredefinedType(name)) { return new SimpleDataType(
-                    name, null); }
+                name, null); }
 
             StopWatch w = new StopWatch();
             w.start();
             //String sourceText = IndusHttpClient.getDetails(
             //        CMD_GET_TYPE_DETAILS, name);
             String sql = "    SELECT value FROM types WHERE name = '" + name
-                    + "'";
+                + "'" + " AND space = '" + IndusBasis.user.name + "'";
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText = JDBCUtils.getFirstValue(db, sql);
 
@@ -313,10 +317,9 @@ public class InfoReader implements IndusCommand
     public static DataType readDataTypeXML(String name, String datatypeinXML)
     {
         DataType newType = null;
-        
+
         Debug.trace(datatypeinXML);
-        
-        
+
         //System.out.println(datatypeinXML);
         if (datatypeinXML != null)
         {
@@ -421,7 +424,7 @@ public class InfoReader implements IndusCommand
             StopWatch w = new StopWatch();
             w.start();
             String sql = "    SELECT value FROM mappings WHERE name = '" + name
-                    + "'";
+                + "'" + " AND space = '" + IndusBasis.user.name + "'";
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText = JDBCUtils.getFirstValue(db, sql);
 
@@ -471,7 +474,6 @@ public class InfoReader implements IndusCommand
         return d;
     }
 
-
     private static Schema readSchemaNative(String name)
     {
         try
@@ -479,7 +481,7 @@ public class InfoReader implements IndusCommand
             StopWatch w = new StopWatch();
             w.start();
             String sql = "    SELECT value FROM schemas WHERE name = '" + name
-                    + "'";
+                + "'" + " AND space = '" + IndusBasis.user.name + "'";
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText = JDBCUtils.getFirstValue(db, sql);
 
@@ -503,7 +505,7 @@ public class InfoReader implements IndusCommand
             return null;
         }
     }
-    
+
     /**
      * @deprecated
      * @param name
@@ -536,7 +538,7 @@ public class InfoReader implements IndusCommand
             StopWatch w = new StopWatch();
             w.start();
             String sql = "    SELECT value FROM views WHERE name = '" + name
-                    + "'";
+                + "'" + " AND space = '" + IndusBasis.user.name + "'";
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText = JDBCUtils.getFirstValue(db, sql);
 

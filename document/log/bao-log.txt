@@ -195,7 +195,8 @@ End of test
     Switch all storage to database, INDUS (TCP) server is no use any more
        * for schema and view
     
-    
+2006-07-01
+    Enable user space: each user only see his/her own data (ontology/schema/mapping/view/data source)    
     
              
     

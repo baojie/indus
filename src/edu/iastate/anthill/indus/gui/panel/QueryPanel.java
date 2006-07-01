@@ -183,7 +183,14 @@ public class QueryPanel extends QueryPanelGUI implements MessageHandler,
                     int pb = parent.statusBar.addProgressBar(true, 0, 0);
                     parent.statusBar.updateProgressBar(pb, "Running query...");
 
-                    runQuery(b);
+                    try
+                    {
+                        runQuery(b);
+                    }
+                    catch (Exception e)
+                    {                        
+                        e.printStackTrace();
+                    }
 
                     parent.statusBar.removeProgressBar(pb);
                 }

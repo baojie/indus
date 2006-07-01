@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -35,7 +34,7 @@ import edu.iastate.utils.Debug;
 import edu.iastate.utils.gui.GUIUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
-import edu.iastate.utils.lang.StopWatch;
+import edu.iastate.utils.lang.Serialization;
 
 /**
  * Actions in the mapping panel that involve only reading  
@@ -132,6 +131,8 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
                 DataType dt = InfoReader.readDataType(typeName, false);
                 if (dt != null && dt instanceof AVH)
                 {
+                    // create a copy
+                    dt = (DataType) Serialization.cloneObject(dt);
                     dt.readOnly = true;
 
                     TypedTree subtree = ((AVH) dt).getTreeAVH();

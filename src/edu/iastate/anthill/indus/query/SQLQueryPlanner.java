@@ -67,6 +67,7 @@ public class SQLQueryPlanner
         // get the local schema
         String localSchemaName = view.getLocalSchemaName();
         Schema localSchema = InfoReader.readSchema(localSchemaName);
+        
         //System.out.println("[localSchema] " + localSchema);
 
         Map localAttributeToAVH = InfoReader

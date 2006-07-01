@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 
 import edu.iastate.utils.Utility;
 
@@ -23,7 +22,7 @@ import edu.iastate.utils.Utility;
  */
 public class Serialization
 {
-    public static void main(String[] argv) 
+    public static void main(String[] argv)
     {
         try
         {
@@ -39,39 +38,41 @@ public class Serialization
 
     static public void test() throws IOException, ClassNotFoundException
     {
-        SerData data = new SerData();
+        String data = new String();
         //System.out.println(data.s);
         byte[] b = saveToByteArray(data);
         saveToFile(data, "D:\\object.dat");
-        
-        System.out.println( b.length + "("+ Utility.formatSize(b.length)+")" );
-        data = (SerData) loadFromByteArray(b);
+
+        System.out.println(b.length + "(" + Utility.formatSize(b.length) + ")");
+        data = (String) loadFromByteArray(b);
         //System.out.println(data); 
     }
-    
-    static public Object loadFromByteArray(byte[] array) throws IOException, ClassNotFoundException
+
+    static public Object loadFromByteArray(byte[] array) throws IOException,
+            ClassNotFoundException
     {
         ByteArrayInputStream fis = new ByteArrayInputStream(array);
         return load(fis);
     }
 
-    
-    static public Object loadFromFile(String fileName) throws IOException, ClassNotFoundException
+    static public Object loadFromFile(String fileName) throws IOException,
+            ClassNotFoundException
     {
         FileInputStream fis = new FileInputStream(fileName);
         return load(fis);
     }
 
-    static public Object load(InputStream fis) throws IOException, ClassNotFoundException
-    {        
-        
+    static public Object load(InputStream fis) throws IOException,
+            ClassNotFoundException
+    {
+
         ObjectInputStream in = new ObjectInputStream(fis);
         Object data = in.readObject();
         in.close();
 
         return data;
-    }    
-    
+    }
+
     static public byte[] saveToByteArray(Object data) throws IOException
     {
         ByteArrayOutputStream fos = new ByteArrayOutputStream();
@@ -79,7 +80,8 @@ public class Serialization
         return fos.toByteArray();
     }
 
-    static public void saveToFile(Object data, String fileName) throws IOException
+    static public void saveToFile(Object data, String fileName)
+            throws IOException
     {
         FileOutputStream fos = new FileOutputStream(fileName);
         save(data, fos);
@@ -92,16 +94,28 @@ public class Serialization
         out.flush();
         out.close();
     }
-}
 
-class SerData implements Serializable
-{
-    public String s = "a";    
-    
-    public SerData()
+    /**
+     * Clone a object
+     * @param obj
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * 
+     * @author Jie Bao
+     * @since 2006-07-01
+     */
+    public static Object cloneObject(Object obj) 
     {
-        for (int i = 0 ; i < 10; i++)
-            s = s + s;
+        try
+        {
+            byte[] b = saveToByteArray(obj);
+            return loadFromByteArray(b);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
-    
 }

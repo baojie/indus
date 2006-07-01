@@ -466,6 +466,8 @@ public abstract class TypePanelAction extends TypePanelGUI implements
             //final ProgressBarWin win = new ProgressBarWin(new JFrame(),
             //    "Updating available types:", 100, false, 0, types.length);
             //win.start();
+            
+            model.removeAllElements();
 
             final Object types1[] = types;
             for (int i = 0; i < types.length; i++)

@@ -6,15 +6,16 @@
 
 package edu.iastate.anthill.indus.gui.query;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -25,14 +26,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-
-import edu.iastate.utils.Debug;
-import edu.iastate.utils.lang.MessageHandler;
-
 import Zql.ZFromItem;
 import Zql.ZQuery;
 import Zql.ZSelectItem;
-import edu.iastate.anthill.indus.datasource.view.*;
+import edu.iastate.anthill.indus.agent.InfoReader;
+import edu.iastate.anthill.indus.datasource.view.View;
+import edu.iastate.utils.Debug;
+import edu.iastate.utils.lang.MessageHandler;
 
 /**
  * Class with first panel of query builder.<BR>
@@ -167,6 +167,9 @@ public class SelectFromPane
     {
         try
         {
+            Object[] allview = InfoReader.getAllView();
+            Vector v = new Vector(Arrays.asList(allview));
+            
             DatabaseMetaData dtmt = con.getMetaData();
             DefaultMutableTreeNode top = new DefaultMutableTreeNode(dtmt.getURL());
             treeModel = new DefaultTreeModel(top);
@@ -195,6 +198,11 @@ public class SelectFromPane
             while (rs.next())
             {
                 tabName = rs.getString("TABLE_NAME");
+                
+                // only show tables that belong to the current user
+                // note that those cache tables have same names to corresponding views
+                if (!v.contains(tabName)) continue;
+                
                 DBTableNode table = new DBTableNode(tabName,
                     rs.getString("REMARKS"));
                 table.setAllowsChildren(true);
