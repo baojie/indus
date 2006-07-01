@@ -1,9 +1,9 @@
 package edu.iastate.utils.sql;
 
-import java.sql.Connection;
-
 import java.awt.BorderLayout;
 import java.awt.HeadlessException;
+import java.sql.Connection;
+
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
@@ -17,53 +17,49 @@ import com.borland.dx.sql.dataset.ConnectionDescriptor;
 import com.borland.dx.sql.dataset.Database;
 import com.borland.dx.sql.dataset.Load;
 import com.borland.dx.sql.dataset.QueryDataSet;
+import com.borland.dx.sql.dataset.QueryDescriptor;
 
 /**
  * Panel to show database content
  * @author Jie Bao
  * @since 1.0 - 2005-03-02
  */
-public class DBPanel
-    extends JPanel
+public class DBPanel extends JPanel
 {
     // dbSwing
-    TableScrollPane tableScrollPane1 = new TableScrollPane();
-    JdbStatusLabel jStatusLabel = new JdbStatusLabel();
-    JdbTable Table = new JdbTable();
-    JdbNavToolBar jToolBar = new JdbNavToolBar();
+    TableScrollPane  tableScrollPane1 = new TableScrollPane();
+    JdbStatusLabel   jStatusLabel     = new JdbStatusLabel();
+    JdbTable         Table            = new JdbTable();
+    JdbNavToolBar    jToolBar         = new JdbNavToolBar();
 
     // DataExpress
-    Database CacheDB = new Database();
-    QueryDataSet query = new QueryDataSet();
+    Database         CacheDB          = new Database();
+    QueryDataSet     query            = new QueryDataSet();
     DBDisposeMonitor dbDisposeMonitor = new DBDisposeMonitor();
 
     // Swing
 
     // member
-    String connectionURL;
-    String userName;
-    String password;
-    boolean promptPassword;
-    String driver;
-    String sql = ""; //"SELECT * FROM go_header;";
-    boolean navigateBar;
+    String           connectionURL;
+    String           userName;
+    String           password;
+    boolean          promptPassword;
+    String           driver;
+    String           sql              = "";                    //"SELECT * FROM go_header;";
+    boolean          navigateBar;
 
     // the oracle example
     /*DBPanel dlg = new DBPanel( "jdbc:oracle:thin:@boole.cs.iastate.edu:1521:indus" ,
-              "indus" ,
-              "indus" ,
-              false ,
-              "oracle.jdbc.driver.OracleDriver" ) ;
+     "indus" ,
+     "indus" ,
+     false ,
+     "oracle.jdbc.driver.OracleDriver" ) ;
      */
 
     // constructor
-    public DBPanel(String connectionURL,
-                   String userName,
-                   String password,
-                   boolean promptPassword,
-                   String driver,
-                   boolean navigateBar
-        ) throws HeadlessException
+    public DBPanel(String connectionURL, String userName, String password,
+            boolean promptPassword, String driver, boolean navigateBar)
+            throws HeadlessException
     {
         this.connectionURL = connectionURL;
         this.userName = userName;
@@ -89,7 +85,7 @@ public class DBPanel
         try
         {
             CacheDB.setConnection(new ConnectionDescriptor(connectionURL,
-                userName, password, promptPassword, driver));
+                    userName, password, promptPassword, driver));
             CacheDB.setDatabaseName("");
             //query.setQuery(new com.borland.dx.sql.dataset.QueryDescriptor(CacheDB, sql, null, true, Load.ALL));
             dbDisposeMonitor.setDataAwareComponentContainer(this);
@@ -135,31 +131,33 @@ public class DBPanel
      */
     public void setSQL(String newSQL)
     {
-        if (newSQL == null)
+        try
         {
-            query.setQuery(new com.borland.dx.sql.dataset.QueryDescriptor(
-                CacheDB, sql, null, true, Load.ALL));
-            Table.setDataSet(null);
-        }
-        else
-        {
-            try
+            if (newSQL == null)
+            {
+                query.closeStatement();
+                query.setQuery(new QueryDescriptor(CacheDB, sql, null, true,
+                        Load.ALL));
+                Table.setDataSet(null);
+            }
+            else
             {
                 query.closeStatement();
                 if (Table.getDataSet() != null && Table.getDataSet().isOpen())
                 {
                     Table.getDataSet().close();
                 }
-                query.setQuery(new com.borland.dx.sql.dataset.QueryDescriptor(
-                    CacheDB, newSQL, null, true, Load.ALL));
+                query.setQuery(new QueryDescriptor(CacheDB, newSQL, null, true,
+                        Load.ALL));
                 //query.executeQuery();
                 Table.setDataSet(query);
                 sql = newSQL;
+
             }
-            catch (Exception ex)
-            {
-                ex.printStackTrace(System.err);
-            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace(System.err);
         }
     }
 

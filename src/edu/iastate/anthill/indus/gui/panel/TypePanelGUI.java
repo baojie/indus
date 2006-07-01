@@ -56,6 +56,7 @@ public abstract class TypePanelGUI extends IndusPane
     FlowLayout       flowLayout1       = new FlowLayout();
     JButton          btnExportXML      = new JButton();
     JButton          btnImportText     = new JButton("Import(Text)");
+    JButton          btnImportXML      = new JButton("Import(XML)");
     JButton          btnExportText     = new JButton();
     JButton          btnReload         = new JButton("Reload");
 
@@ -95,6 +96,7 @@ public abstract class TypePanelGUI extends IndusPane
         buttonPanel.add(btnNewType);
         buttonPanel.add(btnExportXML, null);
         buttonPanel.add(btnExportText, null);
+        buttonPanel.add(btnImportXML, null);
         buttonPanel.add(btnImportText, null);
         buttonPanel.setLayout(flowLayout1);
         rightPanel.add(buttonPanel, BorderLayout.SOUTH);

@@ -3,41 +3,41 @@ package edu.iastate.anthill.indus.gui.panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import javax.swing.BorderFactory;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 
 import edu.iastate.anthill.indus.IndusConstants;
-
+import edu.iastate.utils.gui.JTableEx;
 import edu.iastate.utils.sql.DBPanel;
 import edu.iastate.utils.sql.SQLPanel;
 
-public class QueryPanelGUI
-    extends IndusPane
+public class QueryPanelGUI extends IndusPane
 {
-    JButton btnRun = new JButton("Run");
-    JButton btnLoad = new JButton("Load");
-    JButton btnSave = new JButton("Save");
+    JButton           btnCreateSQL = new JButton("Create Query");
+    JButton           btnLoad      = new JButton("Load");
+    JButton           btnRun       = new JButton("Run");
+    JButton           btnSave      = new JButton("Save");
 
-    JSplitPane jSplitPane1;
-    DBPanel dbPanel = new DBPanel(
-        IndusConstants.dbCacheURL,
-        IndusConstants.dbUsr,
-        IndusConstants.dbPwd, false, IndusConstants.dbDriver, false);
+    GridLayout        gridLayout1  = new GridLayout();
+    JSplitPane        jSplitPane1;
 
-    SQLPanel sqlInputArea = new SQLPanel();
-    JPanel leftPane = new JPanel();
-    JPanel guidePane = new JPanel();
-    GridLayout gridLayout1 = new GridLayout();
+    SQLPanel          localSQL     = new SQLPanel();
+    DefaultTableModel model        = new DefaultTableModel();
+    JPanel            queryPane    = new JPanel();
 
-    JButton btnCreateSQL = new JButton();
+    JTableEx          remoteSQL    = new JTableEx(model);
+    DBPanel           resultPane   = new DBPanel(IndusConstants.dbCacheURL,
+                                           IndusConstants.dbUsr,
+                                           IndusConstants.dbPwd, false,
+                                           IndusConstants.dbDriver, false);
 
-    Border border1 = BorderFactory.createEtchedBorder(EtchedBorder.RAISED,
-        Color.white, new Color(148, 145, 140));
-    JButton btnTranslate = new JButton();
+    int               typeIndex, attIndex;
+
     public QueryPanelGUI()
     {
 
@@ -52,48 +52,67 @@ public class QueryPanelGUI
         }
     }
 
+    //2006-06-30 Jie Bao
+    private void createTable()
+    {
+        // Create 3 columns
+        model.addColumn("Data Source");
+        model.addColumn("Native SQL");
+
+        typeIndex = remoteSQL.getColumn("Data Source").getModelIndex();
+        attIndex = remoteSQL.getColumn("Native SQL").getModelIndex();
+
+        remoteSQL.setRowHeight(24);
+        remoteSQL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        remoteSQL.setRowSelectionAllowed(true);
+
+        //model.addTableModelListener(new MyTableModelListener(remoteSQL));
+    }
+
     private void jbInit() throws Exception
     {
 
-        // 1  left panel
+        // 1  bottom panel
 
-        // 1.1 left-upper
-        btnCreateSQL.setText("Create Query");
+        // 1.1 left-bottom
+        localSQL.buttonPanel.add(btnCreateSQL, null);
+        localSQL.buttonPanel.add(btnRun, null);
+        localSQL.buttonPanel.add(btnLoad, null);
+        localSQL.buttonPanel.add(btnSave, null);
 
-        guidePane.setBorder(border1);
-        btnTranslate.setText(" To Local Term");
-        //guidePane.add(btnTranslate);
-        guidePane.add(btnCreateSQL);
+        localSQL.sqlInput.setEditable(false);
+        localSQL.sqlInput.setBackground(Color.YELLOW);
+        localSQL.setInfo("Query in local ontologies");
+        localSQL.btnCopy.setVisible(true);
+        localSQL.btnPaste.setVisible(false);
 
-        // 1.2 left-bottom
-        sqlInputArea.buttonPanel.add(btnRun, null);
-        sqlInputArea.buttonPanel.add(btnLoad, null);
-        sqlInputArea.buttonPanel.add(btnSave, null);
-        sqlInputArea.sqlInput.setEditable(true);
-        sqlInputArea.jButtonCopy.setVisible(false);
-        sqlInputArea.jButtonPaste.setVisible(false);
+        // 1.2 bottom assembly
+        queryPane.setLayout(new GridLayout(1, 2));
+        queryPane.add(localSQL);
 
-        // left assembly
-
-        leftPane.setLayout(new BorderLayout());
-        leftPane.add(sqlInputArea, BorderLayout.CENTER);
-        leftPane.add(guidePane, BorderLayout.NORTH);
+        createTable();
+        queryPane.add(new JScrollPane(remoteSQL));
+        //queryPane.add(guidePane, BorderLayout.NORTH);
 
         // 2 right panel
-        // just DBPanel dbPanel
+        // just DBPanel resultPane
 
         // 3 total assembly
-        jSplitPane1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane,
-                                     dbPanel);
+        jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, resultPane,
+                queryPane);
         add(jSplitPane1, BorderLayout.CENTER);
     }
 
     public void promptSave()
+    {}
+
+    // 2006-06-30 Jie Bao
+    public void resetPanel()
     {
+        jSplitPane1.setDividerLocation(0.8);
     }
 
     public void showDefault(String toSelect)
-    {
-    }
+    {}
 
 }

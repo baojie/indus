@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
@@ -16,6 +15,8 @@ import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.type.DbAVH;
 import edu.iastate.anthill.indus.datasource.type.SimpleDataType;
 import edu.iastate.anthill.indus.datasource.view.View;
+import edu.iastate.anthill.indus.gui.IndusBasis;
+import edu.iastate.utils.Debug;
 import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.StopWatch;
 import edu.iastate.utils.sql.JDBCUtils;
@@ -29,8 +30,166 @@ import edu.iastate.utils.string.Zip;
  */
 public class InfoReader implements IndusCommand
 {
-    public InfoReader()
-    {}
+    public static HashMap<String, DataType>          dataTypeCache = new HashMap<String, DataType>();
+    public static HashMap<String, DataSourceMapping> mappingCache  = new HashMap<String, DataSourceMapping>();
+    public static HashMap<String, Schema>            schemaCache   = new HashMap<String, Schema>();
+    public static HashMap<String, View>              viewCache     = new HashMap<String, View>();
+
+    /**
+     * Find attiribute to super type (eg. AVH, integer) mapping
+     * @param schema Schema
+     * @return Map
+     * @author Jie Bao
+     * @since 2005-03-28
+     */
+    public static Map findAttributeSupertypeMapping(Schema schema)
+    {
+        Map attributeToSupertype = new HashMap();
+        Map attList = schema.getAttList();
+        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
+        {
+            String attribute = (String) it.next();
+            String type = (String) attList.get(attribute);
+            DataType dt = readDataType(type, false);
+            //Debug.trace(dt.getClass());
+            if (dt != null)
+            {
+                if (dt.getSupertype() != null)
+                {
+                    attributeToSupertype.put(attribute.toLowerCase(), dt
+                            .getSupertype());
+                }
+                else
+                // no super type
+                {
+                    attributeToSupertype.put(attribute.toLowerCase(), dt
+                            .getName());
+                }
+            }
+            else
+            {
+                attributeToSupertype.put(attribute.toLowerCase(), type);
+            }
+
+        }
+        return attributeToSupertype;
+    }
+
+    /**
+     * findAttributeToAVHMapping : given a schema, find all AVH type and create
+     *    a mapping from column name to AVH
+     *
+     * @param remoteSchema Schema
+     * @return Map - String -> AVH
+     * @since 2005-03-25
+     */
+    public static Map findAttributeToAVHMapping(Schema remoteSchema)
+    {
+        Map attributeToAVH = new HashMap();
+        Map attList = remoteSchema.getAttList();
+        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
+        {
+            String attribute = (String) it.next();
+            String type = (String) attList.get(attribute);
+            DataType dt = readDataType(type, false);
+            //Debug.trace(dt.getClass());
+            if (dt != null)
+            {
+                if ("AVH".equalsIgnoreCase(dt.getSupertype()))
+                {
+                    // attribute is change to lower case, because db system use
+                    // lower case as column name
+                    attributeToAVH.put(attribute.toLowerCase(), dt);
+                }
+            }
+            else
+            {
+                //Debug.trace(type + " type is not available");
+            }
+        }
+        return attributeToAVH;
+    }
+
+    public static Object[] getAllDataSource(Connection db)
+    {
+        return IndusDataSource.getAllDataSource(db).toArray();
+    }
+
+    public static Object[] getAllMapping()
+    {
+        //return getList(CMD_GET_ALL_MAPPING);
+        String sql = "    SELECT name From mappings ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);
+        return all.toArray();
+    }
+
+    public static String[] getAllSchema()
+    {
+        return getList(CMD_GET_ALL_SCHEMA);
+    }
+
+    /**
+     * read the list of all types from the database
+     * 2006-06-21 Jie Bao 
+     */
+    public static Object[] getAllType()
+    {
+        String sql = "    SELECT name From types ORDER BY name";
+        Connection db = IndusBasis.indusSystemDB.db;
+        Vector all = JDBCUtils.getValues(db, sql);
+
+        String defaults[] = DataType.DEFAULT_TYPES.split(";");
+        for (int i = 0; i < defaults.length; i++)
+        {
+            all.add(0, defaults[i]);
+        }
+
+        return all.toArray();
+    }
+
+    /**
+     * @deprecated replaced by getAllType
+     * @return
+     */
+    public static String[] getAllTypeOld()
+    {
+        return getList(CMD_GET_ALL_TYPE);
+    }
+
+    public static String[] getAllView()
+    {
+        return getList(CMD_GET_ALL_VIEW);
+    }
+
+    /**
+     *
+     * @param cmd String
+     * @return String[]
+     * @since 2004-10-13
+     */
+    static String[] getList(String cmd)
+    {
+        IndusHttpClient client = new IndusHttpClient();
+        String res = client.sendCmd(cmd);
+        if (res != null)
+        {
+            if (!res.equals(RES_GENERAL_ERROR))
+            {
+                String items[] = res.split(";");
+                if (items != null && items.length == 1
+                        && items[0].trim().length() == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return items;
+                }
+            }
+        }
+        return null;
+    }
 
     static protected boolean read(String command, String name, Configable newObj)
     {
@@ -44,8 +203,8 @@ public class InfoReader implements IndusCommand
 
         if (xml != null)
         {
-            System.out.println(" " +xml.length() + " bytes");
-            
+            System.out.println(" " + xml.length() + " bytes");
+
             w.start();
             newObj.fromXML(xml);
             //Debug.trace(newObj.toXML());
@@ -56,65 +215,13 @@ public class InfoReader implements IndusCommand
         return false;
     }
 
-    /**
-     * @deprecated
-     * @param name
-     * @return
-     */
-    public static DataSourceMapping readMappingOld(String name)
+    // 2005-03-25
+    public static IndusDataSource readDataSource(Connection cacheDB, String name)
     {
-        DataSourceMapping newObj = new DataSourceMapping();
-        read(CMD_GET_MAPPING_DETAILS, name, newObj);
-        return newObj;
+        IndusDataSource ds = new IndusDataSource();
+        ds.fromDB(cacheDB, name);
+        return ds;
     }
-
-    public static DataSourceMapping readMapping(String name)
-    {
-        try
-        {
-            StopWatch w = new StopWatch();
-            w.start();
-            String sql = "    SELECT value FROM mappings WHERE name = '" + name
-                    + "'";
-            Connection db = IndusBasis.indusSystemDB.db;
-            String sourceText = JDBCUtils.getFirstValue(db, sql);
-
-            w.stop();
-            System.out.print(" ,  read source text: " + w.print());
-
-            w.start();
-            
-            sourceText = Zip.decode(sourceText);
-            //System.out.println(sourceText);
-            DataSourceMapping m = new  DataSourceMapping();
-            m.fromXML(sourceText);
-            
-            w.stop();
-            System.out.println(",  parse source: " + w.print());
-
-            return m;
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
-    }
-
-    public static View readView(String name)
-    {
-        View newObj = new View();
-        read(CMD_GET_VIEW_DETAILS, name, newObj);
-        return newObj;
-    }
-
-    public static Schema readSchema(String name)
-    {
-        Schema newObj = new Schema(name);
-        read(CMD_GET_SCHEMA_DETAILS, name, newObj);
-        return newObj;
-    }
-
-    static HashMap<String, DataType> dataTypeCache = new HashMap<String, DataType>();
 
     /**
      * read/store datatype in cache 
@@ -135,53 +242,56 @@ public class InfoReader implements IndusCommand
         return d;
     }
 
-    /**
-     * Update datatype cache
-     * @author baojie
-     * @since 2006-06-15
-     * @param name
-     * @param d
-     */
-    public static void updateDataTypeCache(String name, DataType d)
+    public static DataType readDataTypeNative(String name)
     {
-        dataTypeCache.put(name, d);
-    }
+        try
+        {
+            if (DataType.isPredefinedType(name)) { return new SimpleDataType(
+                    name, null); }
 
-    // Jie Bao 2006-06-20
-    public static DataType readDataTypeNativePlain(String name, String text)
-    {
-        DataType newType = new SimpleDataType(name, "");
-        if (!DataType.isPredefinedType(name))
-        {
-            newType.fromText(text);
-        }
-        if (newType.getName() == null)
-        {
-            newType.setName(name);
-        }
-        else
-        {
-            name = newType.getName();
-        }
+            StopWatch w = new StopWatch();
+            w.start();
+            //String sourceText = IndusHttpClient.getDetails(
+            //        CMD_GET_TYPE_DETAILS, name);
+            String sql = "    SELECT value FROM types WHERE name = '" + name
+                    + "'";
+            Connection db = IndusBasis.indusSystemDB.db;
+            String sourceText = JDBCUtils.getFirstValue(db, sql);
 
-        if ("AVH".equals(newType.getSupertype()))
-        {
-            newType = new AVH(name, null);
-            ((AVH) newType).fromText(text, false);
+            w.stop();
+            System.out.print(" ,  read source text: " + w.print());
 
-            String template = ((AVH) newType).template;
-            if (template != null)
+            DataType newType;
+            w.start();
+            if (sourceText.startsWith("<"))// XML
             {
-                newType = new DbAVH(name, null, template);
+                System.out.print(" XML Format ");
+                newType = readDataTypeXML(name, sourceText);
+            }
+            else
+            // plain text
+            {
+                System.out.print(" Plain Text Format ");
+                // encoded in InfoWriter.writeType()
+
+                // clear unused memory 
+                System.gc();
+                sourceText = Zip.decode(sourceText);
+                //System.out.println(sourceText);
+                System.gc();
+                newType = readDataTypeText(name, sourceText);
+                System.gc();
             }
 
-            if (!DataType.isPredefinedType(name))
-            {
-                newType.fromText(text);
-            }
+            w.stop();
+            System.out.println(",  parse source: " + w.print());
+
+            return newType;
         }
-        if (newType != null) dataTypeCache.put(name, newType);
-        return newType;
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 
     /**
@@ -192,9 +302,13 @@ public class InfoReader implements IndusCommand
      * @param datatypeinXML
      * @return
      */
-    public static DataType readDataTypeNative(String name, String datatypeinXML)
+    public static DataType readDataTypeXML(String name, String datatypeinXML)
     {
         DataType newType = null;
+        
+        Debug.trace(datatypeinXML);
+        
+        
         //System.out.println(datatypeinXML);
         if (datatypeinXML != null)
         {
@@ -242,18 +356,63 @@ public class InfoReader implements IndusCommand
         //System.out.println(newType.getClass());
     }
 
-    public static DataType readDataTypeNative(String name)
+    // Jie Bao 2006-06-20
+    public static DataType readDataTypeText(String name, String text)
+    {
+        DataType newType = new SimpleDataType(name, "");
+        if (!DataType.isPredefinedType(name))
+        {
+            newType.fromText(text);
+        }
+        if (newType.getName() == null)
+        {
+            newType.setName(name);
+        }
+        else
+        {
+            name = newType.getName();
+        }
+
+        if ("AVH".equals(newType.getSupertype()))
+        {
+            newType = new AVH(name, null);
+            ((AVH) newType).fromText(text, false);
+
+            String template = ((AVH) newType).template;
+            if (template != null)
+            {
+                newType = new DbAVH(name, null, template);
+            }
+
+            if (!DataType.isPredefinedType(name))
+            {
+                newType.fromText(text);
+            }
+        }
+        if (newType != null) dataTypeCache.put(name, newType);
+        return newType;
+    }
+
+    // Jie Bao 2006-06-30
+    public static DataSourceMapping readMapping(String name)
+    {
+        DataSourceMapping d = mappingCache.get(name);
+        if (d == null)
+        {
+            System.out.println("readMapping - " + name);
+            d = readMappingNative(name);
+            mappingCache.put(name, d);
+        }
+        return d;
+    }
+
+    private static DataSourceMapping readMappingNative(String name)
     {
         try
         {
-            if (DataType.isPredefinedType(name)) { return new SimpleDataType(
-                    name, null); }
-
             StopWatch w = new StopWatch();
             w.start();
-            //String sourceText = IndusHttpClient.getDetails(
-            //        CMD_GET_TYPE_DETAILS, name);
-            String sql = "    SELECT value FROM types WHERE name = '" + name
+            String sql = "    SELECT value FROM mappings WHERE name = '" + name
                     + "'";
             Connection db = IndusBasis.indusSystemDB.db;
             String sourceText = JDBCUtils.getFirstValue(db, sql);
@@ -261,32 +420,17 @@ public class InfoReader implements IndusCommand
             w.stop();
             System.out.print(" ,  read source text: " + w.print());
 
-            DataType newType;
             w.start();
-            if (sourceText.startsWith("<"))// XML
-            {
-                System.out.print(" XML Format ");
-                newType = readDataTypeNative(name, sourceText);
-            }
-            else
-            // plain text
-            {
-                System.out.print(" Plain Text Format ");
-                // encoded in InfoWriter.writeType()
 
-                // clear unused memory 
-                System.gc();
-                sourceText = Zip.decode(sourceText);
-                //System.out.println(sourceText);
-                System.gc();
-                newType = readDataTypeNativePlain(name, sourceText);
-                System.gc();
-            }
+            sourceText = Zip.decode(sourceText);
+            //System.out.println(sourceText);
+            DataSourceMapping m = new DataSourceMapping();
+            m.fromXML(sourceText);
 
             w.stop();
             System.out.println(",  parse source: " + w.print());
 
-            return newType;
+            return m;
         }
         catch (Exception ex)
         {
@@ -295,167 +439,70 @@ public class InfoReader implements IndusCommand
     }
 
     /**
-     * findAttributeToAVHMapping : given a schema, find all AVH type and create
-     *    a mapping from column name to AVH
-     *
-     * @param remoteSchema Schema
-     * @return Map - String -> AVH
-     * @since 2005-03-25
-     */
-    public static Map findAttributeToAVHMapping(Schema remoteSchema)
-    {
-        Map attributeToAVH = new HashMap();
-        Map attList = remoteSchema.getAttList();
-        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
-        {
-            String attribute = (String) it.next();
-            String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type, false);
-            //Debug.trace(dt.getClass());
-            if (dt != null)
-            {
-                if ("AVH".equalsIgnoreCase(dt.getSupertype()))
-                {
-                    // attribute is change to lower case, because db system use
-                    // lower case as column name
-                    attributeToAVH.put(attribute.toLowerCase(), dt);
-                }
-            }
-            else
-            {
-                //Debug.trace(type + " type is not available");
-            }
-        }
-        return attributeToAVH;
-    }
-
-    /**
-     * Find attiribute to super type (eg. AVH, integer) mapping
-     * @param schema Schema
-     * @return Map
-     * @author Jie Bao
-     * @since 2005-03-28
-     */
-    public static Map findAttributeSupertypeMapping(Schema schema)
-    {
-        Map attributeToSupertype = new HashMap();
-        Map attList = schema.getAttList();
-        for (Iterator it = attList.keySet().iterator(); it.hasNext();)
-        {
-            String attribute = (String) it.next();
-            String type = (String) attList.get(attribute);
-            DataType dt = readDataType(type, false);
-            //Debug.trace(dt.getClass());
-            if (dt != null)
-            {
-                if (dt.getSupertype() != null)
-                {
-                    attributeToSupertype.put(attribute.toLowerCase(), dt
-                            .getSupertype());
-                }
-                else
-                // no super type
-                {
-                    attributeToSupertype.put(attribute.toLowerCase(), dt
-                            .getName());
-                }
-            }
-            else
-            {
-                attributeToSupertype.put(attribute.toLowerCase(), type);
-            }
-
-        }
-        return attributeToSupertype;
-    }
-
-    // 2005-03-25
-    public static IndusDataSource readDataSource(Connection cacheDB, String name)
-    {
-        IndusDataSource ds = new IndusDataSource();
-        ds.fromDB(cacheDB, name);
-        return ds;
-    }
-
-    /**
-     * @deprecated replaced by getAllType
+     * @deprecated
+     * @param name
      * @return
      */
-    public static String[] getAllTypeOld()
+    public static DataSourceMapping readMappingOld(String name)
     {
-        return getList(CMD_GET_ALL_TYPE);
+        DataSourceMapping newObj = new DataSourceMapping();
+        read(CMD_GET_MAPPING_DETAILS, name, newObj);
+        return newObj;
+    }
+
+    // Jie Bao 2006-06-30
+    public static Schema readSchema(String name)
+    {
+        Schema d = schemaCache.get(name);
+        if (d == null)
+        {
+            System.out.println("readSchema- " + name);
+            d = readSchemaNative(name);
+            schemaCache.put(name, d);
+        }
+        return d;
+    }
+
+    private static Schema readSchemaNative(String name)
+    {
+        Schema newObj = new Schema(name);
+        read(CMD_GET_SCHEMA_DETAILS, name, newObj);
+        return newObj;
+    }
+
+    // Jie Bao 2006-06-30
+    public static View readView(String name)
+    {
+        View d = viewCache.get(name);
+        if (d == null)
+        {
+            System.out.println("readView- " + name);
+            d = readViewNative(name);
+            viewCache.put(name, d);
+        }
+        return d;
+    }
+
+    private static View readViewNative(String name)
+    {
+        View newObj = new View();
+        read(CMD_GET_VIEW_DETAILS, name, newObj);
+        return newObj;
     }
 
     /**
-     * read the list of all types from the database
-     * 2006-06-21 Jie Bao 
+     * Update datatype cache
+     * @author baojie
+     * @since 2006-06-15
+     * @param name
+     * @param d
      */
-    public static Object[] getAllType()
+    public static void updateCache(String name, HashMap m, Object d)
     {
-        String sql = "    SELECT name From types ORDER BY name";
-        Connection db = IndusBasis.indusSystemDB.db;
-        Vector all = JDBCUtils.getValues(db, sql);
-
-        String defaults[] = DataType.DEFAULT_TYPES.split(";");
-        for (int i = 0; i < defaults.length; i++)
-        {
-            all.add(0, defaults[i]);
-        }
-
-        return all.toArray();
+        m.put(name, d);
     }
 
-    public static String[] getAllView()
-    {
-        return getList(CMD_GET_ALL_VIEW);
-    }
-
-    public static Object[] getAllMapping()
-    {
-        //return getList(CMD_GET_ALL_MAPPING);
-        String sql = "    SELECT name From mappings ORDER BY name";
-        Connection db = IndusBasis.indusSystemDB.db;
-        Vector all = JDBCUtils.getValues(db, sql);       
-        return all.toArray();
-    }
-
-    public static String[] getAllSchema()
-    {
-        return getList(CMD_GET_ALL_SCHEMA);
-    }
-
-    public static Object[] getAllDataSource(Connection db)
-    {
-        return IndusDataSource.getAllDataSource(db).toArray();
-    }
-
-    /**
-     *
-     * @param cmd String
-     * @return String[]
-     * @since 2004-10-13
-     */
-    static String[] getList(String cmd)
-    {
-        IndusHttpClient client = new IndusHttpClient();
-        String res = client.sendCmd(cmd);
-        if (res != null)
-        {
-            if (!res.equals(RES_GENERAL_ERROR))
-            {
-                String items[] = res.split(";");
-                if (items != null && items.length == 1
-                        && items[0].trim().length() == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return items;
-                }
-            }
-        }
-        return null;
-    }
+    public InfoReader()
+    {}
 
 }

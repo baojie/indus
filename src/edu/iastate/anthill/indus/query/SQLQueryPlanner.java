@@ -4,13 +4,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import Zql.ZExp;
 import Zql.ZExpression;
 import Zql.ZQuery;
-import edu.iastate.anthill.indus.IndusBasis;
+import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
@@ -39,9 +40,18 @@ public class SQLQueryPlanner
         this.systemDB = systemDB;
     }
 
-    // result is Vector of Vector of String [2-dimensional table]
-    public void doQuery(ZQuery localQuery, String viewName, boolean inLocalTerm)
+    /*
+     translation a query in local ontology and schema 
+     to a query in remote ontology and schema 
+     return the list of translation remote queries
+     Jie Bao  2005-03-24
+     2006-06-30 enable return value  
+     */
+    public Map<String, String> doQuery(ZQuery localQuery, String viewName,
+            boolean inLocalTerm)
     {
+        Map<String, String> queries = new HashMap<String, String>();
+
         String s[] = ZqlUtils.selectList(localQuery);
         String select[] = new String[s.length + 1]; // one more column to store data origin
         for (int i = 0; i < s.length; i++)
@@ -95,26 +105,45 @@ public class SQLQueryPlanner
 
                 StopWatch w = new StopWatch();
                 w.start();
-                ResultSet r = doSingleQuery(localQuery, dsMapping,
-                        localAttributeToAVH, remoteAttributeToAVH, dataSource,
-                        localSchema, remoteSchema, inLocalTerm, opt);
+                ZQuery query = translateSingleQuery(localQuery,
+                        datasourceName, dsMapping, localAttributeToAVH,
+                        remoteAttributeToAVH, localSchema, remoteSchema,
+                        inLocalTerm, opt);                
+                
+                queries.put(datasourceName, query.toString());
+                
+                String strQuery = opt.optimize(query,true);
                 w.stop();
+                
                 System.out.println("Translation time used for "
                         + datasourceName + " : " + w.print());
 
-                if (r != null)
+                w.start();
+
+                try
                 {
-                    w.start();
-                    appendResult(view.getName(), select, r, datasourceName);
-                    w.stop();
-                    System.out.println("Retrieval time used for "
-                            + datasourceName + " : " + w.print());
+                    ResultSet result = SQLQueryExecutor.executeNativeQuery(
+                            dataSource.db, strQuery);
+                    if (result != null)
+                    {
+                        appendResult(view.getName(), select, result,
+                                datasourceName);
+                        w.stop();
+                        System.out.println("Retrieval time used for "
+                                + datasourceName + " : " + w.print());
+                    }
+                    else
+                    {
+                        Debug.trace("Data Source " + datasourceName
+                                + " returns no records.");
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    Debug.trace("Data Source " + datasourceName
-                            + " returns no records.");
+                    ex.printStackTrace();
                 }
+
                 opt.close();
 
                 dataSource.disconnect();
@@ -125,7 +154,7 @@ public class SQLQueryPlanner
                 e.printStackTrace();
             }
         }
-        //return allResult;
+        return queries;
     }
 
     /**
@@ -200,40 +229,17 @@ public class SQLQueryPlanner
      * @since 2005-03-24
      * @author Jie Bao
      */
-    public ResultSet doSingleQuery(ZQuery localQuery,
+    public ZQuery translateSingleQuery(ZQuery localQuery, String remoteDSName,
             DataSourceMapping dsMapping, Map localAttributeToAVH,
-            Map remoteAttributeToAVH, IndusDataSource dataSource,
-            Schema localSchema, Schema remoteSchema, boolean inLocalTerm,
-            SQLQueryOptimizer opt)
+            Map remoteAttributeToAVH, Schema localSchema, Schema remoteSchema,
+            boolean inLocalTerm, SQLQueryOptimizer opt)
     {
         SQLQueryTranslator translator = new SQLQueryTranslator();
-        ZQuery query = translator.doTranslate(localQuery, dataSource.getName(),
+        ZQuery query = translator.doTranslate(localQuery, remoteDSName,
                 dsMapping, localAttributeToAVH, remoteAttributeToAVH,
                 localSchema, remoteSchema, inLocalTerm);
 
-        // {{ 2005-10-19 Jie Bao
-        ZExp z = opt.optimize((ZExpression) query.getWhere());
-        query.addWhere(z);// replace the old WHERE
-
-        //String s = ZqlUtils.printZExpression((ZExpression) query.getWhere());
-        //System.out.println(s);
-
-        String strQuery = query.toString();
-        strQuery = opt.removeDupBrackets(strQuery.toCharArray());
-        System.out.println("Native query : " + strQuery);
-        // }} 2005-10-19        
-
-        try
-        {
-            ResultSet result = SQLQueryExecutor.executeNativeQuery(
-                    dataSource.db, strQuery);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
-
+        return query;
     }
 
     public static void main(String[] args)

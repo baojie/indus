@@ -10,11 +10,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.JOptionPane;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.agent.InfoWriter;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.gui.IndusGUI;
 
 import edu.iastate.utils.Debug;
@@ -28,13 +28,12 @@ import edu.iastate.utils.lang.MessageMap;
  * @since 1.0 2004-09-23
  */
 
-public class SchemaPanel
-    extends SchemaPanelGUI implements MessageHandler
+public class SchemaPanel extends SchemaPanelGUI implements MessageHandler
 {
 
     Schema currentSchema = new Schema("");
 
-    Map defaultDBType = new HashMap();
+    Map    defaultDBType = new HashMap();
 
     public SchemaPanel(IndusGUI parent, String defaultToShow)
     {
@@ -121,14 +120,14 @@ public class SchemaPanel
     public void onNewAttr(ActionEvent e)
     {
         String name = JOptionPane.showInputDialog(this,
-                                                  "The name of new attribute");
+                "The name of new attribute");
         if (name != null) // User clicked OK
         {
             // valiate "text"
             if (!name.matches("[\\w\\-._]+"))
             {
                 JOptionPane.showMessageDialog(this,
-                                              "Attribute name is not legal!");
+                        "Attribute name is not legal!");
                 return;
             }
 
@@ -139,8 +138,7 @@ public class SchemaPanel
                 return;
             }
 
-            model.addRow(new Object[]
-                         {name, "string", "varchar(128)"});
+            model.addRow(new Object[] { name, "string", "varchar(128)" });
             currentSchema.addAttribute(name, "string", "varchar(128)");
             modified = true;
         }
@@ -156,7 +154,8 @@ public class SchemaPanel
             String attrName = (String) model.getValueAt(rowIndex, attIndex);
 
             int answer = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete attribute '" + attrName + "'?");
+                    "Are you sure you want to delete attribute '" + attrName
+                            + "'?");
             if (answer == JOptionPane.YES_OPTION)
             {
                 currentSchema.deleteAttribute(attrName);
@@ -188,36 +187,33 @@ public class SchemaPanel
 
         if (suc)
         {
-            JOptionPane.showMessageDialog(this,
-                                          "Schema " + name +
-                                          " is successfully saved",
-                                          "Schema", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Schema " + name
+                    + " is successfully saved", "Schema",
+                    JOptionPane.PLAIN_MESSAGE);
             modified = false;
             // look if the type is in the list
             for (int i = 0; i < schemaList.getItemCount(); i++)
             {
                 String item = (String) schemaList.getItemAt(i);
-                if (item.equals(name))
-                {
-                    return;
-                }
+                if (item.equals(name)) { return; }
             }
             // if a new type , update schema list
             // readRegisteredSchema(name);
             schemaList.addItem(name);
             schemaList.setSelectedItem(name);
+
+            InfoReader.updateCache(currentSchema.getName(),
+                    InfoReader.schemaCache, currentSchema);
         }
         else
         {
-            JOptionPane.showMessageDialog(this,
-                                          "Schema " + name + " can't be saved",
-                                          "Schema", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Schema " + name
+                    + " can't be saved", "Schema", JOptionPane.ERROR_MESSAGE);
         }
 
     }
 
-    class MyTypeListener
-        implements ItemListener
+    class MyTypeListener implements ItemListener
 
     {
         public void itemStateChanged(ItemEvent e)
@@ -245,8 +241,7 @@ public class SchemaPanel
         }
     }
 
-    class MySchemaListener
-        implements ItemListener
+    class MySchemaListener implements ItemListener
     {
         // This method is called only if a new item has been selected.
         public void itemStateChanged(ItemEvent evt)
@@ -265,9 +260,10 @@ public class SchemaPanel
                 if (!loadSchema(item.toString()))
                 {
                     // load fails, restore the privious one unless it's the same to be loaded
-                    if (currentSchema != null && currentSchema.getName() != null)
+                    if (currentSchema != null
+                            && currentSchema.getName() != null)
                     {
-                        if (!currentSchema.getName().equals( (String) item))
+                        if (!currentSchema.getName().equals((String) item))
                         {
                             schemaList.setSelectedItem(currentSchema.getName());
                         }
@@ -295,10 +291,7 @@ public class SchemaPanel
      */
     private boolean loadSchema(String name)
     {
-        if (name == null || name.length() == 0)
-        {
-            return false;
-        }
+        if (name == null || name.length() == 0) { return false; }
 
         Schema newSchema = InfoReader.readSchema(name);
 
@@ -316,9 +309,13 @@ public class SchemaPanel
             {
                 // some types are missing
                 used.removeAll(available);
-                Debug.trace(null, "Types " + used +
-                            " are missing! Loading could results in unexpected outcome" +
-                            ",\nplease create them or change your schema defintion");
+                Debug
+                        .trace(
+                                null,
+                                "Types "
+                                        + used
+                                        + " are missing! Loading could results in unexpected outcome"
+                                        + ",\nplease create them or change your schema defintion");
             }
 
             // update UI
@@ -330,8 +327,8 @@ public class SchemaPanel
         }
         else
         {
-            Debug.trace(this,
-                        "Schema :" + name + " information is not available");
+            Debug.trace(this, "Schema :" + name
+                    + " information is not available");
         }
         return true;
     }
@@ -341,10 +338,7 @@ public class SchemaPanel
         String used[] = InfoReader.getAllSchema();
         String name = askForName(used);
 
-        if (name == null)
-        {
-            return;
-        }
+        if (name == null) { return; }
 
         // remove all attribute rows
         while (model.getRowCount() > 0)
@@ -372,8 +366,8 @@ public class SchemaPanel
 
             if (xml != null)
             {
-                String url = IndusConstants.schemaBasisURL +
-                    currentSchema.getName() + ".xml";
+                String url = IndusConstants.schemaBasisURL
+                        + currentSchema.getName() + ".xml";
                 //Debug.trace("This XML file is also available from " + url);
 
                 //Debug.trace(currentSchema.toSQL("localTable"));
@@ -382,8 +376,7 @@ public class SchemaPanel
             }
             else
             {
-                JOptionPane.showMessageDialog(
-                    this, "No schema is defined");
+                JOptionPane.showMessageDialog(this, "No schema is defined");
             }
         }
     }
@@ -401,31 +394,27 @@ public class SchemaPanel
 
             // Modal dialog with yes/no button
             int answer = JOptionPane.showConfirmDialog(this,
-                "Are you sure to delete schema '" + schemaName +
-                "'? The deletion can't be undone");
-            if (answer != JOptionPane.YES_OPTION)
-            {
-                return;
-            }
+                    "Are you sure to delete schema '" + schemaName
+                            + "'? The deletion can't be undone");
+            if (answer != JOptionPane.YES_OPTION) { return; }
 
             boolean suc = InfoWriter.deleteSchema(schemaName);
             if (suc)
             {
-                JOptionPane.showMessageDialog(this, "Schema '" + schemaName +
-                                              "' is deleted successfully");
+                JOptionPane.showMessageDialog(this, "Schema '" + schemaName
+                        + "' is deleted successfully");
                 currentSchema.clear();
                 modified = false;
                 readRegisteredSchema(null);
             }
             else
             {
-                JOptionPane.showMessageDialog(
-                    this, "Delete schema '" + schemaName + "' failed!");
+                JOptionPane.showMessageDialog(this, "Delete schema '"
+                        + schemaName + "' failed!");
             }
         }
         catch (Exception ex)
-        {
-        }
+        {}
     }
 
     public void onSchemaList(ActionEvent e)
@@ -444,9 +433,9 @@ public class SchemaPanel
         // prompt for save
         if (modified && currentSchema != null)
         {
-            int answer = JOptionPane.showConfirmDialog(null,
-                "Schema '" + currentSchema.getName() +
-                "' is changed, do you want to update it? ");
+            int answer = JOptionPane.showConfirmDialog(null, "Schema '"
+                    + currentSchema.getName()
+                    + "' is changed, do you want to update it? ");
             if (answer == JOptionPane.YES_OPTION)
             {
                 save();
@@ -472,8 +461,7 @@ public class SchemaPanel
             MessageMap.mapAction(this.btnSchemaList, this, "onSchemaList");
         }
         catch (Exception ex)
-        {
-        }
+        {}
     }
 
 }

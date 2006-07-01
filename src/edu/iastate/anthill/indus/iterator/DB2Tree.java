@@ -13,7 +13,7 @@ import java.util.Vector;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import edu.iastate.anthill.indus.IndusBasis;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.tree.TreeNodeInsertEditing;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;

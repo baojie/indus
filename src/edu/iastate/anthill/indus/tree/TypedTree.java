@@ -353,8 +353,8 @@ public class TypedTree extends JTreeEx
                     parent = parent.substring(j + 1);
                 
                 TypedNode parentNode = m.get(parent);
-                if (parentNode != null)
-                {
+                if (parentNode != null && !node.isNodeAncestor(parentNode))
+                {                    
                     parentNode.add(node);
                 }
             }

@@ -49,7 +49,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
     static TypedNode    lastColored1, lastColored2;
     protected JMenuItem itemEditConnector = new JMenuItem("Edit...");
     protected JMenuItem itemAddInverse    = new JMenuItem(
-                                                  "Add Inverse Function...");
+                                              "Add Inverse Function...");
 
     protected boolean   modified          = false;
 
@@ -70,13 +70,13 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         }
         // schema node
         else if ((node instanceof DataSourceNode)
-                && (node.getType() == DataSourceNode.ATTRIBUTE))
+            && (node.getType() == DataSourceNode.ATTRIBUTE))
         {
             TypedNode n = node;
             while (n != null)
             {
                 if ((n instanceof DataSourceNode)
-                        && (n.getType() == DataSourceNode.DB)) { return ((DataSourceNode) n)
+                    && (n.getType() == DataSourceNode.DB)) { return ((DataSourceNode) n)
                         .getLocalName(); }
                 n = (TypedNode) n.getParent();
             }
@@ -90,7 +90,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
                 // Debug.trace(this, n + " " + (n instanceof DataSourceNode) + "
                 // " + n.getType());
                 if ((n instanceof DataSourceNode)
-                        && (n.getType() == DataSourceNode.AVH))
+                    && (n.getType() == DataSourceNode.AVH))
                 {
                     // Debug.trace(this, ((DataSourceNode) n).getDatatype());
                     return ((DataSourceNode) n).getDatatype();
@@ -110,7 +110,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
     protected void createTreeFromSchema(String schemaName, int whichTree)
     {
         DataSourceNode root = new DataSourceNode(schemaName, TypedNode.DB,
-                "Schema");
+            "Schema");
 
         Schema schema = InfoReader.readSchema(schemaName);
 
@@ -125,7 +125,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
                 String typeName = (String) attList.get(attrname);
 
                 DataSourceNode node = new DataSourceNode(attrname,
-                        TypedNode.ATTRIBUTE, typeName);
+                    TypedNode.ATTRIBUTE, typeName);
                 root.add(node);
 
                 // read attribute value, build a tree
@@ -159,7 +159,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
     }
 
     public abstract TypedTree createTree(TypedNode root, JScrollPane pane,
-            final int whichtree);
+        final int whichtree);
 
     protected void readRegisteredMapping(Object defaultSelected)
     {
@@ -213,7 +213,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         String bad = "The mapping is inconsistent";
 
         String info = (good ? ok : bad + "\nDetails: "
-                + reasoner.badRuleInformation);
+            + reasoner.badRuleInformation);
         JOptionPane.showMessageDialog(this, info);
 
     }
@@ -286,18 +286,20 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
 
             // 2.1 update schema list
             // Debug.trace(this, myMapping.toString());
-            String from = myMapping.schemaMapping.from;
-            String to = myMapping.schemaMapping.to;
-            schema1.setText(from);
-            schema2.setText(to);
+            if (myMapping.schemaMapping != null)
+            {
+                String from = myMapping.schemaMapping.from;
+                String to = myMapping.schemaMapping.to;
+                schema1.setText(from);
+                schema2.setText(to);
 
-            createTreeFromSchema(from, 1);
-            createTreeFromSchema(to, 2);
+                createTreeFromSchema(from, 1);
+                createTreeFromSchema(to, 2);
 
-            refreshBtn1.setEnabled(true);
-            refreshBtn2.setEnabled(true);
-            //w.trace("load schemas", true);
-
+                refreshBtn1.setEnabled(true);
+                refreshBtn2.setEnabled(true);
+                //w.trace("load schemas", true);
+            }
             // 2.2 update mapping rule list
             updateMappingRuleList(myMapping);
             //w.trace("update mapping rule list", true);
@@ -305,17 +307,16 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
             // 2.3 load user connectors
             updateConnectorList(myMapping);
             //w.trace("update connector list", true);
-            
+
             // 2.4 update Info
-            this.setInfo("Mapping Rules ("+ myMapping.size()+")");
-            
+            this.setInfo("Mapping Rules (" + myMapping.size() + ")");
 
             modified = false;
         }
         else
         {
             Debug.trace(this, "Mapping '" + m.name
-                    + "' information is not available");
+                + "' information is not available");
         }
     }
 
@@ -368,7 +369,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
                 mappingConnectorsList.setSelectedIndex(row);
 
                 if (evt.isPopupTrigger()
-                        && !(mappingConnectorsList.getSelectedValue() instanceof SimpleConnector))
+                    && !(mappingConnectorsList.getSelectedValue() instanceof SimpleConnector))
                 {
                     menu.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
@@ -499,7 +500,7 @@ abstract public class MappingPanelReadingActions extends MappingPanelGUI
         try
         {
             MessageMap.mapAction(this.btnUpdateMappingList, this,
-                    "onUpdateMappingList");
+                "onUpdateMappingList");
             MessageMap.mapAction(this.refreshBtn1, this, "onRefresh1");
             MessageMap.mapAction(this.refreshBtn2, this, "onRefresh2");
             MessageMap.mapAction(this.itemAddInverse, this, "onAddInverse");

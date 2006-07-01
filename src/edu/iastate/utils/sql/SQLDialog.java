@@ -79,7 +79,7 @@ public class SQLDialog
 
         GUIUtils.setJButtonSizesTheSame(new JButton[]
                                         {jButtonOK, jButtonCancel,
-                                        panel.jButtonCopy, panel.jButtonPaste});
+                                        panel.btnCopy, panel.btnPaste});
 
         this.setContentPane(panel);
         this.setSize(500, 300);

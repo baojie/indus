@@ -11,7 +11,6 @@ import javax.swing.event.ChangeListener;
 import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.gui.panel.IndusPane;
 
-
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
 import edu.iastate.utils.Debug;
@@ -21,8 +20,7 @@ import edu.iastate.utils.Debug;
  * @author Jie Bao
  * @since 1.0
  */
-public class IndusGUIAction
-    extends IndusGUI implements MessageHandler
+public class IndusGUIAction extends IndusGUI implements MessageHandler
 {
     public IndusGUIAction()
     {
@@ -45,17 +43,23 @@ public class IndusGUIAction
         try
         {
             MessageMap.mapAction(menuHelpAbout, this, "onHelpAbout");
+            MessageMap.mapAction(menuFileExit, this, "onFileExit");
         }
         catch (Exception ex)
-        {
-        }
+        {}
     }
 
     public void onHelpAbout(ActionEvent e)
     {
         AboutBoxDialog dlg = new AboutBoxDialog(IndusConstants.infoAbout,
-                                                "About " + IndusConstants.NAME);
+                "About " + IndusConstants.NAME);
         dlg.showAboutBox();
+    }
+
+    // Jie Bao 2006-06-30
+    public void onFileExit(ActionEvent e)
+    {
+        onExit();
     }
 
     /**
@@ -71,9 +75,8 @@ public class IndusGUIAction
         for (int i = 0; i < count; i++)
         {
             // Get component associated with tab
-            Component comp =  tabPanel.getComponentAt(i);
-            if (comp instanceof IndusPane)
-                ((IndusPane)comp).promptSave();
+            Component comp = tabPanel.getComponentAt(i);
+            if (comp instanceof IndusPane) ((IndusPane) comp).promptSave();
         }
         indusSystemDB.disconnect();
         indusCacheDB.disconnect();
@@ -87,15 +90,13 @@ public class IndusGUIAction
     {
         final IndusGUIAction thisAgent = this;
         config.load(thisAgent);
-        mainFrame.addWindowListener(new WindowAdapter()
-        {
+        mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt)
             {
                 onExit();
             }
         });
-        tabPanel.addChangeListener(new ChangeListener()
-        {
+        tabPanel.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt)
             {
                 onChangePane(evt);
@@ -104,6 +105,7 @@ public class IndusGUIAction
     }
 
     IndusPane lastSelectedPane = null;
+
     // This method is called whenever the selected tab changes
     public void onChangePane(ChangeEvent evt)
     {
@@ -117,9 +119,8 @@ public class IndusGUIAction
             lastSelectedPane.promptSave();
         }
         // Get current tab
-        Component c= pane.getSelectedComponent();
-        if (c instanceof IndusPane)
-            lastSelectedPane = (IndusPane) c;
+        Component c = pane.getSelectedComponent();
+        if (c instanceof IndusPane) lastSelectedPane = (IndusPane) c;
     }
 
 }

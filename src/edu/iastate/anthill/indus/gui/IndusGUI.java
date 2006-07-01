@@ -9,12 +9,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import edu.iastate.anthill.indus.IndusBasis;
-import edu.iastate.anthill.indus.datasource.type.AVH;
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+
 import edu.iastate.anthill.indus.gui.panel.DataPanel;
 import edu.iastate.anthill.indus.gui.panel.IndusPane;
 import edu.iastate.anthill.indus.gui.panel.MappingPanel;
@@ -39,8 +37,8 @@ public class IndusGUI extends IndusBasis
 
         try
         {
-            jbInit();
-            //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            //UIManager.setLookAndFeel(WindowsLookAndFeel.class.getName());            
+            jbInit();            
         }
         catch (Exception e)
         {
@@ -69,7 +67,7 @@ public class IndusGUI extends IndusBasis
     public DataPanel    paneDataSource;
     public ViewPanel    paneView;
     public QueryPanel   paneQuery;
-    JMenuItem           jMenuItem1    = new JMenuItem();
+    JMenuItem           menuFileExit    = new JMenuItem();
 
     private void jbInit() throws Exception
     {
@@ -78,7 +76,7 @@ public class IndusGUI extends IndusBasis
         menuHelpAbout.setText("About");
 
         this.setLayout(borderLayout1);
-        jMenuItem1.setText("Nothing yet");
+        menuFileExit.setText("Exit");
         mainMenu.add(menuFile);
         mainMenu.add(menuHelp);
         menuHelp.add(menuHelpAbout);
@@ -94,7 +92,7 @@ public class IndusGUI extends IndusBasis
         this.add(statusBar, java.awt.BorderLayout.SOUTH);
 
         mainFrame.getContentPane().add(this, BorderLayout.CENTER);
-        menuFile.add(jMenuItem1);
+        menuFile.add(menuFileExit);
     }
 
     protected void loadAllPanels()
@@ -169,6 +167,7 @@ public class IndusGUI extends IndusBasis
                 paneQuery = new QueryPanel(p);
                 tabPanel.remove(5);
                 tabPanel.add(paneQuery, "Query Editor", 5);
+                paneQuery.resetPanel();
             }
         };
         t.start();

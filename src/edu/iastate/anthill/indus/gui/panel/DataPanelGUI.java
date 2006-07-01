@@ -19,7 +19,7 @@ abstract public class DataPanelGUI
     GridLayout gridLayout1 = new GridLayout();
     JButton btnDeleteDS = new JButton();
 
-    //DBPanel dbPanel;
+    //DBPanel resultPane;
     DataRDBMSPanel dsPanel;
     JButton btnSave = new JButton();
     JButton btnUpdateDSList = new JButton();
@@ -46,7 +46,7 @@ abstract public class DataPanelGUI
         northPanel.setLayout(gridLayout1);
         btnCreateNewDS.setText("Create New DataSource");
         jLabel1.setText("Existing Data Sources ");
-        //dbPanel.setEditable(true);
+        //resultPane.setEditable(true);
         btnDeleteDS.setText("Delete Datasource");
         btnSave.setText("Save ");
         btnUpdateDSList.setText("Update List");
@@ -58,7 +58,7 @@ abstract public class DataPanelGUI
         northPanel.add(btnCreateNewDS, null);
         northPanel.add(btnSave);
 
-        //jTabbedPane1.add(dbPanel, "Edit existing Data Source");
+        //jTabbedPane1.add(resultPane, "Edit existing Data Source");
         //jTabbedPane1.add(arffPanel, "Register Weka ARFF Data");
         //jTabbedPane1.add(rdbmsPanel, "Register Relation DB");
 

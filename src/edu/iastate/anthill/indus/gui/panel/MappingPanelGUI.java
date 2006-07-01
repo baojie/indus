@@ -80,6 +80,7 @@ abstract public class MappingPanelGUI extends IndusPane
                                                         JSplitPane.VERTICAL_SPLIT);
     JButton           btnExportXML              = new JButton("Export XML");
     JButton           btnImportXML              = new JButton("Import XML");
+    JButton           btnImportText              = new JButton("Import Text");
     JLabel            schema1                   = new JLabel();
     JLabel            schema2                   = new JLabel();
     JButton           btnDeleteMapping          = new JButton();
@@ -162,6 +163,7 @@ abstract public class MappingPanelGUI extends IndusPane
         commandPanel.add(btnValidate);
         commandPanel.add(btnExportXML, null);
         commandPanel.add(btnImportXML, null);
+        //commandPanel.add(btnImportText, null);
         
         jSplitPane1.setOneTouchExpandable(true);
         jSplitPane1.add(mapping_botPanel, JSplitPane.BOTTOM);

@@ -171,4 +171,26 @@ End of test
     
     reorganize: put some SQL optimization methods together into SQLQueryOptimizer
        
-  
+2006-06-29       
+    Optimize query with a long list of IN
+    Reorganize packages, move tray to utils; move IndusMain and its ancensters to gui
+    
+    Explain the structure of INDUS to Neeraj   (8pm-10pm)
+    
+2006-06-30
+    Load and Save query    
+    
+    Change the query engine design
+      * cancel local rewriting and remote rewriting
+      * cancel local world limitation
+      * change query translation: transverse the two ontologies via mapping
+         (do the job of both translation and rewriting in the old design)
+      The profromance of query translation is greatly improved!
+      It can handle scop-ec query (85k scope + 4k ec + 15k mapping) within 2 seconds      
+         
+    Change the layout of QueryPanelGUI     
+         
+    IndusGUIAction: onFileExit
+    
+             
+    

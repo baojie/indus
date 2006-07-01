@@ -110,7 +110,7 @@ public class WhereAtomPane
     {
         messageMap();
 
-        operator.setSelectedIndex(0);
+        operator.setSelectedItem("<=");
         this.setLayout(gridLayout1);
 
         field = new JComboBox();

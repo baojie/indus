@@ -120,15 +120,13 @@ public class SQLQueryRewriter
             // lower than nothing => false 1 < 0
             return new ZExpression(op, one, zero);
         }
-        else
-        {
-            ZExp valueSet = ZqlUtils.buildValueSet(values,
-                    ZConstantEx.AVH);
-            ZConstantEx field = new ZConstantEx(attribute,
-                    ZConstantEx.COLUMNNAME);
-            ZExpression e = new ZExpression(connector, field, valueSet);
-            return e;
-        }
+        
+        ZExp valueSet = ZqlUtils.buildValueSet(values,
+                ZConstantEx.AVH);
+        ZConstantEx field = new ZConstantEx(attribute,
+                ZConstantEx.COLUMNNAME);
+        ZExpression e = new ZExpression(connector, field, valueSet);
+        return e;
     }
 
     public boolean isINClause(ZExpression clause)

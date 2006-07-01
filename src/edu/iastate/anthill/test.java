@@ -32,7 +32,7 @@ public final class test
 
     private void jbInit() throws Exception
     {
-        jLabel1.setText("jLabel1");
+        jLabel1.setText("labelInfo");
         jLabel1.addMouseListener(new MouseAdapter()
         {
             public void mouseClicked(MouseEvent e)

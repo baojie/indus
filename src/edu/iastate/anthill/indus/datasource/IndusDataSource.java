@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.IndusConstants;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.sql.LocalDBConnection;
 

@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.datasource.Configable;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.view.View;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.utils.Debug;
 import edu.iastate.utils.sql.JDBCUtils;
 import edu.iastate.utils.string.Zip;

@@ -14,7 +14,8 @@ import Zql.ZFromItem;
 import Zql.ZQuery;
 import Zql.ZSelectItem;
 
-import edu.iastate.anthill.indus.IndusBasis;
+import edu.iastate.anthill.indus.IndusConstants;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.utils.sql.JDBCUtils;
 
 /**
@@ -23,7 +24,7 @@ import edu.iastate.utils.sql.JDBCUtils;
  */
 public class SQLQueryOptimizer
 {
-    String     tempTable = "opt" + IndusBasis.getTimeStamp();
+    String     tempTable = "indus_temp" + IndusBasis.getTimeStamp();
     boolean    writeable = false;
     Connection db;
 
@@ -42,13 +43,33 @@ public class SQLQueryOptimizer
         String sql = "DROP TABLE " + tempTable;
         JDBCUtils.updateDatabase(db, sql);
     }
+    
+    // Jie Bao 2006-06-30
+    public String optimize(ZQuery query,  boolean rewriteLongIN) 
+    {
+        // 2006-06-29 optimization
+        ZExp z = optimize((ZExpression) query.getWhere(),rewriteLongIN);
+        query.addWhere(z);// replace the old WHERE
+        // {{ 2005-10-19 Jie Bao
+        //String s = ZqlUtils.printZExpression((ZExpression) query.getWhere());
+        //System.out.println(s);
 
-    public ZExp optimize(ZExpression exp)
+        String strQuery = query.toString();
+        strQuery = removeDupBrackets(strQuery.toCharArray());
+        if (IndusConstants.DEBUG)
+            System.out.println("Native query : " + strQuery);
+        // }} 2005-10-19  
+        
+        return strQuery.toString();
+    }
+
+    public ZExp optimize(ZExpression exp, boolean rewriteLongIN)
     {
         //String s = ZqlUtils.printZExpression(exp);
         //System.out.println(s);
 
-        //if (writeable) rewriteLargeIN(exp);
+        if (writeable && rewriteLongIN)
+            rewriteLargeIN(exp);
 
         while (removeNullClause(exp))
         {
@@ -67,7 +88,7 @@ public class SQLQueryOptimizer
 
         return exp;
 
-        // other oprimizations...
+        // other optimalizations...
     }
 
     static int groupID = 0;
@@ -93,6 +114,9 @@ public class SQLQueryOptimizer
         StringBuffer buf = new StringBuffer();
 
         Vector<ZExp> opr = exp.getOperands();
+        
+        if (opr == null) return "";
+        
         for (int j = 0; j < opr.size(); j++)
         {
             ZExp e = opr.elementAt(j);
@@ -167,6 +191,9 @@ public class SQLQueryOptimizer
         boolean changed = false;
 
         Vector<ZExp> opr = exp.getOperands();
+        
+        if (opr == null) return false;
+        
         for (Iterator it = opr.iterator(); it.hasNext();)
         {
             ZExp e = (ZExp) it.next();

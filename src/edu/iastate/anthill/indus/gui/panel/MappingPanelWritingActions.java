@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.agent.IndusHttpClient;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.agent.InfoWriter;
@@ -18,6 +17,7 @@ import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
 import edu.iastate.anthill.indus.datasource.mapping.NumericConnector;
 import edu.iastate.anthill.indus.datasource.type.AVH;
 import edu.iastate.anthill.indus.datasource.type.DataType;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.gui.IndusGUI;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.utils.Debug;
@@ -61,8 +61,8 @@ public abstract class MappingPanelWritingActions extends
         String[] data = InfoReader.getAllSchema();
 
         String s1 = (String) JOptionPane.showInputDialog(null,
-                "Choose schema 1", "Input", JOptionPane.INFORMATION_MESSAGE,
-                null, data, data[0]);
+            "Choose schema 1", "Input", JOptionPane.INFORMATION_MESSAGE, null,
+            data, data[0]);
         if (s1 != null)
         {
             Vector data_without_s1 = Utility.Array2Vector(data);
@@ -76,20 +76,19 @@ public abstract class MappingPanelWritingActions extends
             }
 
             String s2 = (String) JOptionPane.showInputDialog(null,
-                    "Choose schema 2", "Input",
-                    JOptionPane.INFORMATION_MESSAGE, null, data_without_s1
-                            .toArray(), data_without_s1.elementAt(0));
+                "Choose schema 2", "Input", JOptionPane.INFORMATION_MESSAGE,
+                null, data_without_s1.toArray(), data_without_s1.elementAt(0));
             if (s2 != null)
             {
                 String mappingName = JOptionPane.showInputDialog(this,
-                        "The name of new mapping", s1 + "-" + s2);
+                    "The name of new mapping", s1 + "-" + s2);
                 if (mappingName != null) // User clicked OK
                 {
                     // valiate "text"
                     if (!mappingName.matches("[\\w\\-]+"))
                     {
                         JOptionPane.showMessageDialog(this,
-                                "Name is not legal!");
+                            "Name is not legal!");
                         return;
                     }
                 }
@@ -106,7 +105,7 @@ public abstract class MappingPanelWritingActions extends
                     if (Arrays.asList(allMappings).contains(mappingName))
                     {
                         JOptionPane.showMessageDialog(this, "Mapping '"
-                                + mappingName + "' already exists");
+                            + mappingName + "' already exists");
                         return;
                     }
 
@@ -125,14 +124,13 @@ public abstract class MappingPanelWritingActions extends
 
                     // save it
                     save();
-                    this.setInfo("Mapping Rules ("+ myMapping.size()+")");
+                    this.setInfo("Mapping Rules (" + myMapping.size() + ")");
                     modified = false;
                 }
                 else
                 {
-                    JOptionPane
-                            .showMessageDialog(this,
-                                    "Cannot create new mapping - reading server fails!");
+                    JOptionPane.showMessageDialog(this,
+                        "Cannot create new mapping - reading server fails!");
                 }
 
             }
@@ -167,10 +165,10 @@ public abstract class MappingPanelWritingActions extends
                 String supertype1 = IndusHttpClient.getTopSuperType(type1);
                 String supertype2 = IndusHttpClient.getTopSuperType(type2);
                 if (!AVH.isNumber(type1, supertype1)
-                        || !AVH.isNumber(type2, supertype2))
+                    || !AVH.isNumber(type2, supertype2))
                 {
                     JOptionPane.showMessageDialog(this, "Bridge " + sel
-                            + "can only be applied on numeric attirbutes");
+                        + "can only be applied on numeric attirbutes");
                     return;
                 }
             }
@@ -213,7 +211,7 @@ public abstract class MappingPanelWritingActions extends
                 }
             }
         }
-        this.setInfo("Mapping Rules ("+ myMapping.size()+")");
+        this.setInfo("Mapping Rules (" + myMapping.size() + ")");
         //btnSaveMapping.setEnabled(mappingRuleListModel.getSize() > 0);
     }
 
@@ -229,8 +227,8 @@ public abstract class MappingPanelWritingActions extends
         if (modified && myMapping != null)
         {
             int answer = JOptionPane.showConfirmDialog(null, "Mapping '"
-                    + myMapping.getName()
-                    + "' is changed, do you want to update it? ");
+                + myMapping.getName()
+                + "' is changed, do you want to update it? ");
             if (answer == JOptionPane.YES_OPTION)
             {
                 save();
@@ -255,7 +253,7 @@ public abstract class MappingPanelWritingActions extends
             if (cc.getMirror() == null)
             {
                 String info = "Connector " + cc.name
-                        + " has no inverse mapping, please add it";
+                    + " has no inverse mapping, please add it";
                 JOptionPane.showMessageDialog(this, info);
                 return false;
             }
@@ -268,10 +266,12 @@ public abstract class MappingPanelWritingActions extends
             {
                 //String selected = (String) mappingFileList.getSelectedItem();
                 String info = "Mapping " + myMapping.getName()
-                        + " saved successfully";
+                    + " saved successfully";
                 JOptionPane.showMessageDialog(this, info);
                 modified = false;
                 //readRegisteredMapping(selected);
+                InfoReader.updateCache(myMapping.getName(),
+                    InfoReader.mappingCache, myMapping);
                 return true;
             }
         }
@@ -343,20 +343,21 @@ public abstract class MappingPanelWritingActions extends
 
             // Modal dialog with yes/no button
             int answer = JOptionPane.showConfirmDialog(this,
-                    "Are you sure to delete mapping '" + mappingName
-                            + "'? The deletion can't be undone");
+                "Are you sure to delete mapping '" + mappingName
+                    + "'? The deletion can't be undone");
             if (answer != JOptionPane.YES_OPTION) { return; }
 
             boolean suc = InfoWriter.deleteMapping(mappingName);
             if (suc)
             {
                 JOptionPane.showMessageDialog(this, "Mapping '" + mappingName
-                        + "' is deleted successfully");
+                    + "' is deleted successfully");
                 myMapping.clear();
                 this.lstBridges.setListData(new Vector());
 
                 modified = false;
-                readRegisteredMapping(null);
+                //readRegisteredMapping(null);
+                this.mappingFileList.removeItem(mappingName);
             }
             else
             {
@@ -424,9 +425,9 @@ public abstract class MappingPanelWritingActions extends
                             .getSize(), t);
 
                     String info = "Connector "
-                            + t.name
-                            + " is created successfully"
-                            + "\nHowever, it will be stored in the mapping file only if it is used by some mapping rules";
+                        + t.name
+                        + " is created successfully"
+                        + "\nHowever, it will be stored in the mapping file only if it is used by some mapping rules";
                     JOptionPane.showMessageDialog(this, info);
                     // modified = true;
                     return;
@@ -451,7 +452,7 @@ public abstract class MappingPanelWritingActions extends
         NumericConnector t = (NumericConnector) mappingConnectorsList
                 .getSelectedValue();
         NumericConnector inverse = new NumericConnector("Inverse-" + t.name,
-                t.inverseExpression);
+            t.inverseExpression);
 
         MappingRuleDialog dlg = new MappingRuleDialog(inverse);
 
@@ -483,13 +484,33 @@ public abstract class MappingPanelWritingActions extends
                     .mapAction(this.btnDeleteMapping, this, "onDeleteMapping");
             MessageMap.mapAction(this.btnNewConnector, this, "onNewConnector");
             MessageMap.mapAction(this.itemEditConnector, this,
-                    "onEditConnector");
+                "onEditConnector");
             MessageMap.mapAction(this.itemAddInverse, this, "onAddInverse");
             MessageMap.mapAction(this.btnExportXML, this, "onExportMapping");
             MessageMap.mapAction(this.btnImportXML, this, "onImportMapping");
+            MessageMap.mapAction(this.btnImportText, this,
+                "onImportMappingText");
         }
         catch (Exception ex)
         {}
+    }
+
+    /**
+     * Import mapping from plain text
+     * @param e
+     * 
+     * @author Jie Bao
+     * @since 2006-07-01
+     */
+    public void onImportMappingText(ActionEvent e)
+    {
+        // save as 
+        final String title = "Import from Text";
+        final String extension = "txt";
+        final String description = "Text Documents";
+
+        importFile(title, extension, description, false);
+
     }
 
     /**
@@ -499,24 +520,32 @@ public abstract class MappingPanelWritingActions extends
      */
     public void onImportMapping(ActionEvent e)
     {
-        // save the current
-        promptSave();
-
         // save as 
         final String title = "Import from XML";
         final String extension = "xml";
         final String description = "XML Documents";
 
+        importFile(title, extension, description, true);
+    }
+
+    private void importFile(final String title, final String extension,
+        final String description, boolean isXML)
+    {
+        //      save the current
+        promptSave();
         String fileName = getFileName(title, extension, description, false);
         // get the ontology from the database
         if (fileName != null)
         {
             try
             {
-                String xml = FileUtils.readFile(fileName);
-                
+                String text = FileUtils.readFile(fileName);
+
                 DataSourceMapping t = new DataSourceMapping();
-                t.fromXML(xml);
+
+                if (isXML)
+                    t.fromXML(text);
+                else t.fromText(text);
 
                 // add to list
                 myMapping = t;
@@ -527,13 +556,14 @@ public abstract class MappingPanelWritingActions extends
                 int count = 1;
                 while (v.contains(newName))
                 {
-                    newName = t.getName() + "_"+ (count++);
+                    newName = t.getName() + "_" + (count++);
                 }
                 t.name = newName;
-                
+
                 InfoWriter.writeMapping(t);
                 readRegisteredMapping(null);
                 loadMapping(t);
+                InfoReader.updateCache(t.getName(), InfoReader.mappingCache, t);
 
             }
             catch (Exception e1)
@@ -542,7 +572,6 @@ public abstract class MappingPanelWritingActions extends
                 Debug.trace("Error in reading the file");
             }
         }
-
     }
 
     class DeleteMappingRuleListener implements ActionListener
@@ -552,22 +581,22 @@ public abstract class MappingPanelWritingActions extends
             BridgeRule t = (BridgeRule) lstBridges.getSelectedValue();
             // delete it from mapping
             //System.out.println(t.type);
-            
+
             if (BridgeRule.SCHEMA_COMMENT.equals(t.type))
             {
                 myMapping.deleteSchemaMappingItem(t.fromTerm, t.connector,
-                        t.toTerm);
+                    t.toTerm);
                 modified = true;
             }
             else if (BridgeRule.AVH_COMMENT.equals(t.type))
             {
                 myMapping.deleteAVHMappingItem(t.fromTerminology, t.fromTerm,
-                        t.connector, t.toTerminology, t.toTerm);
+                    t.connector, t.toTerminology, t.toTerm);
                 modified = true;
             }
             btnSaveMapping.setEnabled(true);
             lstBridges.removeElement(t);
-            setInfo("Mapping Rules ("+ myMapping.size()+")");
+            setInfo("Mapping Rules (" + myMapping.size() + ")");
         }
     }
 }

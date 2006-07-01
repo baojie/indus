@@ -1,17 +1,12 @@
 package edu.iastate.anthill.indus.gui.panel;
 
-import java.util.Arrays;
-import java.util.Vector;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Vector;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -19,9 +14,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.iastate.anthill.indus.IndusBasis;
+import org.w3c.dom.Text;
+
 import edu.iastate.anthill.indus.IndusConstants;
-import edu.iastate.anthill.indus.agent.IndusHttpClient;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.agent.InfoWriter;
 import edu.iastate.anthill.indus.datasource.type.AVH;
@@ -29,13 +24,13 @@ import edu.iastate.anthill.indus.datasource.type.DAG;
 import edu.iastate.anthill.indus.datasource.type.DataType;
 import edu.iastate.anthill.indus.datasource.type.DbAVH;
 import edu.iastate.anthill.indus.datasource.type.SimpleDataType;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.iterator.DB2TreeFactory;
-
 import edu.iastate.utils.Debug;
-import edu.iastate.utils.gui.ProgressBarWin;
 import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.MessageHandler;
 import edu.iastate.utils.lang.MessageMap;
+import edu.iastate.utils.string.Zip;
 
 /**
  *
@@ -82,6 +77,7 @@ public abstract class TypePanelAction extends TypePanelGUI implements
             MessageMap.mapAction(this.btnExportText, this, "onExportText");
             MessageMap.mapAction(this.btnReload, this, "onReload");
             MessageMap.mapAction(this.btnImportText, this, "onImportText");
+            MessageMap.mapAction(this.btnImportXML, this, "onImportXML");
 
             listAllTypes.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e)
@@ -335,7 +331,8 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                         currentType.modified = false;
 
                         // 2006-06-15, update the data type cache
-                        InfoReader.updateDataTypeCache(typeName, currentType);
+                        InfoReader.updateCache(typeName,
+                                InfoReader.dataTypeCache, currentType);
 
                         JOptionPane.showMessageDialog(this, "Type '" + typeName
                                 + "' saved successfully");
@@ -575,15 +572,32 @@ public abstract class TypePanelAction extends TypePanelGUI implements
         }
     }
 
+    public void onImportXML(ActionEvent e)
+    {
+        final String title = "Import from XML";
+        final String extension = "xml";
+        final String description = "XML Documents";
+        
+        importFile(title, extension, description, true);
+
+    }
+
     public void onImportText(ActionEvent e)
     {
-        // save the current
-        promptSave();
-
         // save as 
         final String title = "Import from plain text";
         final String extension = "txt";
         final String description = "Text Documents";
+
+        importFile(title, extension, description, false);
+
+    }
+
+    private void importFile(final String title, final String extension,
+            final String description, boolean isXML)
+    {
+        //save the current
+        promptSave();
 
         String fileName = getFileName(title, extension, description, false);
         // get the ontology from the database
@@ -593,20 +607,39 @@ public abstract class TypePanelAction extends TypePanelGUI implements
             try
             {
                 text = FileUtils.readFile(fileName);
-                DataType t = InfoReader
-                        .readDataTypeNativePlain("newType", text);
+                
+                // if it starts with a number, is a zipped text
+                if (Character.isDigit(text.charAt(0)))
+                {
+                    text = Zip.decode(text);
+                }
+                
+                //System.out.println(text);
+                
+                DataType t = null;
+                
+                if (isXML)
+                    t = InfoReader.readDataTypeXML("newType", text);
+                else
+                    t =InfoReader.readDataTypeText("newType", text);
+                
+                if (t== null)
+                {
+                    Debug.trace("File format error");
+                    return;
+                }
 
                 // add to list
                 currentType = t;
                 // check if the name is used
                 Object used[] = InfoReader.getAllType();
                 Vector v = new Vector(Arrays.asList(used));
-                
+
                 String newName = t.getName();
                 int count = 1;
                 while (v.contains(newName))
                 {
-                    newName = t.getName() + "_"+ (count++);
+                    newName = t.getName() + "_" + (count++);
                 }
                 t.setName(newName);
 
@@ -616,7 +649,8 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                 listAllTypes.setSelectedValue(t.getName(), true);
 
                 loadType(t);
-                InfoReader.updateDataTypeCache(t.getName(), t);
+                InfoReader
+                        .updateCache(t.getName(), InfoReader.dataTypeCache, t);
                 listAllTypes.repaint();
             }
             catch (Exception e1)
@@ -625,7 +659,6 @@ public abstract class TypePanelAction extends TypePanelGUI implements
                 Debug.trace("Error in reading the file");
             }
         }
-
     }
 
     public void onReload(ActionEvent e)

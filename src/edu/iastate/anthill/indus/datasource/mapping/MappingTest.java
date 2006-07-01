@@ -11,9 +11,9 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.agent.InfoWriter;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.utils.Utility;
 import edu.iastate.utils.io.FileUtils;
 import edu.iastate.utils.lang.Serialization;

@@ -30,12 +30,26 @@ import edu.iastate.utils.lang.MessageMap;
  * @since 2005-03-24
  * @author Jie Bao
  */
-public class WhereTreePane
-    extends JPanel implements MessageHandler
+public class WhereTreePane extends JPanel implements MessageHandler
 {
 
-    short LOGIC = 0, EXPRESSION = 1;
-    SQLBuilderPane builder;
+    WhereAtomPane    atomExpression;
+    BorderLayout     borderLayout1 = new BorderLayout();
+    JButton          btnAddExp     = new JButton();
+
+    JButton          btnAddLogic   = new JButton();
+
+    JButton          btnDelete     = new JButton();
+
+    SQLBuilderPane   builder;
+
+    JPanel           jPanel1       = new JPanel();
+
+    JScrollPane      jScrollPane1  = new JScrollPane();
+    TypedTree        jTree1        = new TypedTree();
+    short            LOGIC         = 0, EXPRESSION = 1;
+    DefaultTreeModel model;
+
     public WhereTreePane(SQLBuilderPane builder)
     {
         try
@@ -49,23 +63,12 @@ public class WhereTreePane
         }
     }
 
-    TypedNode newLogicNode(String operator)
-    {
-        return new TypedNode(operator, LOGIC, null);
-    }
-
-    TypedNode newExpressionNode(ZExpression exp)
-    {
-        return new TypedNode(exp, EXPRESSION, null);
-    }
-
     public void createTree()
     {
         TypedNode top = newLogicNode("AND");
         jTree1.setTop(top);
 
-        jTree1.addTreeSelectionListener(new TreeSelectionListener()
-        {
+        jTree1.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent evt)
             {
                 // Get all nodes whose selection status has changed
@@ -73,18 +76,37 @@ public class WhereTreePane
                 if (evt.isAddedPath(0))
                 {
                     // This node has been selected
-                    TypedNode theNode = (TypedNode) paths[0].
-                        getLastPathComponent();
+                    TypedNode theNode = (TypedNode) paths[0]
+                            .getLastPathComponent();
                     //Debug.trace(theNode);
                     if (theNode.getUserObject() instanceof ZExpression)
                     {
-                        atomExpression.setExp( (ZExpression) theNode.
-                                              getUserObject());
+                        atomExpression.setExp((ZExpression) theNode
+                                .getUserObject());
                     }
 
                 }
             }
         });
+    }
+
+    public ZExpression generateWhere()
+    {
+        return toZExpression((TypedNode) jTree1.getTop());
+    }
+
+    TypedNode getSelectedNode()
+    {
+        TreePath path = jTree1.getSelectionPath();
+
+        if (path != null)
+        {
+            TypedNode theNode = (TypedNode) path.getLastPathComponent();
+            //Debug.trace(theNode);
+            return theNode;
+        }
+        return null;
+
     }
 
     private void jbInit() throws Exception
@@ -108,22 +130,12 @@ public class WhereTreePane
         jScrollPane1.getViewport().add(jTree1);
         jTree1.setEditable(false);
         jTree1.setShowsRootHandles(true);
-        jTree1.getSelectionModel().setSelectionMode
-            (TreeSelectionModel.SINGLE_TREE_SELECTION);
-        model = (  jTree1.getModel());
+        jTree1.getSelectionModel().setSelectionMode(
+            TreeSelectionModel.SINGLE_TREE_SELECTION);
+        model = (jTree1.getModel());
 
         createTree();
     }
-
-    DefaultTreeModel model;
-    BorderLayout borderLayout1 = new BorderLayout();
-    JPanel jPanel1 = new JPanel();
-    JButton btnAddLogic = new JButton();
-    TypedTree jTree1 = new TypedTree();
-    WhereAtomPane atomExpression;
-    JButton btnDelete = new JButton();
-    JScrollPane jScrollPane1 = new JScrollPane();
-    JButton btnAddExp = new JButton();
 
     public void messageMap()
     {
@@ -140,63 +152,14 @@ public class WhereTreePane
 
     }
 
-    public void onAddLogic(ActionEvent e)
+    TypedNode newExpressionNode(ZExpression exp)
     {
-        TypedNode theNode = getSelectedNode();
-        // Debug.trace(theNode);
+        return new TypedNode(exp, EXPRESSION, null);
+    }
 
-        String data[] = new String[]
-            {
-            "AND", "OR", "NOT"};
-        String type = (String) JOptionPane.showInputDialog(null,
-            "Choose one", "Input",
-            JOptionPane.INFORMATION_MESSAGE, null,
-            data, data[0]);
-        if (type != null)
-        {
-            if (theNode != null)
-            {
-                if (theNode.getUserObject().equals("NOT") &&
-                    theNode.getType() == LOGIC && theNode.getChildCount() >= 1)
-                {
-                    return;
-                }
-
-                //Debug.trace(theNode.getParent().getClass());
-                TypedNode parent = (TypedNode) theNode.getParent();
-                TypedNode newNode = this.newLogicNode(type);
-
-                if (parent != null)
-                {
-                    model.removeNodeFromParent(theNode);
-                    model.insertNodeInto(theNode, newNode,
-                                         newNode.getChildCount());
-
-                    //newNode.add(theNode);
-                    model.insertNodeInto(newNode, parent, parent.getChildCount());
-                    parent.add(newNode);
-                    System.out.print(jTree1);
-
-                }
-                else
-                {
-                    model.insertNodeInto(theNode, newNode,
-                                         newNode.getChildCount());
-                    //newNode.add(theNode);
-                    jTree1.setTop(newNode);
-                }
-
-            }
-            else // create a new root
-            {
-                TypedNode newNode = this.newLogicNode(type);
-                jTree1.setTop(newNode);
-            }
-            jTree1.revalidate();
-            jTree1.repaint();
-            builder.sqlDlg.setSQL(builder.generateZQuery().toString());
-        }
-
+    TypedNode newLogicNode(String operator)
+    {
+        return new TypedNode(operator, LOGIC, null);
     }
 
     public void onAddExp(ActionEvent e)
@@ -204,17 +167,13 @@ public class WhereTreePane
         TypedNode theNode = getSelectedNode();
         if (theNode != null && theNode.getType() == LOGIC)
         {
-            if (theNode.getUserObject().equals("NOT") &&
-                theNode.getType() == LOGIC && theNode.getChildCount() >= 1)
-            {
-                return;
-            }
+            if (theNode.getUserObject().equals("NOT")
+                && theNode.getType() == LOGIC && theNode.getChildCount() >= 1) { return; }
             ZExpression exp = atomExpression.getExp();
             if (exp != null)
             {
                 TypedNode newNode = newExpressionNode(exp);
-                model.insertNodeInto(newNode, theNode,
-                                     theNode.getChildCount());
+                model.insertNodeInto(newNode, theNode, theNode.getChildCount());
                 jTree1.setSelectionPath(jTree1.getPath(newNode));
                 jTree1.revalidate();
                 jTree1.repaint();
@@ -225,17 +184,58 @@ public class WhereTreePane
 
     }
 
-    TypedNode getSelectedNode()
+    public void onAddLogic(ActionEvent e)
     {
-        TreePath path = jTree1.getSelectionPath();
+        TypedNode theNode = getSelectedNode();
+        // Debug.trace(theNode);
 
-        if (path != null)
+        String data[] = new String[] { "AND", "OR", "NOT" };
+        String type = (String) JOptionPane.showInputDialog(null, "Choose one",
+            "Input", JOptionPane.INFORMATION_MESSAGE, null, data, data[0]);
+        if (type != null)
         {
-            TypedNode theNode = (TypedNode) path.getLastPathComponent();
-            //Debug.trace(theNode);
-            return theNode;
+            if (theNode != null)
+            {
+                if (theNode.getUserObject().equals("NOT")
+                    && theNode.getType() == LOGIC
+                    && theNode.getChildCount() >= 1) { return; }
+
+                //Debug.trace(theNode.getParent().getClass());
+                TypedNode parent = (TypedNode) theNode.getParent();
+                TypedNode newNode = this.newLogicNode(type);
+
+                if (parent != null)
+                {
+                    model.removeNodeFromParent(theNode);
+                    model.insertNodeInto(theNode, newNode, newNode
+                            .getChildCount());
+
+                    //newNode.add(theNode);
+                    model.insertNodeInto(newNode, parent, parent
+                            .getChildCount());
+                    parent.add(newNode);
+                    System.out.print(jTree1);
+
+                }
+                else
+                {
+                    model.insertNodeInto(theNode, newNode, newNode
+                            .getChildCount());
+                    //newNode.add(theNode);
+                    jTree1.setTop(newNode);
+                }
+
+            }
+            else
+            // create a new root
+            {
+                TypedNode newNode = this.newLogicNode(type);
+                jTree1.setTop(newNode);
+            }
+            jTree1.revalidate();
+            jTree1.repaint();
+            builder.sqlDlg.setSQL(builder.generateZQuery().toString());
         }
-        return null;
 
     }
 
@@ -251,7 +251,7 @@ public class WhereTreePane
             TypedNode parent = (TypedNode) theNode.getParent();
             if (parent != null)
             {
-                jTree1.getModel().removeNodeFromParent( theNode);
+                jTree1.getModel().removeNodeFromParent(theNode);
             }
 
             builder.sqlDlg.setSQL(builder.generateZQuery().toString());
@@ -259,26 +259,21 @@ public class WhereTreePane
         }
     }
 
-    public ZExpression generateWhere()
-    {
-        return toZExpression( (TypedNode) jTree1.getTop());
-    }
-
     ZExpression toZExpression(TypedNode node)
     {
         if (node.getType() == LOGIC)
         {
-            ZExpression exp = new ZExpression( (String) node.getUserObject());
+            ZExpression exp = new ZExpression((String) node.getUserObject());
             if (node.getChildCount() >= 0)
             {
-                for (Enumeration e = node.children(); e.hasMoreElements(); )
+                for (Enumeration e = node.children(); e.hasMoreElements();)
                 {
                     TypedNode n = (TypedNode) e.nextElement();
                     ZExpression subExp = toZExpression(n);
                     if (subExp != null)
                     {
-                        subExp = (ZExpression) SQLQueryOptimizer.removeOrphanAndOr(
-                            subExp);
+                        subExp = (ZExpression) SQLQueryOptimizer
+                                .removeOrphanAndOr(subExp);
                         exp.addOperand(subExp);
                     }
                 }
@@ -286,10 +281,8 @@ public class WhereTreePane
             exp = (ZExpression) SQLQueryOptimizer.removeOrphanAndOr(exp);
             return exp;
         }
-        else if (node.getType() == EXPRESSION)
-        {
-            return (ZExpression) node.getUserObject();
-        }
+        else if (node.getType() == EXPRESSION) { return (ZExpression) node
+                .getUserObject(); }
         return null;
     }
 
@@ -320,12 +313,12 @@ public class WhereTreePane
             if (schema != null)
             {
                 // get the attribute to avh mapping of the schema
-                atomExpression.setAtt2avh(InfoReader.findAttributeToAVHMapping(
-                    schema));
-                atomExpression.setAtt2type(InfoReader.findAttributeSupertypeMapping(
-                    schema));
+                atomExpression.setAtt2avh(InfoReader
+                        .findAttributeToAVHMapping(schema));
+                atomExpression.setAtt2type(InfoReader
+                        .findAttributeSupertypeMapping(schema));
 
-//System.out.println(atomExpression.att2avh);
+                //System.out.println(atomExpression.att2avh);
 
             }
         }

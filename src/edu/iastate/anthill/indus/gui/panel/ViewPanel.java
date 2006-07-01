@@ -14,11 +14,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.agent.InfoWriter;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
 import edu.iastate.anthill.indus.datasource.view.View;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.gui.IndusGUI;
 
 import edu.iastate.utils.Debug;
@@ -31,8 +31,7 @@ import edu.iastate.utils.sql.JDBCUtils;
  * @author Jie Bao
  * @since 1.0 2005-03-15
  */
-public class ViewPanel
-    extends ViewPanelGUI implements MessageHandler
+public class ViewPanel extends ViewPanelGUI implements MessageHandler
 {
     public ViewPanel(IndusGUI parent)
     {
@@ -48,16 +47,16 @@ public class ViewPanel
     }
 
     Vector<ViewAtomDateSource> datasource = new Vector<ViewAtomDateSource>();
-    View currentView;
+    View                       currentView;
 
     public void promptSave()
     {
         // prompt for save
         if (modified && currentView != null)
         {
-            int answer = JOptionPane.showConfirmDialog(null,
-                "View '" + currentView.getName() +
-                "' is changed, do you want to update it? ");
+            int answer = JOptionPane.showConfirmDialog(null, "View '"
+                    + currentView.getName()
+                    + "' is changed, do you want to update it? ");
             if (answer == JOptionPane.YES_OPTION)
             {
                 save(currentView);
@@ -91,10 +90,7 @@ public class ViewPanel
      */
     private boolean loadView(String name)
     {
-        if (name == null || name.length() == 0)
-        {
-            return false;
-        }
+        if (name == null || name.length() == 0) { return false; }
 
         View newView = InfoReader.readView(name);
         //Debug.trace("load "+datatypeinXML);
@@ -112,8 +108,8 @@ public class ViewPanel
         }
         else
         {
-            Debug.trace(this,
-                        "Schema :" + name + " information is not available");
+            Debug.trace(this, "Schema :" + name
+                    + " information is not available");
         }
         return true;
 
@@ -122,8 +118,8 @@ public class ViewPanel
     void toGUI(View toDisplay)
     {
         clearGUI();
-        viewEditPane.add( new JLabel("My Local Schema: "));
-        viewEditPane.add( cbLocalSchema);
+        viewEditPane.add(new JLabel("My Local Schema: "));
+        viewEditPane.add(cbLocalSchema);
 
         String data[] = InfoReader.getAllSchema();
         // get the list of all registered type
@@ -133,25 +129,25 @@ public class ViewPanel
         }
 
         cbLocalSchema.setSelectedItem(toDisplay.getLocalSchemaName());
-        viewEditPane.setBorder(BorderFactory.createTitledBorder(toDisplay.
-            getName()));
+        viewEditPane.setBorder(BorderFactory.createTitledBorder(toDisplay
+                .getName()));
 
         Map all = toDisplay.getDatasourceMapping();
-        for (Iterator it = all.keySet().iterator();
-             it.hasNext(); )
+        for (Iterator it = all.keySet().iterator(); it.hasNext();)
         {
             String ds = (String) it.next();
             String mapping = (String) all.get(ds);
 
-            Object allDS[] = InfoReader.getAllDataSource(parent.indusSystemDB.
-                db);
+            Object allDS[] = InfoReader
+                    .getAllDataSource(parent.indusSystemDB.db);
             Object allMapping[] = InfoReader.getAllMapping();
 
-            ViewAtomDateSource p = new ViewAtomDateSource(this,allDS, allMapping);
+            ViewAtomDateSource p = new ViewAtomDateSource(this, allDS,
+                    allMapping);
             p.setDS(ds);
             p.setMapping(mapping);
             datasource.add(p);
-            viewEditPane.add( p);
+            viewEditPane.add(p);
             this.validate();
         }
     }
@@ -160,7 +156,8 @@ public class ViewPanel
     {
         try
         {
-            MessageMap.mapAction(this.btnAddDataSource, this, "onAddDataSource");
+            MessageMap
+                    .mapAction(this.btnAddDataSource, this, "onAddDataSource");
             MessageMap.mapAction(this.btnCreateView, this, "onCreateView");
             MessageMap.mapAction(this.btnUpdateList, this, "onUpdateList");
             MessageMap.mapAction(this.btnDelete, this, "onDelete");
@@ -190,10 +187,7 @@ public class ViewPanel
     {
         if (currentView != null)
         {
-            if (currentView.getName() == null)
-            {
-                return;
-            }
+            if (currentView.getName() == null) { return; }
             fromGUI();
             String xml = currentView.toXML();
 
@@ -203,15 +197,15 @@ public class ViewPanel
             }
             else
             {
-                JOptionPane.showMessageDialog(
-                    this, "No view is defined");
+                JOptionPane.showMessageDialog(this, "No view is defined");
             }
         }
     }
 
     public void fromGUI()
     {
-        currentView.setLocalSchemaName( (String) cbLocalSchema.getSelectedItem());
+        currentView
+                .setLocalSchemaName((String) cbLocalSchema.getSelectedItem());
 
         currentView.getDatasourceMapping().clear();
         for (int i = 0; i < datasource.size(); i++)
@@ -232,10 +226,7 @@ public class ViewPanel
         // to the server
         // 1. read gui
         ///Debug.trace(this.currentView.getName());
-        if (currentView.getName() == null)
-        {
-            return;
-        }
+        if (currentView.getName() == null) { return; }
         fromGUI();
 
         //Debug.trace(this.currentView.getName());
@@ -255,10 +246,7 @@ public class ViewPanel
         //Debug.trace("createLocalCache: " + tableName);
 
         // delete the table if already exists
-        if (JDBCUtils.isTableExist(cacheDB, tableName,false))
-        {
-            return deleteLocalCache(view);
-        }
+        if (JDBCUtils.isTableExist(cacheDB, tableName, false)) { return deleteLocalCache(view); }
         // create the table
         String schemaName = view.getLocalSchemaName();
         Schema schema = InfoReader.readSchema(schemaName);
@@ -276,7 +264,7 @@ public class ViewPanel
         String tableName = view.getName();
         Debug.trace("deleteLocalCache: " + tableName);
 
-        if (JDBCUtils.isTableExist(cacheDB, tableName,false))
+        if (JDBCUtils.isTableExist(cacheDB, tableName, false))
         {
             String sql = "DROP TABLE " + tableName;
             //Debug.trace(sql);
@@ -295,10 +283,7 @@ public class ViewPanel
      */
     public void onDelete(ActionEvent e)
     {
-        if (currentView.getName() == null)
-        {
-            return;
-        }
+        if (currentView.getName() == null) { return; }
         try
         {
             // get the selected view
@@ -306,19 +291,16 @@ public class ViewPanel
 
             // Modal dialog with yes/no button
             int answer = JOptionPane.showConfirmDialog(this,
-                "Are you sure to delete view '" + viewName +
-                "'? The deletion can't be undone");
-            if (answer != JOptionPane.YES_OPTION)
-            {
-                return;
-            }
+                    "Are you sure to delete view '" + viewName
+                            + "'? The deletion can't be undone");
+            if (answer != JOptionPane.YES_OPTION) { return; }
 
             boolean suc = InfoWriter.deleteView(viewName);
             if (suc)
             {
                 deleteLocalCache(currentView);
-                JOptionPane.showMessageDialog(this, "View '" + viewName +
-                                              "' is deleted successfully");
+                JOptionPane.showMessageDialog(this, "View '" + viewName
+                        + "' is deleted successfully");
                 currentView = new View();
                 currentView.setName(null);
                 modified = false;
@@ -330,13 +312,12 @@ public class ViewPanel
             }
             else
             {
-                JOptionPane.showMessageDialog(
-                    this, "Delete View '" + viewName + "' failed! --");
+                JOptionPane.showMessageDialog(this, "Delete View '" + viewName
+                        + "' failed! --");
             }
         }
         catch (Exception ex)
-        {
-        }
+        {}
 
     }
 
@@ -412,29 +393,28 @@ public class ViewPanel
         if (suc)
         {
             String info = "View " + name + " is successfully saved";
-            JOptionPane.showMessageDialog(this, info,
-                                          "View", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(this, info, "View",
+                    JOptionPane.PLAIN_MESSAGE);
             modified = false;
 
             // look if the type is in the list
             for (int i = 0; i < viewList.getItemCount(); i++)
             {
                 String item = (String) viewList.getItemAt(i);
-                if (item.equals(name))
-                {
-                    return;
-                }
+                if (item.equals(name)) { return; }
             }
             // if a new type , update schema list
             //readRegisteredView(name);
             viewList.addItem(name);
             viewList.setSelectedItem(name);
+
+            InfoReader.updateCache(toSave.getName(), InfoReader.viewCache,
+                    toSave);
         }
         else
         {
-            JOptionPane.showMessageDialog(this,
-                                          "View " + name + " can't be saved",
-                                          "View", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "View " + name
+                    + " can't be saved", "View", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -445,10 +425,7 @@ public class ViewPanel
         String used[] = InfoReader.getAllView();
         String name = askForName(used);
 
-        if (name == null)
-        {
-            return;
-        }
+        if (name == null) { return; }
 
         newView.setName(name);
         this.currentView = newView;
@@ -464,18 +441,16 @@ public class ViewPanel
 
     public void onAddDataSource(ActionEvent e)
     {
-        if (currentView.getName() == null)
-        {
-            return;
-        }
+        if (currentView.getName() == null) { return; }
         try
         {
             //Debug.trace("onAddDataSource");
-            Object allDS[] = InfoReader.getAllDataSource(
-                    IndusBasis.indusSystemDB.db);
+            Object allDS[] = InfoReader
+                    .getAllDataSource(IndusBasis.indusSystemDB.db);
             Object allMapping[] = InfoReader.getAllMapping();
 
-            ViewAtomDateSource p = new ViewAtomDateSource(this,allDS, allMapping);
+            ViewAtomDateSource p = new ViewAtomDateSource(this, allDS,
+                    allMapping);
             datasource.add(p);
             //Debug.trace("datasource.size :" + datasource.size());
             viewEditPane.add(p);
@@ -498,8 +473,7 @@ public class ViewPanel
 
     }
 
-    class MyViewListener
-        implements ItemListener
+    class MyViewListener implements ItemListener
     {
         // This method is called only if a new item has been selected.
         public void itemStateChanged(ItemEvent evt)
@@ -521,7 +495,7 @@ public class ViewPanel
                     // load fails, restore the privious one unless it's the same to be loaded
                     if (currentView != null && currentView.getName() != null)
                     {
-                        if (!currentView.getName().equals( (String) item))
+                        if (!currentView.getName().equals((String) item))
                         {
                             viewList.setSelectedItem(currentView.getName());
                         }

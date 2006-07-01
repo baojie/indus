@@ -2,10 +2,10 @@ package edu.iastate.anthill.indus.query.test;
 
 import java.util.Map;
 
-import edu.iastate.anthill.indus.IndusBasis;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.SampleBuilder;
 import edu.iastate.anthill.indus.datasource.schema.Schema;
+import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.query.SQLQueryPlanner;
 
 import Zql.ZQuery;
