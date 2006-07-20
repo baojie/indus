@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import edu.iastate.utils.Utility;
 
@@ -73,21 +74,21 @@ public class Serialization
         return data;
     }
 
-    static public byte[] saveToByteArray(Object data) throws IOException
+    static public byte[] saveToByteArray(Serializable data) throws IOException
     {
         ByteArrayOutputStream fos = new ByteArrayOutputStream();
         save(data, fos);
         return fos.toByteArray();
     }
 
-    static public void saveToFile(Object data, String fileName)
+    static public void saveToFile(Serializable data, String fileName)
             throws IOException
     {
         FileOutputStream fos = new FileOutputStream(fileName);
         save(data, fos);
     }
 
-    static public void save(Object data, OutputStream fos) throws IOException
+    static public void save(Serializable data, OutputStream fos) throws IOException
     {
         ObjectOutputStream out = new ObjectOutputStream(fos);
         out.writeObject(data);
@@ -105,7 +106,7 @@ public class Serialization
      * @author Jie Bao
      * @since 2006-07-01
      */
-    public static Object cloneObject(Object obj) 
+    public static Object cloneObject(Serializable obj) 
     {
         try
         {

@@ -10,7 +10,8 @@ import edu.iastate.anthill.indus.iterator.DB2TreeFactory;
 public class DbAVH
     extends AVH
 {
-    public DB2Tree templateTree;
+    // it will not be serialized
+    transient public DB2Tree templateTree;
 
     private DbAVH()
     {}

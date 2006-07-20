@@ -248,6 +248,9 @@ public class JTreeEx extends DNDTree
     public static Set findAllOffspring(TreeNode node)
     {
         Set ss = new HashSet();
+        
+        if (node == null) return ss;
+        
         // Traverse children
         if (node.getChildCount() > 0)
         {

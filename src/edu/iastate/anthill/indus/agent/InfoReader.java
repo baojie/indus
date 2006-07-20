@@ -302,6 +302,7 @@ public class InfoReader implements IndusCommand
         }
         catch (Exception ex)
         {
+            ex.printStackTrace();
             return null;
         }
     }
@@ -535,6 +536,7 @@ public class InfoReader implements IndusCommand
     {
         try
         {
+            //System.out.println("readViewNative - " + name);
             StopWatch w = new StopWatch();
             w.start();
             String sql = "    SELECT value FROM views WHERE name = '" + name
@@ -559,6 +561,7 @@ public class InfoReader implements IndusCommand
         }
         catch (Exception ex)
         {
+            ex.printStackTrace();
             return null;
         }
     }

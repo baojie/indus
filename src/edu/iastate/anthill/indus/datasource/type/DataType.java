@@ -1,5 +1,6 @@
 package edu.iastate.anthill.indus.datasource.type;
 
+import java.io.Serializable;
 import java.util.Vector;
 
 import javax.swing.JPanel;
@@ -13,7 +14,7 @@ import edu.iastate.utils.string.SimpleXMLParser;
  * @since 1.0 2004-10-28
  */
 public abstract class DataType
-    implements Configable
+    implements Configable, Serializable
 {
     public boolean modified = false;
     public boolean readOnly = false;

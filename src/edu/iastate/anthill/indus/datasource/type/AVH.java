@@ -227,7 +227,7 @@ public class AVH extends DAG implements Configable {
         editor = new AVHEditor(null, this);
     }
 
-    protected AVHEditor editor;
+    transient protected AVHEditor editor;
 
     /**
      * @since 2005-04-20

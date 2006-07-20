@@ -7,11 +7,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 
-import Zql.ZExp;
-import Zql.ZExpression;
 import Zql.ZQuery;
-import edu.iastate.anthill.indus.IndusConstants;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
 import edu.iastate.anthill.indus.datasource.mapping.DataSourceMapping;
@@ -79,11 +77,16 @@ public class SQLQueryPlanner
 
         // get the set of remote data source and the mapping
         Map datasourceMapping = view.getDatasourceMapping();
+        
         //Vector allResult = new Vector();
+        Vector<QueryStat> stat = new  Vector<QueryStat>();
+        
         for (Iterator it = datasourceMapping.keySet().iterator(); it.hasNext();)
         {
             try
             {
+                QueryStat qs = new QueryStat();
+                
                 String datasourceName = (String) it.next();
                 String mapping = (String) datasourceMapping.get(datasourceName);
 
@@ -116,6 +119,7 @@ public class SQLQueryPlanner
                 String strQuery = opt.optimize(query,true);
                 w.stop();
                 
+                qs.translationTime = w.getMSeconds();
                 System.out.println("Translation time used for "
                         + datasourceName + " : " + w.print());
 
@@ -127,14 +131,18 @@ public class SQLQueryPlanner
                             dataSource.db, strQuery);
                     if (result != null)
                     {
-                        appendResult(view.getName(), select, result,
+                        int count = appendResult(view.getName(), select, result,
                                 datasourceName);
                         w.stop();
+                        qs.resultCount = count;
+                        qs.executionTime = w.getMSeconds();
                         System.out.println("Retrieval time used for "
                                 + datasourceName + " : " + w.print());
                     }
                     else
                     {
+                        qs.resultCount = 0;
+                        qs.executionTime = 0;
                         Debug.trace("Data Source " + datasourceName
                                 + " returns no records.");
                     }
@@ -146,8 +154,9 @@ public class SQLQueryPlanner
                 }
 
                 opt.close();
-
                 dataSource.disconnect();
+                
+                System.out.println(qs);
             }
             catch (Exception e)
             {
@@ -174,8 +183,9 @@ public class SQLQueryPlanner
      * @param r ResultSet
      * @author Jie Bao
      * @since 2005-03-25
+     *        2006-07-19 : return the count of results    
      */
-    private void appendResult(String localCacheName, String select[],
+    private int appendResult(String localCacheName, String select[],
             ResultSet rs, String fromDS)
     {
 
@@ -188,7 +198,7 @@ public class SQLQueryPlanner
             if (numberOfColumns + 1 != select.length)
             {
                 System.out.println("appendResult: wrong number of columns!");
-                return;
+                return -1;
             }
 
             String v[] = new String[numberOfColumns + 1];
@@ -212,11 +222,13 @@ public class SQLQueryPlanner
             JDBCUtils.updateDatabase(cacheDB, buf.toString());
             System.out.println("Data Source " + fromDS + " returns " + count
                     + " records");
+            return count;
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
-        }
+            return -1;
+        }        
     }
 
     /**
@@ -246,5 +258,18 @@ public class SQLQueryPlanner
     public static void main(String[] args)
     {
     // QueryPlanner queryplanner = new QueryPlanner();
+    }
+}
+
+// Jie Bao 2006-07-19
+class QueryStat
+{
+    long translationTime = 0; // MSeconds
+    long executionTime = 0; //MSeconds
+    long resultCount = 0;
+    
+    public String toString()
+    {
+        return translationTime + "," + executionTime + "," +resultCount;
     }
 }
