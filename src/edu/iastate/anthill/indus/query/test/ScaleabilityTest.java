@@ -11,16 +11,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import Zql.ZExpression;
 import Zql.ZQuery;
+
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.type.AVH;
 import edu.iastate.anthill.indus.gui.IndusBasis;
 import edu.iastate.anthill.indus.gui.User;
 import edu.iastate.anthill.indus.query.SQLQueryPlanner;
 import edu.iastate.anthill.indus.query.ZConstantEx;
-import edu.iastate.anthill.indus.query.ZqlUtils;
 import edu.iastate.anthill.indus.tree.TypedNode;
 import edu.iastate.anthill.indus.tree.TypedTree;
 import edu.iastate.utils.lang.Serialization;
+import edu.iastate.utils.lang.StopWatch;
 
 /**
  * @author baojie
@@ -52,14 +53,18 @@ public static void main(String[] args)
 
             //          select a term from the tree randomly            
             Random generator = new Random();
-
+            
+            StopWatch w = new StopWatch();
+            w.start();
+            
             for (int i = 0; i < 10000; i++)
-            {                
+            {   
                 int randomIndex = generator.nextInt(nodeCount);
 
                 TypedNode n = (TypedNode) nodes.elementAt(randomIndex);
                 String term = n.getUserObject().toString();
                 Set s = t.findAllOffspring(n);
+                w.peek();System.out.print(w.print()+ ", ");
                 System.out.print(i+ " , "+ term+ ","+s.size()+",");
 
                 // replace the selection condition
@@ -67,6 +72,7 @@ public static void main(String[] args)
                 //System.err.println(myZQuery);
                 
                 planner.doQuery(myZQuery, "enzyme", false);
+                ;
             }
         }
         catch (Exception e)
