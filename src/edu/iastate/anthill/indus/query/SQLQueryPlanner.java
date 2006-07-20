@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
+import Zql.ZExpression;
 import Zql.ZQuery;
 import edu.iastate.anthill.indus.agent.InfoReader;
 import edu.iastate.anthill.indus.datasource.IndusDataSource;
@@ -46,7 +47,7 @@ public class SQLQueryPlanner
      2006-06-30 enable return value  
      */
     public Map<String, String> doQuery(ZQuery localQuery, String viewName,
-            boolean inLocalTerm)
+        boolean inLocalTerm)
     {
         Map<String, String> queries = new HashMap<String, String>();
 
@@ -65,7 +66,7 @@ public class SQLQueryPlanner
         // get the local schema
         String localSchemaName = view.getLocalSchemaName();
         Schema localSchema = InfoReader.readSchema(localSchemaName);
-        
+
         //System.out.println("[localSchema] " + localSchema);
 
         Map localAttributeToAVH = InfoReader
@@ -77,21 +78,21 @@ public class SQLQueryPlanner
 
         // get the set of remote data source and the mapping
         Map datasourceMapping = view.getDatasourceMapping();
-        
+
         //Vector allResult = new Vector();
-        Vector<QueryStat> stat = new  Vector<QueryStat>();
-        
+        Vector<QueryStat> stat = new Vector<QueryStat>();
+
         for (Iterator it = datasourceMapping.keySet().iterator(); it.hasNext();)
         {
             try
             {
                 QueryStat qs = new QueryStat();
-                
+
                 String datasourceName = (String) it.next();
                 String mapping = (String) datasourceMapping.get(datasourceName);
 
                 IndusDataSource dataSource = InfoReader.readDataSource(
-                        systemDB, datasourceName);
+                    systemDB, datasourceName);
                 //System.out.println("[dataSource] " + dataSource);
                 DataSourceMapping dsMapping = InfoReader.readMapping(mapping);
                 //System.out.println("[dsMapping] " + dsMapping);
@@ -109,42 +110,53 @@ public class SQLQueryPlanner
 
                 StopWatch w = new StopWatch();
                 w.start();
-                ZQuery query = translateSingleQuery(localQuery,
-                        datasourceName, dsMapping, localAttributeToAVH,
-                        remoteAttributeToAVH, localSchema, remoteSchema,
-                        inLocalTerm, opt);                
-                
+                ZQuery query = translateSingleQuery(localQuery, datasourceName,
+                    dsMapping, localAttributeToAVH, remoteAttributeToAVH,
+                    localSchema, remoteSchema, inLocalTerm, opt);
+                //System.err.println(query);
+
                 queries.put(datasourceName, query.toString());
-                
-                String strQuery = opt.optimize(query,true);
+
+                //{{
+                int c = 0;
+                if (query.getWhere() instanceof ZExpression)
+                {
+                    c = ZqlUtils.expressionComplexity((ZExpression) query
+                            .getWhere());
+                }
+                qs.queryComplexity = c;
+                //System.out.println("final query complexity: " + c);
+                //}}
+
+                String strQuery = opt.optimize(query, true);
                 w.stop();
-                
+
                 qs.translationTime = w.getMSeconds();
-                System.out.println("Translation time used for "
-                        + datasourceName + " : " + w.print());
+                //System.out.println("Translation time used for "
+                //    + datasourceName + " : " + w.print());
 
                 w.start();
 
                 try
                 {
                     ResultSet result = SQLQueryExecutor.executeNativeQuery(
-                            dataSource.db, strQuery);
+                        dataSource.db, strQuery);
                     if (result != null)
                     {
-                        int count = appendResult(view.getName(), select, result,
-                                datasourceName);
+                        int count = appendResult(view.getName(), select,
+                            result, datasourceName);
                         w.stop();
                         qs.resultCount = count;
                         qs.executionTime = w.getMSeconds();
-                        System.out.println("Retrieval time used for "
-                                + datasourceName + " : " + w.print());
+                        //System.out.println("Retrieval time used for "
+                        //    + datasourceName + " : " + w.print());
                     }
                     else
                     {
                         qs.resultCount = 0;
                         qs.executionTime = 0;
                         Debug.trace("Data Source " + datasourceName
-                                + " returns no records.");
+                            + " returns no records.");
                     }
 
                 }
@@ -155,7 +167,7 @@ public class SQLQueryPlanner
 
                 opt.close();
                 dataSource.disconnect();
-                
+
                 System.out.println(qs);
             }
             catch (Exception e)
@@ -186,7 +198,7 @@ public class SQLQueryPlanner
      *        2006-07-19 : return the count of results    
      */
     private int appendResult(String localCacheName, String select[],
-            ResultSet rs, String fromDS)
+        ResultSet rs, String fromDS)
     {
 
         try
@@ -214,21 +226,21 @@ public class SQLQueryPlanner
                 v[numberOfColumns] = fromDS;
 
                 String sql = JDBCUtils.insertDatabaseS(localCacheName, select,
-                        v);
+                    v);
                 buf.append(sql + ";");
                 count++;
             }
 
             JDBCUtils.updateDatabase(cacheDB, buf.toString());
-            System.out.println("Data Source " + fromDS + " returns " + count
-                    + " records");
+            //System.out.println("Data Source " + fromDS + " returns " + count
+            //    + " records");
             return count;
         }
         catch (SQLException ex)
         {
             ex.printStackTrace();
             return -1;
-        }        
+        }
     }
 
     /**
@@ -243,14 +255,14 @@ public class SQLQueryPlanner
      * @author Jie Bao
      */
     public ZQuery translateSingleQuery(ZQuery localQuery, String remoteDSName,
-            DataSourceMapping dsMapping, Map localAttributeToAVH,
-            Map remoteAttributeToAVH, Schema localSchema, Schema remoteSchema,
-            boolean inLocalTerm, SQLQueryOptimizer opt)
+        DataSourceMapping dsMapping, Map localAttributeToAVH,
+        Map remoteAttributeToAVH, Schema localSchema, Schema remoteSchema,
+        boolean inLocalTerm, SQLQueryOptimizer opt)
     {
         SQLQueryTranslator translator = new SQLQueryTranslator();
         ZQuery query = translator.doTranslate(localQuery, remoteDSName,
-                dsMapping, localAttributeToAVH, remoteAttributeToAVH,
-                localSchema, remoteSchema, inLocalTerm);
+            dsMapping, localAttributeToAVH, remoteAttributeToAVH, localSchema,
+            remoteSchema, inLocalTerm);
 
         return query;
     }
@@ -265,11 +277,13 @@ public class SQLQueryPlanner
 class QueryStat
 {
     long translationTime = 0; // MSeconds
-    long executionTime = 0; //MSeconds
-    long resultCount = 0;
-    
+    long executionTime   = 0; //MSeconds
+    long resultCount     = 0;
+    long queryComplexity = 0;
+
     public String toString()
     {
-        return translationTime + "," + executionTime + "," +resultCount;
+        return translationTime + "," + executionTime + "," + resultCount + ","
+            + queryComplexity;
     }
 }

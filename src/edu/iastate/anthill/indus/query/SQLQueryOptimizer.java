@@ -43,23 +43,25 @@ public class SQLQueryOptimizer
         String sql = "DROP TABLE " + tempTable;
         JDBCUtils.updateDatabase(db, sql);
     }
-    
-    // Jie Bao 2006-06-30
-    public String optimize(ZQuery query,  boolean rewriteLongIN) 
-    {
-        // 2006-06-29 optimization
-        ZExp z = optimize((ZExpression) query.getWhere(),rewriteLongIN);
-        query.addWhere(z);// replace the old WHERE
-        // {{ 2005-10-19 Jie Bao
-        //String s = ZqlUtils.printZExpression((ZExpression) query.getWhere());
-        //System.out.println(s);
 
+    // Jie Bao 2006-06-30
+    public String optimize(ZQuery query, boolean rewriteLongIN)
+    {
+        if (query.getWhere() instanceof ZExpression)
+        {
+            // 2006-06-29 optimization
+            ZExp z = optimize((ZExpression) query.getWhere(), rewriteLongIN);
+            query.addWhere(z);// replace the old WHERE
+            // {{ 2005-10-19 Jie Bao
+            //String s = ZqlUtils.printZExpression((ZExpression) query.getWhere());
+            //System.out.println(s);
+        }
         String strQuery = query.toString();
         strQuery = removeDupBrackets(strQuery.toCharArray());
         if (IndusConstants.DEBUG)
             System.out.println("Native query : " + strQuery);
         // }} 2005-10-19  
-        
+
         return strQuery.toString();
     }
 
@@ -69,8 +71,7 @@ public class SQLQueryOptimizer
         //System.out.println(s);
         if (exp == null) return exp;
 
-        if (writeable && rewriteLongIN)
-            rewriteLargeIN(exp);
+        if (writeable && rewriteLongIN) rewriteLargeIN(exp);
 
         while (removeNullClause(exp))
         {
@@ -115,9 +116,9 @@ public class SQLQueryOptimizer
         StringBuffer buf = new StringBuffer();
 
         Vector<ZExp> opr = exp.getOperands();
-        
+
         if (opr == null) return "";
-        
+
         for (int j = 0; j < opr.size(); j++)
         {
             ZExp e = opr.elementAt(j);
@@ -138,8 +139,8 @@ public class SQLQueryOptimizer
                         {
                             //System.out.println(((ZConstant)item).getValue());
                             String s = "INSERT INTO " + tempTable
-                                    + " (id, mark) VALUES (" + item + ", "
-                                    + groupID + " );\n";
+                                + " (id, mark) VALUES (" + item + ", "
+                                + groupID + " );\n";
                             buf.append(s);
                         }
                     }
@@ -156,7 +157,7 @@ public class SQLQueryOptimizer
                     q.addFrom(from);
 
                     ZExpression where = ZqlUtils.buildAttributeValuePair(
-                            "mark", "=", groupID + "", ZConstantEx.NUMBER);
+                        "mark", "=", groupID + "", ZConstantEx.NUMBER);
                     q.addWhere(where);
                     //System.out.println(q.toString());
 
@@ -192,9 +193,9 @@ public class SQLQueryOptimizer
         boolean changed = false;
 
         Vector<ZExp> opr = exp.getOperands();
-        
+
         if (opr == null) return false;
-        
+
         for (Iterator it = opr.iterator(); it.hasNext();)
         {
             ZExp e = (ZExp) it.next();
@@ -230,8 +231,8 @@ public class SQLQueryOptimizer
     public static ZExp removeOrphanAndOr(ZExpression exp)
     {
         if (exp.getOperands() != null
-                && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
-                        .getOperator().compareToIgnoreCase("OR") == 0)))
+            && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
+                    .getOperator().compareToIgnoreCase("OR") == 0)))
         {
             if (exp.getOperands().size() == 1) { return exp.getOperand(0); }
         }
@@ -247,8 +248,8 @@ public class SQLQueryOptimizer
     public static boolean isOrphanAndOr(ZExpression exp)
     {
         if (exp.getOperands() != null
-                && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
-                        .getOperator().compareToIgnoreCase("OR") == 0)))
+            && ((exp.getOperator().compareToIgnoreCase("AND") == 0) || (exp
+                    .getOperator().compareToIgnoreCase("OR") == 0)))
         {
             if (exp.getOperands().size() == 1) { return true; }
         }

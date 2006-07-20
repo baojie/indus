@@ -7,16 +7,14 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
-import edu.iastate.utils.Debug;
 
 /**
  * @author Jie Bao
@@ -42,7 +40,7 @@ public class JTreeEx extends DNDTree
      * @return TreePath
      */
     protected static TreePath find2(JTree tree, TreePath parent,
-            Object[] nodes, int depth, int mode)
+        Object[] nodes, int depth, int mode)
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) parent
                 .getLastPathComponent();
@@ -248,9 +246,9 @@ public class JTreeEx extends DNDTree
     public static Set findAllOffspring(TreeNode node)
     {
         Set ss = new HashSet();
-        
+
         if (node == null) return ss;
-        
+
         // Traverse children
         if (node.getChildCount() > 0)
         {
@@ -275,7 +273,7 @@ public class JTreeEx extends DNDTree
         if (value != null)
         {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) findFirst(
-                    this, value);
+                this, value);
             //Debug.trace("find "+node);
             if (node != null)
             {
@@ -391,5 +389,28 @@ public class JTreeEx extends DNDTree
     public void delete(MutableTreeNode n)
     {
         getModel().removeNodeFromParent(n);
+    }
+
+    /*
+     * Find all nodes in the tree
+     * @author Jie Bao
+     * @since 2006-07-19
+     */
+    public Vector findAllNode(boolean leafOK)
+    {
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel()
+                .getRoot();
+        Enumeration e = root.breadthFirstEnumeration();
+        Vector v = new Vector();
+        while (e.hasMoreElements())
+        {
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) e.nextElement();
+            if (!leafOK)
+            {
+                if (n.isLeaf()) continue;
+            }
+            v.addElement(n);
+        }
+        return v;
     }
 }

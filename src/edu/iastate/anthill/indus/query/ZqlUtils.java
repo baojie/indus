@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
-import edu.iastate.anthill.indus.datasource.mapping.BridgeRule;
 import edu.iastate.utils.Debug;
 
 import Zql.ZConstant;
@@ -155,5 +154,26 @@ public class ZqlUtils
     {
         //System.out.println("Operator :"+e.getOperator());
         return e.toReversePolish();
+    }
+    
+    // Jie Bao 2006-07-20    
+    public static int expressionComplexity(ZExpression e)
+    {   
+        int count = 1;
+        for(int i = 0; i < e.nbOperands(); i++)
+        {
+            ZExp zexp = e.getOperand(i);
+            if(zexp instanceof ZExpression)
+            {
+                count = count + expressionComplexity((ZExpression)zexp);
+            }
+            else 
+            {
+                count ++;
+            }
+        }
+        
+        return count;
+
     }
 }
