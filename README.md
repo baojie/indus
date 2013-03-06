@@ -6,7 +6,7 @@ INDUS is a porject for knowledge acquisition and data integration from heterogen
 Project homepage
 http://www.cild.iastate.edu/software/indus.html
 
-(http://www.cild.iastate.edu/software/indus.jpg)
+![INDUS Architecture](http://www.cild.iastate.edu/software/indus.jpg "INDUS")
 
 The main developer was Jie Bao at Iowa State University (2003-2006)
 
