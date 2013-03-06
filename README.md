@@ -7,3 +7,5 @@ Project homepage
 http://www.cild.iastate.edu/software/indus.html
 
 The main developer was Jie Bao at Iowa State University (2003-2006)
+
+Note: After 2006, there is a newer version of INDUS called Indus Learning Framework(ILF), please see: https://code.google.com/p/induslearningframework/ . This repo is only for perservation of the old version.
